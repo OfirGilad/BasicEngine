@@ -3,15 +3,36 @@
 #include "glad/include/glad/glad.h"
 #include "stb_image.h"
 #include <iostream>
+#include <vector>
 
 Texture::Texture(const std::string& fileName)
 {
 	int width, height, numComponents;
     unsigned char* data = stbi_load((fileName).c_str(), &width, &height, &numComponents, 4);
-	
+
+    std::vector<std::vector<unsigned char>> binary_matrix;
+
+    for(int i = 0; i < height; i++) {
+        std::vector <unsigned char> inner_row;
+        for(int j = 0; j < width; j++) {
+            int color_mean = (data[4 * (i * width + j)] + data[4 * (i * width + j) + 1] + data[4 * (i * width + j) + 2]) / 3;
+            inner_row.push_back(color_mean);
+        }
+        binary_matrix.push_back(inner_row);
+    }
+
+    for(int i = 0; i < height; i++) {
+        for(int j = 0; j < width; j++) {
+            binary_matrix[i][j] /= 2;
+            data[4 * (i * width + j)] = binary_matrix[i][j];
+            data[4 * (i * width + j) + 1] = binary_matrix[i][j];
+            data[4 * (i * width + j) + 2] = binary_matrix[i][j];
+        }
+    }
+
     if(data == NULL)
 		std::cerr << "Unable to load texture: " << fileName << std::endl;
-        
+
     glGenTextures(1, &m_texture);
     Bind(m_texture);
         
