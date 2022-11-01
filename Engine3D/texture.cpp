@@ -4,29 +4,28 @@
 #include "stb_image.h"
 #include <iostream>
 #include <vector>
+#include <glm/gtc/matrix_transform.hpp>
+#include "assignment.h"
 
 Texture::Texture(const std::string& fileName)
 {
 	int width, height, numComponents;
     unsigned char* data = stbi_load((fileName).c_str(), &width, &height, &numComponents, 4);
 
-    std::vector<std::vector<unsigned char>> binary_matrix;
+    //copy picture to a 2 dimentional "array"
+    std::vector<std::vector<unsigned char>>* grey_scale_matrix = copyPicture2Dim(data, width, height);
 
-    for(int i = 0; i < height; i++) {
-        std::vector <unsigned char> inner_row;
-        for(int j = 0; j < width; j++) {
-            int color_mean = (data[4 * (i * width + j)] + data[4 * (i * width + j) + 1] + data[4 * (i * width + j) + 2]) / 3;
-            inner_row.push_back(color_mean);
-        }
-        binary_matrix.push_back(inner_row);
-    }
+    int div;
+    std::vector<std::vector<int>>* kernel = dyKernel(&div);
+
+    grey_scale_matrix = applyFilter(grey_scale_matrix, width, height, kernel, div);
 
     for(int i = 0; i < height; i++) {
         for(int j = 0; j < width; j++) {
-            binary_matrix[i][j] /= 2;
-            data[4 * (i * width + j)] = binary_matrix[i][j];
-            data[4 * (i * width + j) + 1] = binary_matrix[i][j];
-            data[4 * (i * width + j) + 2] = binary_matrix[i][j];
+            //grey_scale_matrix[i][j] /= 2;
+            data[4 * (i * width + j)] = (*grey_scale_matrix)[i][j];
+            data[4 * (i * width + j) + 1] = (*grey_scale_matrix)[i][j];
+            data[4 * (i * width + j) + 2] = (*grey_scale_matrix)[i][j];
         }
     }
 
