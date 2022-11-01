@@ -6,6 +6,7 @@
 #include <vector>
 #include <glm/gtc/matrix_transform.hpp>
 #include "assignment.h"
+//using namespace std;
 
 Texture::Texture(const std::string& fileName)
 {
@@ -13,21 +14,11 @@ Texture::Texture(const std::string& fileName)
     unsigned char* data = stbi_load((fileName).c_str(), &width, &height, &numComponents, 4);
 
     //copy picture to a 2 dimentional "array"
-    std::vector<std::vector<unsigned char>>* grey_scale_matrix = copyPicture2Dim(data, width, height);
+    //unsigned char* data2 = edgeDetection(data, &width, &height);
+    //unsigned char* halftoned = halftonePic(data, &width, &height);
 
-    int div;
-    std::vector<std::vector<int>>* kernel = dyKernel(&div);
-
-    grey_scale_matrix = applyFilter(grey_scale_matrix, width, height, kernel, div);
-
-    for(int i = 0; i < height; i++) {
-        for(int j = 0; j < width; j++) {
-            //grey_scale_matrix[i][j] /= 2;
-            data[4 * (i * width + j)] = (*grey_scale_matrix)[i][j];
-            data[4 * (i * width + j) + 1] = (*grey_scale_matrix)[i][j];
-            data[4 * (i * width + j) + 2] = (*grey_scale_matrix)[i][j];
-        }
-    }
+    unsigned char* fs = FloydSteinbergAlgorithm(data, &width, &height);
+    
 
     if(data == NULL)
 		std::cerr << "Unable to load texture: " << fileName << std::endl;
@@ -41,8 +32,15 @@ Texture::Texture(const std::string& fileName)
 	glTexParameterf(GL_TEXTURE_2D,GL_TEXTURE_LOD_BIAS,-0.4f);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, fs);
     stbi_image_free(data);
+    //delete grey_scale_matrix;
+    /*delete smoothedPic;
+    delete kernelX;
+    delete kernelY;
+    delete dx;
+    delete dy;
+    delete dx_plus_dy;*/
 }
 
 Texture::Texture(int width,int height,unsigned char *data)
