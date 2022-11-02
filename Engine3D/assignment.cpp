@@ -101,7 +101,50 @@ vector<vector<unsigned char>>* applyFilter(vector<vector<unsigned char>>* mat, i
     }
     newMat->push_back(lower);
 
-    print_picture(newMat, width, height);
+    //print_picture(newMat, width, height);
+    return newMat;
+}
+
+vector<vector<char>>* applyFilter2(vector<vector<unsigned char>>* mat, int width, int height, vector<vector<int>>* kernel, int div) {
+    unsigned char threshold = 35;
+    vector<vector<char>>* newMat = new vector<vector<char>>();
+
+    //upper end of the photo
+    vector<char> upper;
+    for (int i = 0; i < width; i++) {
+        upper.push_back(i % 100 + 100);
+    }
+    newMat->push_back(upper);
+
+    for (int j = 1; j < height - 1; j++) {
+        vector<char> innerMat;
+        innerMat.push_back(j % 100 + 100); // left most end of the photo
+        for (int i = 1; i < width - 1; i++) {
+            int temp = 0;
+            temp += (*kernel)[0][0] * (*mat)[j - 1][i - 1];
+            temp += (*kernel)[0][1] * (*mat)[j - 1][i];
+            temp += (*kernel)[0][2] * (*mat)[j - 1][i + 1];
+            temp += (*kernel)[1][0] * (*mat)[j][i - 1];
+            temp += (*kernel)[1][1] * (*mat)[j][i];
+            temp += (*kernel)[1][2] * (*mat)[j][i + 1];
+            temp += (*kernel)[2][0] * (*mat)[j + 1][i - 1];
+            temp += (*kernel)[2][1] * (*mat)[j + 1][i];
+            temp += (*kernel)[2][2] * (*mat)[j + 1][i + 1];
+            temp /= div;
+            innerMat.push_back(temp);
+        }
+        innerMat.push_back(j % 100 + 100); // right most end of the photo
+        newMat->push_back(innerMat);
+    }
+
+    // lower end of the photo
+    vector<char> lower;
+    for (int i = 0; i < width; i++) {
+        lower.push_back(i % 100 + 100);
+    }
+    newMat->push_back(lower);
+
+    //print_picture(newMat, width, height);
     return newMat;
 }
 
@@ -118,12 +161,12 @@ vector<vector<unsigned char>>* greyScalePicture2Dim(unsigned char* data, int wid
     return grey_scale_matrix;
 }
 
-vector<vector<unsigned char>>* matrixAddition(vector<vector<unsigned char>>* dx, vector<vector<unsigned char>>* dy, int width, int height) {
+vector<vector<unsigned char>>* matrixAddition(const vector<vector<char>>* dx, const vector<vector<char>>* dy, int width, int height) {
     vector<vector<unsigned char>>* added = new vector<vector<unsigned char>>();
     for (int i = 0; i < height; i++) {
         vector<unsigned char> innerVec;
         for (int j = 0; j < width; j++) {
-            innerVec.push_back(min(255, (*dx)[i][j] + (*dy)[i][j]));
+            innerVec.push_back(min(255, abs((*dx)[i][j]) + abs((*dy)[i][j])));
         }
         added->push_back(innerVec);
     }
@@ -188,33 +231,145 @@ unsigned char* halftonePic(unsigned char* data, int* width, int* height) {
 
 unsigned char* edgeDetection(unsigned char* data, int* width, int* height) {
     vector<vector<unsigned char>>* grey_scale_matrix = greyScalePicture2Dim(data, *width, *height);
+    
+    // apply smoothing filter
     int div0;
     vector<vector<int>>* ones = gaussianKernel(&div0);
     vector<vector<unsigned char>>* smoothedPic = applyFilter(grey_scale_matrix, *width, *height, ones, div0);
 
+    // get derivative in x and y axis
     int div1;
     vector<vector<int>>* kernelX = dxKernel(&div1);
     int div2;
     vector<vector<int>>* kernelY = dyKernel(&div2);
+    const vector<vector<char>>* dx = applyFilter2(smoothedPic, *width, *height, kernelX, div1);
+    const vector<vector<char>>* dy = applyFilter2(smoothedPic, *width, *height, kernelY, div2);
 
-    vector<vector<unsigned char>>* dx = applyFilter(smoothedPic, *width, *height, kernelX, div1);
-    vector<vector<unsigned char>>* dy = applyFilter(smoothedPic, *width, *height, kernelY, div2);
-
+    // combine the derivatives
     vector<vector<unsigned char>>* dx_plus_dy = matrixAddition(dx, dy, *width, *height);
 
+    // thin the lines
+    vector<vector<unsigned char>>* dfg = thinLines(dx, dy, dx_plus_dy, width, height);
+    
+    
+    
+    
+    
     unsigned char* data2 = (unsigned char*)(malloc(4 * *width * *height));
     if (data2 != NULL) {
         for(int i = 0; i < *height; i++) {
             for(int j = 0; j < *width; j++) {
                 //grey_scale_matrix[i][j] /= 2;
-                data2[4 * (i * *width + j)] = (*dx_plus_dy)[i][j];
-                data2[4 * (i * *width + j) + 1] = (*dx_plus_dy)[i][j];
-                data2[4 * (i * *width + j) + 2] = (*dx_plus_dy)[i][j];
+                data2[4 * (i * *width + j)] = (*dfg)[i][j];
+                data2[4 * (i * *width + j) + sizeof(unsigned char)] = (*dfg)[i][j];
+                data2[4 * (i * *width + j) + 2 * +sizeof(unsigned char)] = (*dfg)[i][j];
             }
         }
     }
     
     return data2;
+}
+
+bool inRange(int pos, int max) {
+    return pos >= 0 && pos < max;
+}
+
+vector<vector<unsigned char>>* thinLines(const vector<vector<char>>* dx, const vector<vector<char>>* dy, vector<vector<unsigned char>>* dx_plus_dy, int* width, int* height) {
+
+    vector<vector<unsigned char>>* newMat = new vector<vector<unsigned char>>(*height);
+    for (int vec = 0; vec < *height; vec++) {
+        (*newMat)[vec] = *(new vector<unsigned char>(*width, 0));
+    }
+    unsigned char threshold = 10;
+
+    for (int y = 0; y < *height; y++) {
+        vector<unsigned char> inner = (*newMat)[y];
+        for (int x = 0; x < *width; x++) {
+            if ((*dx_plus_dy)[y][x] > threshold) {
+                // check dx = 0
+                if ((*dx)[y][x] == 0) {
+                    if ((inRange(y + 1, *height) && (*dx_plus_dy)[y + 1][x] > (*dx_plus_dy)[y][x]) ||
+                        (inRange(y - 1, *height) && (*dx_plus_dy)[y - 1][x] > (*dx_plus_dy)[y][x])) {
+                        inner[x] = max((unsigned char)0, inner[x]);
+                    }
+                    else if ((inRange(y + 1, *height) && (*dx_plus_dy)[y + 1][x] == (*dx_plus_dy)[y][x]) ||
+                        (inRange(y - 1, *height) && (*dx_plus_dy)[y - 1][x] == (*dx_plus_dy)[y][x])) {
+                        int upperY = x;
+                        int lowerY = x;
+                        int step;
+
+                        step = -1;
+                        while (inRange(y + step, *height) &&
+                            (*dx_plus_dy)[y + step][x] == (*dx_plus_dy)[y][x])
+                            step--;
+                        upperY += step;
+
+                        step = 1;
+                        while (inRange(y + step, *height) &&
+                            (*dx_plus_dy)[y + step][x] == (*dx_plus_dy)[y][x]) {
+                            step++;
+                        }
+                        lowerY += step;
+
+                        // update value for current cell (0) and for the peak cell (the value from dx_plus_dy)
+                        if ((upperY + lowerY) / 2 == y) {
+                            inner[x] = max(inner[x], (unsigned char)255);//(*dx_plus_dy)[y][x]);
+                        }
+                        else {
+                            inner[x] = max((unsigned char)0, inner[x]);
+                        }
+                        (*newMat)[(upperY + lowerY) / 2][x] = max((*newMat)[(upperY + lowerY) / 2][x], (*dx_plus_dy)[(upperY + lowerY) / 2][x]);
+                        int u = 9;
+                    }
+                    else {
+                        inner[x] = max(inner[x], (unsigned char)255);//(*dx_plus_dy)[y][x]);
+                    }
+                }
+                else {
+                    int slope = ((*dy)[y][x] / (*dx)[y][x]) % 3;
+                    if ((inRange(y + slope, *height) && inRange(x + 1, *width) && (*dx_plus_dy)[y + slope][x + 1] > (*dx_plus_dy)[y][x]) || 
+                        (inRange(y - slope, *height) && inRange(x - 1, *width) && (*dx_plus_dy)[y - slope][x - 1] > (*dx_plus_dy)[y][x])) {
+                        inner[x] = max((unsigned char)0, inner[x]);
+                    }
+                    else if ((inRange(y + slope, *height) && inRange(x + 1, *width) && (*dx_plus_dy)[y + slope][x + 1] == (*dx_plus_dy)[y][x]) || 
+                        (inRange(y - slope, *height) && inRange(x - 1, *width) && (*dx_plus_dy)[y - slope][x - 1] == (*dx_plus_dy)[y][x])) {
+                        int leftX = x;
+                        int rightX = x;
+                        int step;
+
+                        step = -1;
+                        while (inRange(x + step, *width) && inRange(y + step * slope, *height) &&
+                            (*dx_plus_dy)[y + step * slope][x + step] == (*dx_plus_dy)[y][x])
+                            step--;
+                        leftX += step;
+
+                        step = 1;
+                        while (inRange(x + step, *width) && inRange(y + step * slope, *height) &&
+                            (*dx_plus_dy)[y + step * slope][x + step] == (*dx_plus_dy)[y][x]) {
+                            step++;
+                        }
+                        rightX += step;
+
+                        // update value for current cell (0) and for the peak cell (the value from dx_plus_dy)
+                        if ((leftX + rightX) / 2 == x) {
+                            inner[x] = max(inner[x], (unsigned char)255);//(*dx_plus_dy)[y][x]);
+                        }
+                        else {
+                            inner[x] = max((unsigned char)0, inner[x]);
+                        }
+                        (*newMat)[y + ((leftX + rightX) / 2 - x) * slope][(leftX + rightX) / 2] = 
+                            max((*newMat)[y + ((leftX + rightX) / 2 - x) * slope][(leftX + rightX) / 2], 
+                                (*dx_plus_dy)[y + ((leftX + rightX) / 2 - x) * slope][(leftX + rightX) / 2]);
+                        int t = 8;
+                    }
+                    else {
+                        inner[x] = max(inner[x], (unsigned char)255);//(*dx_plus_dy)[y][x]);
+                    }
+                }
+            }
+        }
+    }
+    return newMat;
 }
 
 unsigned char* FloydSteinbergAlgorithm(unsigned char* data, int* width, int* height) {
@@ -225,19 +380,20 @@ unsigned char* FloydSteinbergAlgorithm(unsigned char* data, int* width, int* hei
 	for (int y = 0; y < *height; y++) {
         vector<unsigned char> inner;
         for (int x = 0; x < *width; x++) {
-            unsigned char val = newTrunc((*mat)[y][x]);
+            unsigned char ktr = 255;
+            unsigned char val = newTrunc(min((*mat)[y][x], ktr));
             inner.push_back(val);
             unsigned char e = (*mat)[y][x] - val;
             if(x == 0 && y < *height - 1)
-                extraStuff(e, x, y, mat, 0.4, 0.2, 0.4, 0.0); // left not bottom
+                extraStuff(e, x, y, mat, 8.0/16, 2.0/16, 6.0/16, 0.0); // left not bottom
             else if(x < *width - 1 && y == *height - 1)
                 extraStuff(e, x, y, mat, 1.0, 0.0, 0.0, 0.0); // left or middle bottom
             else if(x == *width - 1 && y < *height - 1)
-                extraStuff(e, x, y, mat, 0.0, 0.0, 0.6, 0.4); // right not bottom
+                extraStuff(e, x, y, mat, 0.0, 0.0, 10.0/16, 6.0/16); // right not bottom
             else if (x == *width - 1 && y == *height - 1)
                 extraStuff(e, x, y, mat, 0.0, 0.0, 0.0, 0.0); // right bottom
             else
-                extraStuff(e, x, y, mat, 0.35, 0.15, 0.35, 0.15); // middle not bottom 
+                extraStuff(e, x, y, mat, 7.0/16, 1.0/16, 5.0/16, 3.0/16); // middle not bottom 
 		}
 		newMat->push_back(inner);
 	}
