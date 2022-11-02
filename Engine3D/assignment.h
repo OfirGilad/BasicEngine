@@ -23,7 +23,7 @@ vector<vector<unsigned char>>* matrixAddition(const vector<vector<unsigned char>
 
 unsigned char* halftone(unsigned char* data, int* width, int* height);
 
-unsigned char* Sobel_Edge_Detection(unsigned char* data, int* width, int* height);
+unsigned char* Canny_Edge_Detector(unsigned char* data, int* width, int* height);
 
 unsigned char* Floyd_Steinberg_Algorithm(unsigned char* data, int* width, int* height);
 

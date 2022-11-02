@@ -174,7 +174,7 @@ vector<vector<unsigned char>>* matrixAddition(const vector<vector<char>>* dx, co
 }
 
 // Exercise 4
-unsigned char* Sobel_Edge_Detection(unsigned char* data, int* width, int* height) {
+unsigned char* Canny_Edge_Detector(unsigned char* data, int* width, int* height) {
     vector<vector<unsigned char>>* grey_scale_matrix = greyScaleImageConverter(data, *width, *height);
     
     // apply smoothing filter

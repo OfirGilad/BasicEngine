@@ -14,7 +14,7 @@ Texture::Texture(const std::string& fileName)
     unsigned char* data = stbi_load((fileName).c_str(), &width, &height, &numComponents, 4);
 
     // copy picture to a 2 dimensional "array"
-    unsigned char* data1 = Sobel_Edge_Detection(data, &width, &height);
+    unsigned char* data1 = Canny_Edge_Detector(data, &width, &height);
     //unsigned char* data2 = halftone(data, &width, &height);
     //unsigned char* data3 = Floyd_Steinberg_Algorithm(data, &width, &height);
 
