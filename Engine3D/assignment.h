@@ -32,3 +32,5 @@ void extraStuff(unsigned char e, int xPos, int yPos, vector<vector<unsigned char
 unsigned char newTrunc(unsigned char pixel_value);
 
 vector<vector<unsigned char>>* thinLines(const vector<vector<char>>* dx, const vector<vector<char>>* dy, vector<vector<unsigned char>>* dx_plus_dy, int* width, int* height);
+
+vector<vector<unsigned char>>* non_max_suppression(const vector<vector<unsigned char>>* grey_scale_matrix, vector<vector<unsigned char>>* dx_plus_dy, int* width, int* height);
