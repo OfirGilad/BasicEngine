@@ -368,6 +368,7 @@ unsigned char* halftone(unsigned char* data, int* width, int* height) {
             data_copy[4 * (i * *width + j) + 2] = (*newMat)[i][j];
         }
     }
+
     return data_copy;
 }
 
