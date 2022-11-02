@@ -62,7 +62,7 @@ void print_picture(vector<vector<unsigned char>>* mat, int width, int height) {
     }
 }
 
-vector<vector<unsigned char>>* applyFilter(vector<vector<unsigned char>>* mat, int width, int height, vector<vector<int>>* kernel, int div) {
+vector<vector<unsigned char>>* applyFilter1(vector<vector<unsigned char>>* mat, int width, int height, vector<vector<int>>* kernel, int div) {
     unsigned char threshold = 35;
     vector<vector<unsigned char>>* newMat = new vector<vector<unsigned char>>();
 
@@ -148,7 +148,7 @@ vector<vector<char>>* applyFilter2(vector<vector<unsigned char>>* mat, int width
     return newMat;
 }
 
-vector<vector<unsigned char>>* greyScalePicture2Dim(unsigned char* data, int width, int height) {
+vector<vector<unsigned char>>* greyScaleImageConverter(unsigned char* data, int width, int height) {
     vector<vector<unsigned char>>* grey_scale_matrix = new vector<vector<unsigned char>>();
     for (int i = 0; i < height; i++) {
         vector <unsigned char> inner_row;
@@ -173,69 +173,14 @@ vector<vector<unsigned char>>* matrixAddition(const vector<vector<char>>* dx, co
     return added;
 }
 
-unsigned char* halftonePic(unsigned char* data, int* width, int* height) {
-    vector<vector<unsigned char>>* grey_scale_matrix = greyScalePicture2Dim(data, *width, *height);
-    vector<vector<unsigned char>>* newMat = new vector<vector<unsigned char>>();
-    for (int i = 0; i < *height; i++) {
-        vector<unsigned char> inner1;
-        vector<unsigned char> inner2;
-        for (int j = 0; j < *width; j++) {
-            if ((*grey_scale_matrix)[i][j] <= 50) {
-                inner1.push_back(0);
-                inner1.push_back(0);
-                inner2.push_back(0);
-                inner2.push_back(0);
-            }
-            else if ((*grey_scale_matrix)[i][j] <= 101) {
-                inner1.push_back(0);
-                inner1.push_back(0);
-                inner2.push_back(255);
-                inner2.push_back(0);
-            }
-            else if ((*grey_scale_matrix)[i][j] <= 152) {
-				inner1.push_back(0);
-				inner1.push_back(255);
-				inner2.push_back(255);
-				inner2.push_back(0);
-            }
-            else if ((*grey_scale_matrix)[i][j] <= 203) {
-				inner1.push_back(0);
-				inner1.push_back(255);
-				inner2.push_back(255);
-				inner2.push_back(255);
-            }
-            else {
-				inner1.push_back(255);
-				inner1.push_back(255);
-				inner2.push_back(255);
-				inner2.push_back(255);
-            }
-        }
-        newMat->push_back(inner1);
-        newMat->push_back(inner2);
-    }
-
-    *width *= 2;
-    *height *= 2;
-    unsigned char* data2 = (unsigned char*)(malloc(4 * *width * *height));
-    for (int i = 0; i < *height; i++) {
-        for (int j = 0; j < *width; j++) {
-            //grey_scale_matrix[i][j] /= 2;
-            data2[4 * (i * *width + j)] = (*newMat)[i][j];
-            data2[4 * (i * *width + j) + 1] = (*newMat)[i][j];
-            data2[4 * (i * *width + j) + 2] = (*newMat)[i][j];
-        }
-    }
-    return data2;
-}
-
-unsigned char* edgeDetection(unsigned char* data, int* width, int* height) {
-    vector<vector<unsigned char>>* grey_scale_matrix = greyScalePicture2Dim(data, *width, *height);
+// Exercise 4
+unsigned char* Sobel_Edge_Detection(unsigned char* data, int* width, int* height) {
+    vector<vector<unsigned char>>* grey_scale_matrix = greyScaleImageConverter(data, *width, *height);
     
     // apply smoothing filter
     int div0;
     vector<vector<int>>* ones = gaussianKernel(&div0);
-    vector<vector<unsigned char>>* smoothedPic = applyFilter(grey_scale_matrix, *width, *height, ones, div0);
+    vector<vector<unsigned char>>* smoothedPic = applyFilter1(grey_scale_matrix, *width, *height, ones, div0);
 
     // get derivative in x and y axis
     int div1;
@@ -253,21 +198,19 @@ unsigned char* edgeDetection(unsigned char* data, int* width, int* height) {
     
     
     
-    
-    
-    unsigned char* data2 = (unsigned char*)(malloc(4 * *width * *height));
-    if (data2 != NULL) {
+    unsigned char* data_copy = (unsigned char*)(malloc(4 * *width * *height));
+    if (data_copy != NULL) {
         for(int i = 0; i < *height; i++) {
             for(int j = 0; j < *width; j++) {
                 //grey_scale_matrix[i][j] /= 2;
-                data2[4 * (i * *width + j)] = (*dfg)[i][j];
-                data2[4 * (i * *width + j) + sizeof(unsigned char)] = (*dfg)[i][j];
-                data2[4 * (i * *width + j) + 2 * +sizeof(unsigned char)] = (*dfg)[i][j];
+                data_copy[4 * (i * *width + j)] = (*dfg)[i][j];
+                data_copy[4 * (i * *width + j) + sizeof(unsigned char)] = (*dfg)[i][j];
+                data_copy[4 * (i * *width + j) + 2 * +sizeof(unsigned char)] = (*dfg)[i][j];
             }
         }
     }
     
-    return data2;
+    return data_copy;
 }
 
 bool inRange(int pos, int max) {
@@ -275,7 +218,6 @@ bool inRange(int pos, int max) {
 }
 
 vector<vector<unsigned char>>* thinLines(const vector<vector<char>>* dx, const vector<vector<char>>* dy, vector<vector<unsigned char>>* dx_plus_dy, int* width, int* height) {
-
     vector<vector<unsigned char>>* newMat = new vector<vector<unsigned char>>(*height);
     for (int vec = 0; vec < *height; vec++) {
         (*newMat)[vec] = *(new vector<unsigned char>(*width, 0));
@@ -372,10 +314,67 @@ vector<vector<unsigned char>>* thinLines(const vector<vector<char>>* dx, const v
     return newMat;
 }
 
-unsigned char* FloydSteinbergAlgorithm(unsigned char* data, int* width, int* height) {
-    vector<vector<unsigned char>>* mat = greyScalePicture2Dim(data, *width, *height);
+// Exercise 5
+unsigned char* halftone(unsigned char* data, int* width, int* height) {
+    vector<vector<unsigned char>>* grey_scale_matrix = greyScaleImageConverter(data, *width, *height);
     vector<vector<unsigned char>>* newMat = new vector<vector<unsigned char>>();
-    int alpha, beta, gama, delta;
+    for (int i = 0; i < *height; i++) {
+        vector<unsigned char> inner1;
+        vector<unsigned char> inner2;
+        for (int j = 0; j < *width; j++) {
+            if ((*grey_scale_matrix)[i][j] <= 50) {
+                inner1.push_back(0);
+                inner1.push_back(0);
+                inner2.push_back(0);
+                inner2.push_back(0);
+            }
+            else if ((*grey_scale_matrix)[i][j] <= 101) {
+                inner1.push_back(0);
+                inner1.push_back(0);
+                inner2.push_back(255);
+                inner2.push_back(0);
+            }
+            else if ((*grey_scale_matrix)[i][j] <= 152) {
+                inner1.push_back(0);
+                inner1.push_back(255);
+                inner2.push_back(255);
+                inner2.push_back(0);
+            }
+            else if ((*grey_scale_matrix)[i][j] <= 203) {
+                inner1.push_back(0);
+                inner1.push_back(255);
+                inner2.push_back(255);
+                inner2.push_back(255);
+            }
+            else {
+                inner1.push_back(255);
+                inner1.push_back(255);
+                inner2.push_back(255);
+                inner2.push_back(255);
+            }
+        }
+        newMat->push_back(inner1);
+        newMat->push_back(inner2);
+    }
+
+    *width *= 2;
+    *height *= 2;
+    unsigned char* data_copy = (unsigned char*)(malloc(4 * *width * *height));
+    for (int i = 0; i < *height; i++) {
+        for (int j = 0; j < *width; j++) {
+            //grey_scale_matrix[i][j] /= 2;
+            data_copy[4 * (i * *width + j)] = (*newMat)[i][j];
+            data_copy[4 * (i * *width + j) + 1] = (*newMat)[i][j];
+            data_copy[4 * (i * *width + j) + 2] = (*newMat)[i][j];
+        }
+    }
+    return data_copy;
+}
+
+// Exercise 6
+unsigned char* Floyd_Steinberg_Algorithm(unsigned char* data, int* width, int* height) {
+    vector<vector<unsigned char>>* mat = greyScaleImageConverter(data, *width, *height);
+    vector<vector<unsigned char>>* newMat = new vector<vector<unsigned char>>();
 
 	for (int y = 0; y < *height; y++) {
         vector<unsigned char> inner;
@@ -398,21 +397,20 @@ unsigned char* FloydSteinbergAlgorithm(unsigned char* data, int* width, int* hei
 		newMat->push_back(inner);
 	}
 
-    unsigned char* data2 = (unsigned char*)(malloc(4 * *width * *height));
-    if (data2 != NULL) {
+    unsigned char* data_copy = (unsigned char*)(malloc(4 * *width * *height));
+    if (data_copy != NULL) {
         for (int i = 0; i < *height; i++) {
             for (int j = 0; j < *width; j++) {
                 //grey_scale_matrix[i][j] /= 2;
-                data2[4 * (i * *width + j)] = (*newMat)[i][j];
-                data2[4 * (i * *width + j) + 1] = (*newMat)[i][j];
-                data2[4 * (i * *width + j) + 2] = (*newMat)[i][j];
+                data_copy[4 * (i * *width + j)] = (*newMat)[i][j];
+                data_copy[4 * (i * *width + j) + 1] = (*newMat)[i][j];
+                data_copy[4 * (i * *width + j) + 2] = (*newMat)[i][j];
             }
         }
     }
 
-    return data2;
+    return data_copy;
 }
-
 
 void extraStuff(unsigned char e, int xPos, int yPos, vector<vector<unsigned char>>* mat, float alpha, float beta, float gama, float delta){
 	if (alpha > 0.01){

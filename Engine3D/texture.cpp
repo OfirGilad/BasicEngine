@@ -13,10 +13,11 @@ Texture::Texture(const std::string& fileName)
 	int width, height, numComponents;
     unsigned char* data = stbi_load((fileName).c_str(), &width, &height, &numComponents, 4);
 
-    //copy picture to a 2 dimentional "array"
-    unsigned char* data2 = edgeDetection(data, &width, &height);
-    //unsigned char* halftoned = halftonePic(data, width, height);
-    //unsigned char* fs = FloydSteinbergAlgorithm(data, &width, &height);
+    // copy picture to a 2 dimensional "array"
+    unsigned char* data1 = Sobel_Edge_Detection(data, &width, &height);
+    //unsigned char* data2 = halftone(data, &width, &height);
+    //unsigned char* data3 = Floyd_Steinberg_Algorithm(data, &width, &height);
+
     //cout << atan(1) / (2 * 3.14) * 360 << endl;
     
     if(data == NULL)
@@ -31,7 +32,17 @@ Texture::Texture(const std::string& fileName)
 	glTexParameterf(GL_TEXTURE_2D,GL_TEXTURE_LOD_BIAS,-0.4f);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data2);
+
+    // Edge detection
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data1);
+
+    // halftone
+    //glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data2);
+
+    // halftone
+    //glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data3);
+
+
     stbi_image_free(data);
     //delete grey_scale_matrix;
     /*delete smoothedPic;
