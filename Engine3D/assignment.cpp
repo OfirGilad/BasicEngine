@@ -192,21 +192,28 @@ unsigned char* Canny_Edge_Detector(unsigned char* data, int* width, int* height)
 
     // combine the derivatives
     vector<vector<unsigned char>>* dx_plus_dy = matrixAddition(dx, dy, *width, *height);
+    
+    // non max suppression
+    vector<vector<unsigned char>>* nms = non_max_suppression(dx_plus_dy, width, height);
 
+    // threshold
+    vector<vector<unsigned char>>* threshold_image = threshold(nms, width, height);
+    
+    // hysteresis
+    vector<vector<unsigned char>>* hysteresis_image = hysteresis(threshold_image, width, height);
+    
     // thin the lines
     //vector<vector<unsigned char>>* dfg = thinLines(dx, dy, dx_plus_dy, width, height);
-    
-    vector<vector<unsigned char>>* nms = non_max_suppression(grey_scale_matrix, dx_plus_dy, width, height);
-    
-    
-    unsigned char* data_copy = (unsigned char*)(malloc(4 * *width * *height));
+
+    unsigned char* data_copy = (unsigned char*)(malloc(4 * (*width) * (*height)));
+
     if (data_copy != NULL) {
         for(int i = 0; i < *height; i++) {
             for(int j = 0; j < *width; j++) {
                 //grey_scale_matrix[i][j] /= 2;
-                data_copy[4 * (i * *width + j)] = (*nms)[i][j];
-                data_copy[4 * (i * *width + j) + sizeof(unsigned char)] = (*nms)[i][j];
-                data_copy[4 * (i * *width + j) + 2 * +sizeof(unsigned char)] = (*nms)[i][j];
+                data_copy[4 * (i * *width + j)] = (*hysteresis_image)[i][j];
+                data_copy[4 * (i * *width + j) + sizeof(unsigned char)] = (*hysteresis_image)[i][j];
+                data_copy[4 * (i * *width + j) + 2 * +sizeof(unsigned char)] = (*hysteresis_image)[i][j];
             }
         }
     }
@@ -218,6 +225,198 @@ bool inRange(int pos, int max) {
     return pos >= 0 && pos < max;
 }
 
+// https://towardsdatascience.com/canny-edge-detection-step-by-step-in-python-computer-vision-b49c3a2d8123
+
+vector<vector<unsigned char>>* non_max_suppression(vector<vector<unsigned char>>* dx_plus_dy, int* width, int* height) {
+    int M = *height;
+    int N = *width;
+    vector<vector<unsigned char>>* Z = new vector<vector<unsigned char>>();
+
+    for (int i = 0; i < *height; i++) {
+        vector<unsigned char> innerVec;
+        for (int j = 0; j < *width; j++) {
+            innerVec.push_back((unsigned char)0);
+        }
+        Z->push_back(innerVec);
+    }
+    
+    vector<vector<unsigned char>> angle_matrix;
+
+    for (int i = 0; i < *height; i++) {
+        vector<unsigned char> innerVec;
+        for (int j = 0; j < *width; j++) {
+            unsigned char angle = (*dx_plus_dy)[i][j] * (unsigned char)180 / 3.14;
+            if (angle < 0) {
+                angle += (unsigned char)180;
+            }
+            innerVec.push_back(angle);
+        }
+        angle_matrix.push_back(innerVec);
+    }
+
+    for (int i = 1; i < M; i++) {
+        for (int j = 1; j < N; j++) {
+            try {
+                unsigned char q = 255;
+                unsigned char r = 255;
+
+                //angle 0
+                if ((0 <= (angle_matrix).at(i).at(j) < 22.5) || (157.5 <= (angle_matrix).at(i).at(j) <= 180)) {
+                    if (inRange(i, M) && inRange(j + 1, N) && inRange(j - 1, N)) {
+                        q = (*dx_plus_dy).at(i).at(j + 1);
+                        r = (*dx_plus_dy).at(i).at(j - 1);
+                    }
+                }
+
+                //angle 45
+                else if (22.5 <= (angle_matrix).at(i).at(j) < 67.5) {
+                    if (inRange(i + 1, M) && inRange(i - 1, M) && inRange(j + 1, N) && inRange(j - 1, N)) {
+                        q = (*dx_plus_dy).at(i + 1).at(j - 1);
+                        r = (*dx_plus_dy).at(i - 1).at(j + 1);
+                    }
+                }
+                //angle 90
+                else if (67.5 <= (angle_matrix).at(i + 1).at(j) < 112.5) {
+                    if (inRange(i + 1, M) && inRange(i - 1, M) && inRange(j, N)) {
+                        q = (*dx_plus_dy).at(i + 1).at(j);
+                        r = (*dx_plus_dy).at(i - 1).at(j);
+                    }
+                }
+                //angle 135
+                else if (112.5 <= (angle_matrix)[i][j] < 157.5) {
+                    if (inRange(i + 1, M) && inRange(i - 1, M) && inRange(j + 1, N) && inRange(j - 1, N)) {
+                        q = (*dx_plus_dy).at(i - 1).at(j - 1);
+                        r = (*dx_plus_dy).at(i + 1).at(j + 1);
+                    }
+                }
+                if (((*dx_plus_dy).at(i).at(j) >= q) && ((*dx_plus_dy).at(i).at(j) >= r)) {
+                    Z->at(i).at(j) = (*dx_plus_dy).at(i).at(j);
+                }
+                else {
+                    Z->at(i).at(j) = (unsigned char)0;
+                }
+            }
+            catch (...) {
+                cout << 'pass' << endl;
+            }
+        }
+    }
+    return Z;
+}
+
+vector<vector<unsigned char>>* threshold(vector<vector<unsigned char>>* nms, int* width, int* height) {
+    unsigned char highThreshold = 20;
+    unsigned char lowThreshold = 5;
+
+    int M = *height;
+    int N = *width;
+    vector<vector<unsigned char>>* res = new vector<vector<unsigned char>>();
+
+    for (int i = 0; i < *height; i++) {
+        vector<unsigned char> innerVec;
+        for (int j = 0; j < *width; j++) {
+            if ((*nms).at(i).at(j) >= highThreshold) {
+                innerVec.push_back((unsigned char)255);
+            }
+            else if (lowThreshold <= (*nms).at(i).at(j) <= highThreshold) {
+                innerVec.push_back((unsigned char)0);
+            }
+        }
+        res->push_back(innerVec);
+    }
+    return res;
+}
+
+vector<vector<unsigned char>>* hysteresis(vector<vector<unsigned char>>* threshold_image, int* width, int* height) {
+    unsigned char strong = (unsigned char)255;
+
+    int M = *height;
+    int N = *width;
+    vector<vector<unsigned char>>* Z = new vector<vector<unsigned char>>();
+
+    for (int i = 0; i < *height; i++) {
+        vector<unsigned char> innerVec;
+        for (int j = 0; j < *width; j++) {
+            innerVec.push_back((unsigned char)0);
+        }
+        Z->push_back(innerVec);
+    }
+
+    for (int i = 1; i < M; i++) {
+        for (int j = 1; j < N; j++) {
+            if (threshold_image->at(i).at(j) == (unsigned char)255) {
+                try {
+                    if (threshold_image->at(i + 1).at(j - 1) == strong) {
+                        Z->at(i).at(j) = strong;
+                    }
+                }
+                catch (...) {
+                    cout << 'pass' << endl;
+                }
+                try {
+                    if (threshold_image->at(i + 1).at(j) == strong) {
+                        Z->at(i).at(j) = strong;
+                    }
+                }
+                catch (...) {
+                    cout << 'pass' << endl;
+                }
+                try {
+                    if (threshold_image->at(i + 1).at(j + 1) == strong) {
+                        Z->at(i).at(j) = strong;
+                    }
+                }
+                catch (...) {
+                    cout << 'pass' << endl;
+                }
+                try {
+                    if (threshold_image->at(i).at(j - 1) == strong) {
+                        Z->at(i).at(j) = strong;
+                    }
+                }
+                catch (...) {
+                    cout << 'pass' << endl;
+                }
+                try {
+                    if (threshold_image->at(i).at(j + 1) == strong) {
+
+                        Z->at(i).at(j) = strong;
+                    }
+                }
+                catch (...) {
+                    cout << 'pass' << endl;
+                }
+                try {
+                    if (threshold_image->at(i - 1).at(j - 1) == strong) {
+                        Z->at(i).at(j) = strong;
+                    }
+                }
+                catch (...) {
+                    cout << 'pass' << endl;
+                }
+                try {
+                    if (threshold_image->at(i - 1).at(j) == strong) {
+                        Z->at(i).at(j) = strong;
+                    }
+                }
+                catch (...) {
+                    cout << 'pass' << endl;
+                }
+                try {
+                    if (threshold_image->at(i - 1).at(j + 1) == strong) {
+                        Z->at(i).at(j) = strong;
+                    }
+                }
+                catch (...) {
+                    cout << 'pass' << endl;
+                }
+            }
+        }
+    }
+    return Z;
+}
+
+// No Use
 vector<vector<unsigned char>>* thinLines(const vector<vector<char>>* dx, const vector<vector<char>>* dy, vector<vector<unsigned char>>* dx_plus_dy, int* width, int* height) {
     vector<vector<unsigned char>>* newMat = new vector<vector<unsigned char>>(*height);
     for (int vec = 0; vec < *height; vec++) {
@@ -270,11 +469,11 @@ vector<vector<unsigned char>>* thinLines(const vector<vector<char>>* dx, const v
                 }
                 else {
                     int slope = ((*dy)[y][x] / (*dx)[y][x]) % 3;
-                    if ((inRange(y + slope, *height) && inRange(x + 1, *width) && (*dx_plus_dy)[y + slope][x + 1] > (*dx_plus_dy)[y][x]) || 
+                    if ((inRange(y + slope, *height) && inRange(x + 1, *width) && (*dx_plus_dy)[y + slope][x + 1] > (*dx_plus_dy)[y][x]) ||
                         (inRange(y - slope, *height) && inRange(x - 1, *width) && (*dx_plus_dy)[y - slope][x - 1] > (*dx_plus_dy)[y][x])) {
                         inner[x] = max((unsigned char)0, inner[x]);
                     }
-                    else if ((inRange(y + slope, *height) && inRange(x + 1, *width) && (*dx_plus_dy)[y + slope][x + 1] == (*dx_plus_dy)[y][x]) || 
+                    else if ((inRange(y + slope, *height) && inRange(x + 1, *width) && (*dx_plus_dy)[y + slope][x + 1] == (*dx_plus_dy)[y][x]) ||
                         (inRange(y - slope, *height) && inRange(x - 1, *width) && (*dx_plus_dy)[y - slope][x - 1] == (*dx_plus_dy)[y][x])) {
                         int leftX = x;
                         int rightX = x;
@@ -300,8 +499,8 @@ vector<vector<unsigned char>>* thinLines(const vector<vector<char>>* dx, const v
                         else {
                             inner[x] = max((unsigned char)0, inner[x]);
                         }
-                        (*newMat)[y + ((leftX + rightX) / 2 - x) * slope][(leftX + rightX) / 2] = 
-                            max((*newMat)[y + ((leftX + rightX) / 2 - x) * slope][(leftX + rightX) / 2], 
+                        (*newMat)[y + ((leftX + rightX) / 2 - x) * slope][(leftX + rightX) / 2] =
+                            max((*newMat)[y + ((leftX + rightX) / 2 - x) * slope][(leftX + rightX) / 2],
                                 (*dx_plus_dy)[y + ((leftX + rightX) / 2 - x) * slope][(leftX + rightX) / 2]);
                         int t = 8;
                     }
@@ -313,78 +512,6 @@ vector<vector<unsigned char>>* thinLines(const vector<vector<char>>* dx, const v
         }
     }
     return newMat;
-}
-
-
-// https://towardsdatascience.com/canny-edge-detection-step-by-step-in-python-computer-vision-b49c3a2d8123
-vector<vector<unsigned char>>* non_max_suppression(const vector<vector<unsigned char>>* grey_scale_matrix, vector<vector<unsigned char>>* dx_plus_dy, int* width, int* height) {
-    int M = *height;
-    int N = *width;
-    vector<vector<unsigned char>>* Z = new vector<vector<unsigned char>>(*height);
-
-    for (int i = 0; i < *height; i++) {
-        vector<unsigned char> innerVec;
-        for (int j = 0; j < *width; j++) {
-            innerVec.push_back((unsigned char)0);
-        }
-        Z->push_back(innerVec);
-    }
-    
-    vector<vector<unsigned char>>* angle_matrix = new vector<vector<unsigned char>>(*height);
-
-    for (int i = 0; i < *height; i++) {
-        vector<unsigned char> innerVec;
-        for (int j = 0; j < *width; j++) {
-            unsigned char angle = (*dx_plus_dy)[i][j] * (unsigned char)180 / 3.14;
-            if (angle < 0) {
-                angle += (unsigned char)180;
-            }
-            innerVec.push_back(angle);
-        }
-        angle_matrix->push_back(innerVec);
-    }
-
-    for (int i = 1; i < M; i++) {
-        for (int j = 1; j < N; j++) {
-            try {
-                unsigned char q = 255;
-                unsigned char r = 255;
-
-                //angle 0
-                if ((0 <= (*angle_matrix)[i][j] < 22.5) || (157.5 <= (*angle_matrix)[i][j] <= 180)) {
-                    q = (*grey_scale_matrix)[i][j + 1];
-                    r = (*grey_scale_matrix)[i][j - 1];
-                }
-                    
-                //angle 45
-                else if (22.5 <= (*angle_matrix)[i][j] < 67.5) {
-                    q = (*grey_scale_matrix)[i + 1][j - 1];
-                    r = (*grey_scale_matrix)[i - 1][j + 1];
-                }
-                //angle 90
-                else if (67.5 <= (*angle_matrix)[i][j] < 112.5) {
-                    q = (*grey_scale_matrix)[i + 1][j];
-                    r = (*grey_scale_matrix)[i - 1][j];
-                }
-                //angle 135
-                else if (112.5 <= (*angle_matrix)[i][j] < 157.5) {
-                    q = (*grey_scale_matrix)[i - 1][j - 1];
-                    r = (*grey_scale_matrix)[i + 1][j + 1];
-                }
-                if (((*grey_scale_matrix)[i][j] >= q) && ((*grey_scale_matrix)[i][j] >= r)) {
-                    (*Z)[i][j] = (*grey_scale_matrix)[i][j];
-                }
-                else {
-                    (*Z)[i][j] = (unsigned char)0;
-                }   
-            }
-            catch(...) {
-                cout << 'pass' << endl;
-            }
-        }
-    }
-
-    return Z;
 }
 
 // Exercise 5
