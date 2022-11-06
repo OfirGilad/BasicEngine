@@ -16,6 +16,19 @@ vector<vector<int>>* gaussianKernel(int* div) {
     return kernel;
 }
 
+vector<vector<int>>* gaussian2Kernel(int* div) {
+    vector<vector<int>>* kernel = new vector<vector<int>>();
+    vector<int> vec1 = { 2, 3, 2 };
+    kernel->push_back(vec1);
+    vector<int> vec2 = { 3, 4, 3 };
+    kernel->push_back(vec2);
+    vector<int> vec3 = { 2, 3, 2 };
+    kernel->push_back(vec3);
+    *div = 24;
+
+    return kernel;
+}
+
 vector<vector<int>>* onesKernel(int* div) {
     vector<vector<int>>* kernel = new vector<vector<int>>();
     vector<int> vec1 = { 1, 1, 1 };
@@ -181,7 +194,7 @@ unsigned char* Canny_Edge_Detector(unsigned char* data, int* width, int* height)
     
     // apply smoothing filter
     int div0;
-    vector<vector<int>>* ones = gaussianKernel(&div0);
+    vector<vector<int>>* ones = onesKernel(&div0);
     vector<vector<unsigned char>>* smoothedPic = applyFilter1(grey_scale_matrix, *width, *height, ones, div0);
 
     // get derivative in x and y axis
@@ -204,8 +217,8 @@ unsigned char* Canny_Edge_Detector(unsigned char* data, int* width, int* height)
     // hysteresis
     vector<vector<unsigned char>>* hysteresis_image = hysteresis(threshold_image, width, height);
     
-    // thin the lines
-    //vector<vector<unsigned char>>* dfg = thinLines(dx, dy, dx_plus_dy, width, height);
+    //write to file
+    writeToFile("../img4.txt", hysteresis_image, *width, *height, 256);
 
     unsigned char* data_copy = (unsigned char*)(malloc(4 * (*width) * (*height)));
 
@@ -307,7 +320,7 @@ vector<vector<unsigned char>>* non_max_suppression(vector<vector<unsigned char>>
 }
 
 vector<vector<unsigned char>>* threshold(vector<vector<unsigned char>>* nms, int* width, int* height) {
-    unsigned char highThreshold = 25;
+    unsigned char highThreshold = 30;
     unsigned char lowThreshold = 5;
 
     int M = *height;
@@ -562,6 +575,10 @@ unsigned char* halftone(unsigned char* data, int* width, int* height) {
 
     *width *= 2;
     *height *= 2;
+
+    // write to file
+    writeToFile("../img5.txt", newMat, *width, *height, 256);
+
     unsigned char* data_copy = (unsigned char*)(malloc(4 * *width * *height));
     for (int i = 0; i < *height; i++) {
         for (int j = 0; j < *width; j++) {
@@ -601,6 +618,9 @@ unsigned char* Floyd_Steinberg_Algorithm(unsigned char* data, int* width, int* h
 		newMat->push_back(inner);
 	}
 
+    // write to file
+    writeToFile("../img6.txt", newMat, *width, *height, 16);
+
     unsigned char* data_copy = (unsigned char*)(malloc(4 * *width * *height));
     if (data_copy != NULL) {
         for (int i = 0; i < *height; i++) {
@@ -635,18 +655,15 @@ unsigned char newTrunc(unsigned char pixel_value) {
     return pixel_value - (pixel_value % 16);
 }
 
-void writeToFile(const string& fileName, unsigned char* data, int width, int height, int maxVal) {
+void writeToFile(const string& fileName, vector<vector<unsigned char>>* mat, int width, int height, int div) {
 
     // open a file in write mode.
     ofstream outfile;
     outfile.open(fileName);
-    
-
+    cout << width << " " << height << endl;
     for (int i = 0; i < height; i++) {
         for (int j = 0; j < width; j++) {
-
-            outfile << (int)(data[i * width + j]) << ",";
-            //cout << (int)(data[i * width + j]) << " ";
+            outfile << ((int)(((*mat)[i][j])) + 1) / div << ",";
         }
         outfile << endl;
         //cout << endl;

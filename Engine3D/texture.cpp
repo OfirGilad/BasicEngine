@@ -14,16 +14,13 @@ Texture::Texture(const std::string& fileName)
     unsigned char* data = stbi_load((fileName).c_str(), &width, &height, &numComponents, 4);
 
     // Canny Edge Detection
-    unsigned char* data1 = Canny_Edge_Detector(data, &width, &height);
-    //writeToFile("../img4.txt", data1, width, height, 1);
+    //unsigned char* data1 = Canny_Edge_Detector(data, &width, &height);
 
     // Halftone
-    //unsigned char* data2 = halftone(data, &width, &height);
-    //writeToFile("../img5.txt", data2, width, height, 1);
+    unsigned char* data2 = halftone(data, &width, &height);
     
     // Floyd-Steinberg Algorithm
     //unsigned char* data3 = Floyd_Steinberg_Algorithm(data, &width, &height);
-    //writeToFile("../img6.txt", data3, width, height, 15);
     
     if(data == NULL)
 		std::cerr << "Unable to load texture: " << fileName << std::endl;
@@ -39,7 +36,7 @@ Texture::Texture(const std::string& fileName)
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
     // Canny Edge Detection
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data1);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data2);
 
     // Halftone
     //glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data2);
