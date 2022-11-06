@@ -18,6 +18,20 @@ int main(int argc,char *argv[])
 	//Init(display);
 	
 	scn->Init();
+	
+	///////////////////////////////////////////
+	//glViewport(0, 0, 256, 256);
+	//glScissor(0, 0, 256, 256);
+
+	//glViewport(256, 0, 256, 256);
+	//glScissor(256, 0, 256, 256);
+
+	//glViewport(256, 256, 256, 256);
+	//glScissor(256, 256, 256, 256);
+
+	//glViewport(0, 256, 256, 256);
+	//glScissor(0, 256, 256, 256);
+	///////////////////////////////////////////
 
 	display.SetScene(scn);
 
