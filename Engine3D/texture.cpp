@@ -13,18 +13,17 @@ Texture::Texture(const std::string& fileName)
 	int width, height, numComponents;
     unsigned char* data = stbi_load((fileName).c_str(), &width, &height, &numComponents, 4);
 
-    // copy picture to a 2 dimensional "array"
-
     // Canny Edge Detection
     unsigned char* data1 = Canny_Edge_Detector(data, &width, &height);
+    //writeToFile("../img4.txt", data1, width, height, 1);
 
     // Halftone
     //unsigned char* data2 = halftone(data, &width, &height);
+    //writeToFile("../img5.txt", data2, width, height, 1);
     
     // Floyd-Steinberg Algorithm
     //unsigned char* data3 = Floyd_Steinberg_Algorithm(data, &width, &height);
-
-    //cout << atan(1) / (2 * 3.14) * 360 << endl;
+    //writeToFile("../img6.txt", data3, width, height, 15);
     
     if(data == NULL)
 		std::cerr << "Unable to load texture: " << fileName << std::endl;

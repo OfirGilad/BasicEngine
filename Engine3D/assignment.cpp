@@ -1,4 +1,6 @@
 #include "assignment.h"
+#include <iostream>
+#include <fstream>
 using namespace std;
 
 vector<vector<int>>* gaussianKernel(int* div) {
@@ -233,10 +235,10 @@ vector<vector<unsigned char>>* non_max_suppression(vector<vector<unsigned char>>
     vector<vector<unsigned char>>* Z = new vector<vector<unsigned char>>();
 
     for (int i = 0; i < *height; i++) {
-        vector<unsigned char> innerVec;
-        for (int j = 0; j < *width; j++) {
+        vector<unsigned char> innerVec(*width, 0);
+        /*for (int j = 0; j < *width; j++) {
             innerVec.push_back((unsigned char)0);
-        }
+        }*/
         Z->push_back(innerVec);
     }
     
@@ -296,8 +298,8 @@ vector<vector<unsigned char>>* non_max_suppression(vector<vector<unsigned char>>
                     Z->at(i).at(j) = (unsigned char)0;
                 }
             }
-            catch (...) {
-                cout << 'pass' << endl;
+            catch (int num) {
+                cout << "err = " << num << endl;
             }
         }
     }
@@ -305,7 +307,7 @@ vector<vector<unsigned char>>* non_max_suppression(vector<vector<unsigned char>>
 }
 
 vector<vector<unsigned char>>* threshold(vector<vector<unsigned char>>* nms, int* width, int* height) {
-    unsigned char highThreshold = 20;
+    unsigned char highThreshold = 25;
     unsigned char lowThreshold = 5;
 
     int M = *height;
@@ -335,12 +337,14 @@ vector<vector<unsigned char>>* hysteresis(vector<vector<unsigned char>>* thresho
     vector<vector<unsigned char>>* Z = new vector<vector<unsigned char>>();
 
     for (int i = 0; i < *height; i++) {
-        vector<unsigned char> innerVec;
-        for (int j = 0; j < *width; j++) {
+        vector<unsigned char> innerVec(*width, 0);
+        /*for (int j = 0; j < *width; j++) {
             innerVec.push_back((unsigned char)0);
-        }
+        }*/
         Z->push_back(innerVec);
     }
+
+    //print_picture(threshold_image, *width, *height);
 
     for (int i = 1; i < M; i++) {
         for (int j = 1; j < N; j++) {
@@ -351,7 +355,7 @@ vector<vector<unsigned char>>* hysteresis(vector<vector<unsigned char>>* thresho
                     }
                 }
                 catch (...) {
-                    cout << 'pass' << endl;
+                    //cout << 'pass' << endl;
                 }
                 try {
                     if (threshold_image->at(i + 1).at(j) == strong) {
@@ -359,7 +363,7 @@ vector<vector<unsigned char>>* hysteresis(vector<vector<unsigned char>>* thresho
                     }
                 }
                 catch (...) {
-                    cout << 'pass' << endl;
+                    //cout << 'pass' << endl;
                 }
                 try {
                     if (threshold_image->at(i + 1).at(j + 1) == strong) {
@@ -367,7 +371,7 @@ vector<vector<unsigned char>>* hysteresis(vector<vector<unsigned char>>* thresho
                     }
                 }
                 catch (...) {
-                    cout << 'pass' << endl;
+                    //cout << 'pass' << endl;
                 }
                 try {
                     if (threshold_image->at(i).at(j - 1) == strong) {
@@ -375,16 +379,15 @@ vector<vector<unsigned char>>* hysteresis(vector<vector<unsigned char>>* thresho
                     }
                 }
                 catch (...) {
-                    cout << 'pass' << endl;
+                    //cout << 'pass' << endl;
                 }
                 try {
                     if (threshold_image->at(i).at(j + 1) == strong) {
-
                         Z->at(i).at(j) = strong;
                     }
                 }
                 catch (...) {
-                    cout << 'pass' << endl;
+                    //cout << 'pass' << endl;
                 }
                 try {
                     if (threshold_image->at(i - 1).at(j - 1) == strong) {
@@ -392,7 +395,7 @@ vector<vector<unsigned char>>* hysteresis(vector<vector<unsigned char>>* thresho
                     }
                 }
                 catch (...) {
-                    cout << 'pass' << endl;
+                    //cout << 'pass' << endl;
                 }
                 try {
                     if (threshold_image->at(i - 1).at(j) == strong) {
@@ -400,7 +403,7 @@ vector<vector<unsigned char>>* hysteresis(vector<vector<unsigned char>>* thresho
                     }
                 }
                 catch (...) {
-                    cout << 'pass' << endl;
+                    //cout << 'pass' << endl;
                 }
                 try {
                     if (threshold_image->at(i - 1).at(j + 1) == strong) {
@@ -408,7 +411,7 @@ vector<vector<unsigned char>>* hysteresis(vector<vector<unsigned char>>* thresho
                     }
                 }
                 catch (...) {
-                    cout << 'pass' << endl;
+                    //cout << 'pass' << endl;
                 }
             }
         }
@@ -629,9 +632,23 @@ void extraStuff(unsigned char e, int xPos, int yPos, vector<vector<unsigned char
 }
 
 unsigned char newTrunc(unsigned char pixel_value) {
-    unsigned char return_value = 0;
-    if (pixel_value < 128) {
-		return_value = 255;
-    }
-    return return_value;
+    return pixel_value - (pixel_value % 16);
+}
+
+void writeToFile(const string& fileName, unsigned char* data, int width, int height, int maxVal) {
+
+    // open a file in write mode.
+    ofstream outfile;
+    outfile.open(fileName);
+    
+
+    for (int i = 0; i < height; i++) {
+        for (int j = 0; j < width; j++) {
+
+            outfile << (int)(data[i * width + j]) << ",";
+            //cout << (int)(data[i * width + j]) << " ";
+        }
+        outfile << endl;
+        //cout << endl;
+    }   
 }

@@ -37,4 +37,6 @@ vector<vector<unsigned char>>* threshold(vector<vector<unsigned char>>* nms, int
 
 vector<vector<unsigned char>>* hysteresis(vector<vector<unsigned char>>* threshold_image, int* width, int* height);
 
+void writeToFile(const string& fileName, unsigned char* data, int width, int height, int maxVal);
+
 //vector<vector<unsigned char>>* thinLines(const vector<vector<char>>* dx, const vector<vector<char>>* dy, vector<vector<unsigned char>>* dx_plus_dy, int* width, int* height);
