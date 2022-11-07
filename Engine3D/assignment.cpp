@@ -194,7 +194,7 @@ unsigned char* Canny_Edge_Detector(unsigned char* data, int* width, int* height)
     
     // apply smoothing filter
     int div0;
-    vector<vector<int>>* ones = onesKernel(&div0);
+    vector<vector<int>>* ones = gaussianKernel(&div0);
     vector<vector<unsigned char>>* smoothedPic = applyFilter1(grey_scale_matrix, *width, *height, ones, div0);
 
     // get derivative in x and y axis
