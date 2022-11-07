@@ -13,15 +13,6 @@ Texture::Texture(const std::string& fileName)
 	int width, height, numComponents;
     unsigned char* data = stbi_load((fileName).c_str(), &width, &height, &numComponents, 4);
 
-    // Canny Edge Detection
-    //unsigned char* data1 = Canny_Edge_Detector(data, &width, &height);
-
-    // Halftone
-    //unsigned char* data2 = halftone(data, &width, &height);
-    
-    // Floyd-Steinberg Algorithm
-    //unsigned char* data3 = Floyd_Steinberg_Algorithm(data, &width, &height);
-    
     if(data == NULL)
 		std::cerr << "Unable to load texture: " << fileName << std::endl;
 
@@ -35,24 +26,9 @@ Texture::Texture(const std::string& fileName)
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-    // Canny Edge Detection
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 
-    // Halftone
-    //glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data2);
-
-    // Floyd-Steinberg Algorithm
-    //glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data3);
-
-
     stbi_image_free(data);
-    //delete grey_scale_matrix;
-    /*delete smoothedPic;
-    delete kernelX;
-    delete kernelY;
-    delete dx;
-    delete dy;
-    delete dx_plus_dy;*/
 }
 
 Texture::Texture(int width,int height,unsigned char *data)

@@ -85,22 +85,12 @@
 	
 		glm::mat4 MVP = cameras[cameraIndx]->GetViewProjection()*glm::inverse(cameras[cameraIndx]->MakeTrans());
 		int p = pickedShape;
-		if(!toClear && !debugMode)
+		if(toClear)
 		{
 			if(shaderIndx>0)
 				Clear(1,1,1,1);
 			else
 				Clear(0, 0, 0, 0);
-			glViewport(0, 0, 256, 256);
-		}else if (!toClear && debugMode)
-		{
-			glViewport(256, 0, 256, 256);
-		}else if (toClear && !debugMode)
-		{
-			glViewport(256, 256, 256, 256);
-		}else if (toClear && debugMode)
-		{
-			glViewport(0, 256, 256, 256);
 		}
 
 		for (unsigned int i=0; i<shapes.size();i++)

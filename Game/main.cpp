@@ -7,8 +7,8 @@
 
 int main(int argc,char *argv[])
 {
-	const int DISPLAY_WIDTH = 512; //1600;
-	const int DISPLAY_HEIGHT = 512; //800;
+	const int DISPLAY_WIDTH = 1024; //1600;
+	const int DISPLAY_HEIGHT = 1024; //800;
 	const float CAMERA_ANGLE = 0.0f;
 	const float NEAR = 1.0f;
 	const float FAR = 100.0f;
@@ -36,31 +36,41 @@ int main(int argc,char *argv[])
 	unsigned char* data3 = Floyd_Steinberg_Algorithm(data, &width, &height);
 
 
-	scn->AddTexture(width2, height2, data2);
-	scn->AddTexture(width, height, data3);
-	scn->AddTexture(width, height, data1);
-	scn->AddTexture(width, height, data);
+	scn->AddTexture(width2, height2, data2); // texture 0
+	scn->AddTexture(width, height, data3); // texture 1
+	scn->AddTexture(width, height, data1); // texture 2
+	scn->AddTexture(width, height, data); // texture 3
 
-	
 	scn->Init();
 
 	display.SetScene(scn);
 	
+	int half = 512;
+	// texture 0
+	scn->SetShapeTex(0, 0);
+	glViewport(0, 0, half, half);
+	scn->Draw(1, 0, scn->BACK, true, false);
 
-	while(!display.CloseWindow())
-	{
-		scn->SetShapeTex(0, 0);
-		scn->Draw(1,0,scn->BACK,false,false);
-		scn->SetShapeTex(0, 1);
-		scn->Draw(1, 0, scn->BACK, false, true);
-		scn->SetShapeTex(0, 2);
-		scn->Draw(1, 0, scn->BACK, true, false);
-		scn->SetShapeTex(0, 3);
-		scn->Draw(1, 0, scn->BACK, true, true);
-		scn->Motion();
-		display.SwapBuffers();
-		display.PollEvents();		
-	}
+	// texture 1
+	scn->SetShapeTex(0, 1);
+	glViewport(half, 0, half, half);
+	scn->Draw(1, 0, scn->BACK, false, false);
+
+	// texture 2
+	scn->SetShapeTex(0, 2);
+	glViewport(half, half, half, half);
+	scn->Draw(1, 0, scn->BACK, false, false);
+
+	// texture 3
+	scn->SetShapeTex(0, 3);
+	glViewport(0, half, half, half);
+	scn->Draw(1, 0, scn->BACK, false, false);
+
+	display.SwapBuffers();
+	
+	while (!display.CloseWindow())
+		display.PollEvents();
+
 	delete scn;
 	return 0;
 }

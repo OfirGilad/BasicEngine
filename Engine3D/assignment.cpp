@@ -320,7 +320,7 @@ vector<vector<unsigned char>>* non_max_suppression(vector<vector<unsigned char>>
 }
 
 vector<vector<unsigned char>>* threshold(vector<vector<unsigned char>>* nms, int* width, int* height) {
-    unsigned char highThreshold = 30;
+    unsigned char highThreshold = 26;
     unsigned char lowThreshold = 5;
 
     int M = *height;
@@ -430,104 +430,6 @@ vector<vector<unsigned char>>* hysteresis(vector<vector<unsigned char>>* thresho
         }
     }
     return Z;
-}
-
-// No Use
-vector<vector<unsigned char>>* thinLines(const vector<vector<char>>* dx, const vector<vector<char>>* dy, vector<vector<unsigned char>>* dx_plus_dy, int* width, int* height) {
-    vector<vector<unsigned char>>* newMat = new vector<vector<unsigned char>>(*height);
-    for (int vec = 0; vec < *height; vec++) {
-        (*newMat)[vec] = *(new vector<unsigned char>(*width, 0));
-    }
-    unsigned char threshold = 10;
-
-    for (int y = 0; y < *height; y++) {
-        vector<unsigned char> inner = (*newMat)[y];
-        for (int x = 0; x < *width; x++) {
-            if ((*dx_plus_dy)[y][x] > threshold) {
-                // check dx = 0
-                if ((*dx)[y][x] == 0) {
-                    if ((inRange(y + 1, *height) && (*dx_plus_dy)[y + 1][x] > (*dx_plus_dy)[y][x]) ||
-                        (inRange(y - 1, *height) && (*dx_plus_dy)[y - 1][x] > (*dx_plus_dy)[y][x])) {
-                        inner[x] = max((unsigned char)0, inner[x]);
-                    }
-                    else if ((inRange(y + 1, *height) && (*dx_plus_dy)[y + 1][x] == (*dx_plus_dy)[y][x]) ||
-                        (inRange(y - 1, *height) && (*dx_plus_dy)[y - 1][x] == (*dx_plus_dy)[y][x])) {
-                        int upperY = x;
-                        int lowerY = x;
-                        int step;
-
-                        step = -1;
-                        while (inRange(y + step, *height) &&
-                            (*dx_plus_dy)[y + step][x] == (*dx_plus_dy)[y][x])
-                            step--;
-                        upperY += step;
-
-                        step = 1;
-                        while (inRange(y + step, *height) &&
-                            (*dx_plus_dy)[y + step][x] == (*dx_plus_dy)[y][x]) {
-                            step++;
-                        }
-                        lowerY += step;
-
-                        // update value for current cell (0) and for the peak cell (the value from dx_plus_dy)
-                        if ((upperY + lowerY) / 2 == y) {
-                            inner[x] = max(inner[x], (unsigned char)255);//(*dx_plus_dy)[y][x]);
-                        }
-                        else {
-                            inner[x] = max((unsigned char)0, inner[x]);
-                        }
-                        (*newMat)[(upperY + lowerY) / 2][x] = max((*newMat)[(upperY + lowerY) / 2][x], (*dx_plus_dy)[(upperY + lowerY) / 2][x]);
-                        int u = 9;
-                    }
-                    else {
-                        inner[x] = max(inner[x], (unsigned char)255);//(*dx_plus_dy)[y][x]);
-                    }
-                }
-                else {
-                    int slope = ((*dy)[y][x] / (*dx)[y][x]) % 3;
-                    if ((inRange(y + slope, *height) && inRange(x + 1, *width) && (*dx_plus_dy)[y + slope][x + 1] > (*dx_plus_dy)[y][x]) ||
-                        (inRange(y - slope, *height) && inRange(x - 1, *width) && (*dx_plus_dy)[y - slope][x - 1] > (*dx_plus_dy)[y][x])) {
-                        inner[x] = max((unsigned char)0, inner[x]);
-                    }
-                    else if ((inRange(y + slope, *height) && inRange(x + 1, *width) && (*dx_plus_dy)[y + slope][x + 1] == (*dx_plus_dy)[y][x]) ||
-                        (inRange(y - slope, *height) && inRange(x - 1, *width) && (*dx_plus_dy)[y - slope][x - 1] == (*dx_plus_dy)[y][x])) {
-                        int leftX = x;
-                        int rightX = x;
-                        int step;
-
-                        step = -1;
-                        while (inRange(x + step, *width) && inRange(y + step * slope, *height) &&
-                            (*dx_plus_dy)[y + step * slope][x + step] == (*dx_plus_dy)[y][x])
-                            step--;
-                        leftX += step;
-
-                        step = 1;
-                        while (inRange(x + step, *width) && inRange(y + step * slope, *height) &&
-                            (*dx_plus_dy)[y + step * slope][x + step] == (*dx_plus_dy)[y][x]) {
-                            step++;
-                        }
-                        rightX += step;
-
-                        // update value for current cell (0) and for the peak cell (the value from dx_plus_dy)
-                        if ((leftX + rightX) / 2 == x) {
-                            inner[x] = max(inner[x], (unsigned char)255);//(*dx_plus_dy)[y][x]);
-                        }
-                        else {
-                            inner[x] = max((unsigned char)0, inner[x]);
-                        }
-                        (*newMat)[y + ((leftX + rightX) / 2 - x) * slope][(leftX + rightX) / 2] =
-                            max((*newMat)[y + ((leftX + rightX) / 2 - x) * slope][(leftX + rightX) / 2],
-                                (*dx_plus_dy)[y + ((leftX + rightX) / 2 - x) * slope][(leftX + rightX) / 2]);
-                        int t = 8;
-                    }
-                    else {
-                        inner[x] = max(inner[x], (unsigned char)255);//(*dx_plus_dy)[y][x]);
-                    }
-                }
-            }
-        }
-    }
-    return newMat;
 }
 
 // Exercise 5
@@ -660,12 +562,10 @@ void writeToFile(const string& fileName, vector<vector<unsigned char>>* mat, int
     // open a file in write mode.
     ofstream outfile;
     outfile.open(fileName);
-    cout << width << " " << height << endl;
     for (int i = 0; i < height; i++) {
         for (int j = 0; j < width; j++) {
             outfile << ((int)(((*mat)[i][j])) + 1) / div << ",";
         }
         outfile << endl;
-        //cout << endl;
     }   
 }
