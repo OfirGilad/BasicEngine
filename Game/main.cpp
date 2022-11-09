@@ -7,8 +7,8 @@
 
 int main(int argc,char *argv[])
 {
-	const int DISPLAY_WIDTH = 1024; //1600;
-	const int DISPLAY_HEIGHT = 1024; //800;
+	const int DISPLAY_WIDTH = 512; //1600;
+	const int DISPLAY_HEIGHT = 512; //800;
 	const float CAMERA_ANGLE = 0.0f;
 	const float NEAR = 1.0f;
 	const float FAR = 100.0f;
@@ -25,7 +25,7 @@ int main(int argc,char *argv[])
 	unsigned char* data = stbi_load("../lena256.jpg", &width, &height, &numComponents, 4);
 	
 	// Canny Edge Detection
-	unsigned char* data1 = Canny_Edge_Detector(data, &width, &height);
+	unsigned char* data1 = Canny_Edge_Detector(data, width, height);
 	
 	// Halftone
 	int width2 = width;
@@ -33,11 +33,11 @@ int main(int argc,char *argv[])
 	unsigned char* data2 = halftone(data, &width2, &height2);
 	
 	// Floyd-Steinberg Algorithm
-	unsigned char* data3 = Floyd_Steinberg_Algorithm(data, &width, &height);
+	unsigned char* data3 = Floyd_Steinberg_Algorithm(data, width, height);
 
 
 	scn->AddTexture(width2, height2, data2); // texture 0
-	scn->AddTexture(width, height, data3); // texture 1
+	scn->AddTexture(width, height, data3);  // texture 1
 	scn->AddTexture(width, height, data1); // texture 2
 	scn->AddTexture(width, height, data); // texture 3
 
@@ -45,7 +45,7 @@ int main(int argc,char *argv[])
 
 	display.SetScene(scn);
 	
-	int half = 512;
+	int half = DISPLAY_WIDTH / 2;
 	// texture 0
 	scn->SetShapeTex(0, 0);
 	glViewport(0, 0, half, half);

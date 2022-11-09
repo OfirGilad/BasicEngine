@@ -189,24 +189,24 @@ vector<vector<unsigned char>>* matrixAddition(const vector<vector<char>>* dx, co
 }
 
 // Exercise 4
-unsigned char* Canny_Edge_Detector(unsigned char* data, int* width, int* height) {
-    vector<vector<unsigned char>>* grey_scale_matrix = greyScaleImageConverter(data, *width, *height);
+unsigned char* Canny_Edge_Detector(unsigned char* data, int width, int height) {
+    vector<vector<unsigned char>>* grey_scale_matrix = greyScaleImageConverter(data, width, height);
     
     // apply smoothing filter
     int div0;
     vector<vector<int>>* ones = gaussianKernel(&div0);
-    vector<vector<unsigned char>>* smoothedPic = applyFilter1(grey_scale_matrix, *width, *height, ones, div0);
+    vector<vector<unsigned char>>* smoothedPic = applyFilter1(grey_scale_matrix, width, height, ones, div0);
 
     // get derivative in x and y axis
     int div1;
     vector<vector<int>>* kernelX = dxKernel(&div1);
     int div2;
     vector<vector<int>>* kernelY = dyKernel(&div2);
-    const vector<vector<char>>* dx = applyFilter2(smoothedPic, *width, *height, kernelX, div1);
-    const vector<vector<char>>* dy = applyFilter2(smoothedPic, *width, *height, kernelY, div2);
+    const vector<vector<char>>* dx = applyFilter2(smoothedPic, width, height, kernelX, div1);
+    const vector<vector<char>>* dy = applyFilter2(smoothedPic, width, height, kernelY, div2);
 
     // combine the derivatives
-    vector<vector<unsigned char>>* dx_plus_dy = matrixAddition(dx, dy, *width, *height);
+    vector<vector<unsigned char>>* dx_plus_dy = matrixAddition(dx, dy, width, height);
     
     // non max suppression
     vector<vector<unsigned char>>* nms = non_max_suppression(dx_plus_dy, width, height);
@@ -217,18 +217,17 @@ unsigned char* Canny_Edge_Detector(unsigned char* data, int* width, int* height)
     // hysteresis
     vector<vector<unsigned char>>* hysteresis_image = hysteresis(threshold_image, width, height);
     
-    //write to file
-    writeToFile("../img4.txt", hysteresis_image, *width, *height, 256);
+    // write to file
+    writeToFile("../img4.txt", hysteresis_image, width, height, 256);
 
-    unsigned char* data_copy = (unsigned char*)(malloc(4 * (*width) * (*height)));
+    unsigned char* data_copy = (unsigned char*)(malloc(4 * (width) * (height)));
 
     if (data_copy != NULL) {
-        for(int i = 0; i < *height; i++) {
-            for(int j = 0; j < *width; j++) {
-                //grey_scale_matrix[i][j] /= 2;
-                data_copy[4 * (i * *width + j)] = (*hysteresis_image)[i][j];
-                data_copy[4 * (i * *width + j) + sizeof(unsigned char)] = (*hysteresis_image)[i][j];
-                data_copy[4 * (i * *width + j) + 2 * +sizeof(unsigned char)] = (*hysteresis_image)[i][j];
+        for(int i = 0; i < height; i++) {
+            for(int j = 0; j < width; j++) {
+                data_copy[4 * (i * width + j)] = (*hysteresis_image)[i][j];
+                data_copy[4 * (i * width + j) + sizeof(unsigned char)] = (*hysteresis_image)[i][j];
+                data_copy[4 * (i * width + j) + 2 * +sizeof(unsigned char)] = (*hysteresis_image)[i][j];
             }
         }
     }
@@ -242,24 +241,21 @@ bool inRange(int pos, int max) {
 
 // https://towardsdatascience.com/canny-edge-detection-step-by-step-in-python-computer-vision-b49c3a2d8123
 
-vector<vector<unsigned char>>* non_max_suppression(vector<vector<unsigned char>>* dx_plus_dy, int* width, int* height) {
-    int M = *height;
-    int N = *width;
+vector<vector<unsigned char>>* non_max_suppression(vector<vector<unsigned char>>* dx_plus_dy, int width, int height) {
+    int M = height;
+    int N = width;
     vector<vector<unsigned char>>* Z = new vector<vector<unsigned char>>();
 
-    for (int i = 0; i < *height; i++) {
-        vector<unsigned char> innerVec(*width, 0);
-        /*for (int j = 0; j < *width; j++) {
-            innerVec.push_back((unsigned char)0);
-        }*/
+    for (int i = 0; i < height; i++) {
+        vector<unsigned char> innerVec(width, 0);
         Z->push_back(innerVec);
     }
     
     vector<vector<unsigned char>> angle_matrix;
 
-    for (int i = 0; i < *height; i++) {
+    for (int i = 0; i < height; i++) {
         vector<unsigned char> innerVec;
-        for (int j = 0; j < *width; j++) {
+        for (int j = 0; j < width; j++) {
             unsigned char angle = (*dx_plus_dy)[i][j] * (unsigned char)180 / 3.14;
             if (angle < 0) {
                 angle += (unsigned char)180;
@@ -275,40 +271,40 @@ vector<vector<unsigned char>>* non_max_suppression(vector<vector<unsigned char>>
                 unsigned char q = 255;
                 unsigned char r = 255;
 
-                //angle 0
-                if ((0 <= (angle_matrix).at(i).at(j) < 22.5) || (157.5 <= (angle_matrix).at(i).at(j) <= 180)) {
+                // angle 0
+                if ((0 <= (angle_matrix)[i][j] < 22.5) || (157.5 <= (angle_matrix)[i][j] <= 180)) {
                     if (inRange(i, M) && inRange(j + 1, N) && inRange(j - 1, N)) {
-                        q = (*dx_plus_dy).at(i).at(j + 1);
-                        r = (*dx_plus_dy).at(i).at(j - 1);
+                        q = (*dx_plus_dy)[i][j + 1];
+                        r = (*dx_plus_dy)[i][j - 1];
                     }
                 }
 
-                //angle 45
-                else if (22.5 <= (angle_matrix).at(i).at(j) < 67.5) {
+                // angle 45
+                else if (22.5 <= (angle_matrix)[i][j] < 67.5) {
                     if (inRange(i + 1, M) && inRange(i - 1, M) && inRange(j + 1, N) && inRange(j - 1, N)) {
-                        q = (*dx_plus_dy).at(i + 1).at(j - 1);
-                        r = (*dx_plus_dy).at(i - 1).at(j + 1);
+                        q = (*dx_plus_dy)[i + 1][j - 1];
+                        r = (*dx_plus_dy)[i - 1][j + 1];
                     }
                 }
-                //angle 90
-                else if (67.5 <= (angle_matrix).at(i + 1).at(j) < 112.5) {
+                // angle 90
+                else if (67.5 <= (angle_matrix)[i][j] < 112.5) {
                     if (inRange(i + 1, M) && inRange(i - 1, M) && inRange(j, N)) {
-                        q = (*dx_plus_dy).at(i + 1).at(j);
-                        r = (*dx_plus_dy).at(i - 1).at(j);
+                        q = (*dx_plus_dy)[i + 1][j];
+                        r = (*dx_plus_dy)[i - 1][j];
                     }
                 }
-                //angle 135
+                // angle 135
                 else if (112.5 <= (angle_matrix)[i][j] < 157.5) {
                     if (inRange(i + 1, M) && inRange(i - 1, M) && inRange(j + 1, N) && inRange(j - 1, N)) {
-                        q = (*dx_plus_dy).at(i - 1).at(j - 1);
-                        r = (*dx_plus_dy).at(i + 1).at(j + 1);
+                        q = (*dx_plus_dy)[i - 1][j - 1];
+                        r = (*dx_plus_dy)[i + 1][j + 1];
                     }
                 }
-                if (((*dx_plus_dy).at(i).at(j) >= q) && ((*dx_plus_dy).at(i).at(j) >= r)) {
-                    Z->at(i).at(j) = (*dx_plus_dy).at(i).at(j);
+                if (((*dx_plus_dy)[i][j] >= q) && ((*dx_plus_dy)[i][j] >= r)) {
+                    (*Z)[i][j] = (*dx_plus_dy)[i][j];
                 }
                 else {
-                    Z->at(i).at(j) = (unsigned char)0;
+                    (*Z)[i][j] = (unsigned char)0;
                 }
             }
             catch (int num) {
@@ -319,21 +315,21 @@ vector<vector<unsigned char>>* non_max_suppression(vector<vector<unsigned char>>
     return Z;
 }
 
-vector<vector<unsigned char>>* threshold(vector<vector<unsigned char>>* nms, int* width, int* height) {
+vector<vector<unsigned char>>* threshold(vector<vector<unsigned char>>* nms, int width, int height) {
     unsigned char highThreshold = 26;
     unsigned char lowThreshold = 5;
 
-    int M = *height;
-    int N = *width;
+    int M = height;
+    int N = width;
     vector<vector<unsigned char>>* res = new vector<vector<unsigned char>>();
 
-    for (int i = 0; i < *height; i++) {
+    for (int i = 0; i < height; i++) {
         vector<unsigned char> innerVec;
-        for (int j = 0; j < *width; j++) {
-            if ((*nms).at(i).at(j) >= highThreshold) {
+        for (int j = 0; j < width; j++) {
+            if ((*nms)[i][j] >= highThreshold) {
                 innerVec.push_back((unsigned char)255);
             }
-            else if (lowThreshold <= (*nms).at(i).at(j) <= highThreshold) {
+            else if (lowThreshold <= (*nms)[i][j] <= highThreshold) {
                 innerVec.push_back((unsigned char)0);
             }
         }
@@ -342,22 +338,17 @@ vector<vector<unsigned char>>* threshold(vector<vector<unsigned char>>* nms, int
     return res;
 }
 
-vector<vector<unsigned char>>* hysteresis(vector<vector<unsigned char>>* threshold_image, int* width, int* height) {
+vector<vector<unsigned char>>* hysteresis(vector<vector<unsigned char>>* threshold_image, int width, int height) {
     unsigned char strong = (unsigned char)255;
 
-    int M = *height;
-    int N = *width;
+    int M = height;
+    int N = width;
     vector<vector<unsigned char>>* Z = new vector<vector<unsigned char>>();
 
-    for (int i = 0; i < *height; i++) {
-        vector<unsigned char> innerVec(*width, 0);
-        /*for (int j = 0; j < *width; j++) {
-            innerVec.push_back((unsigned char)0);
-        }*/
+    for (int i = 0; i < height; i++) {
+        vector<unsigned char> innerVec(width, 0);
         Z->push_back(innerVec);
     }
-
-    //print_picture(threshold_image, *width, *height);
 
     for (int i = 1; i < M; i++) {
         for (int j = 1; j < N; j++) {
@@ -484,7 +475,6 @@ unsigned char* halftone(unsigned char* data, int* width, int* height) {
     unsigned char* data_copy = (unsigned char*)(malloc(4 * *width * *height));
     for (int i = 0; i < *height; i++) {
         for (int j = 0; j < *width; j++) {
-            //grey_scale_matrix[i][j] /= 2;
             data_copy[4 * (i * *width + j)] = (*newMat)[i][j];
             data_copy[4 * (i * *width + j) + 1] = (*newMat)[i][j];
             data_copy[4 * (i * *width + j) + 2] = (*newMat)[i][j];
@@ -495,25 +485,25 @@ unsigned char* halftone(unsigned char* data, int* width, int* height) {
 }
 
 // Exercise 6
-unsigned char* Floyd_Steinberg_Algorithm(unsigned char* data, int* width, int* height) {
-    vector<vector<unsigned char>>* mat = greyScaleImageConverter(data, *width, *height);
+unsigned char* Floyd_Steinberg_Algorithm(unsigned char* data, int width, int height) {
+    vector<vector<unsigned char>>* mat = greyScaleImageConverter(data, width, height);
     vector<vector<unsigned char>>* newMat = new vector<vector<unsigned char>>();
 
-	for (int y = 0; y < *height; y++) {
+	for (int y = 0; y < height; y++) {
         vector<unsigned char> inner;
-        for (int x = 0; x < *width; x++) {
+        for (int x = 0; x < width; x++) {
             unsigned char ktr = 255;
             unsigned char val = newTrunc(min((*mat)[y][x], ktr));
             inner.push_back(val);
             unsigned char e = (*mat)[y][x] - val;
-            if(x == 0 && y < *height - 1)
-                extraStuff(e, x, y, mat, 8.0/16, 2.0/16, 6.0/16, 0.0); // left not bottom
-            else if(x < *width - 1 && y == *height - 1)
-                extraStuff(e, x, y, mat, 1.0, 0.0, 0.0, 0.0); // left or middle bottom
-            else if(x == *width - 1 && y < *height - 1)
-                extraStuff(e, x, y, mat, 0.0, 0.0, 10.0/16, 6.0/16); // right not bottom
-            else if (x == *width - 1 && y == *height - 1)
-                extraStuff(e, x, y, mat, 0.0, 0.0, 0.0, 0.0); // right bottom
+            if(x == 0 && y < height - 1)
+                extraStuff(e, x, y, mat, 8.0/16, 2.0/16, 6.0/16, 0.0);    // left not bottom
+            else if(x < width - 1 && y == height - 1)
+                extraStuff(e, x, y, mat, 1.0, 0.0, 0.0, 0.0);             // left or middle bottom
+            else if(x == width - 1 && y < height - 1)
+                extraStuff(e, x, y, mat, 0.0, 0.0, 10.0/16, 6.0/16);      // right not bottom
+            else if (x == width - 1 && y == height - 1)
+                extraStuff(e, x, y, mat, 0.0, 0.0, 0.0, 0.0);             // right bottom
             else
                 extraStuff(e, x, y, mat, 7.0/16, 1.0/16, 5.0/16, 3.0/16); // middle not bottom 
 		}
@@ -521,16 +511,15 @@ unsigned char* Floyd_Steinberg_Algorithm(unsigned char* data, int* width, int* h
 	}
 
     // write to file
-    writeToFile("../img6.txt", newMat, *width, *height, 16);
+    writeToFile("../img6.txt", newMat, width, height, 16);
 
-    unsigned char* data_copy = (unsigned char*)(malloc(4 * *width * *height));
+    unsigned char* data_copy = (unsigned char*)(malloc(4 * width * height));
     if (data_copy != NULL) {
-        for (int i = 0; i < *height; i++) {
-            for (int j = 0; j < *width; j++) {
-                //grey_scale_matrix[i][j] /= 2;
-                data_copy[4 * (i * *width + j)] = (*newMat)[i][j];
-                data_copy[4 * (i * *width + j) + 1] = (*newMat)[i][j];
-                data_copy[4 * (i * *width + j) + 2] = (*newMat)[i][j];
+        for (int i = 0; i < height; i++) {
+            for (int j = 0; j < width; j++) {
+                data_copy[4 * (i * width + j)] = (*newMat)[i][j];
+                data_copy[4 * (i * width + j) + 1] = (*newMat)[i][j];
+                data_copy[4 * (i * width + j) + 2] = (*newMat)[i][j];
             }
         }
     }
@@ -558,8 +547,7 @@ unsigned char newTrunc(unsigned char pixel_value) {
 }
 
 void writeToFile(const string& fileName, vector<vector<unsigned char>>* mat, int width, int height, int div) {
-
-    // open a file in write mode.
+    // open a file in write mode
     ofstream outfile;
     outfile.open(fileName);
     for (int i = 0; i < height; i++) {
