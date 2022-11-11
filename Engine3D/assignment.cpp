@@ -1,6 +1,7 @@
 #include "assignment.h"
 #include <iostream>
 #include <fstream>
+
 using namespace std;
 
 vector<vector<int>>* gaussianKernel(int* div) {
@@ -188,6 +189,8 @@ vector<vector<unsigned char>>* matrixAddition(const vector<vector<char>>* dx, co
     return added;
 }
 
+// https://towardsdatascience.com/canny-edge-detection-step-by-step-in-python-computer-vision-b49c3a2d8123
+
 // Exercise 4
 unsigned char* Canny_Edge_Detector(unsigned char* data, int width, int height) {
     vector<vector<unsigned char>>* grey_scale_matrix = greyScaleImageConverter(data, width, height);
@@ -227,7 +230,7 @@ unsigned char* Canny_Edge_Detector(unsigned char* data, int width, int height) {
             for(int j = 0; j < width; j++) {
                 data_copy[4 * (i * width + j)] = (*hysteresis_image)[i][j];
                 data_copy[4 * (i * width + j) + sizeof(unsigned char)] = (*hysteresis_image)[i][j];
-                data_copy[4 * (i * width + j) + 2 * +sizeof(unsigned char)] = (*hysteresis_image)[i][j];
+                data_copy[4 * (i * width + j) + 2 * sizeof(unsigned char)] = (*hysteresis_image)[i][j];
             }
         }
     }
@@ -238,8 +241,6 @@ unsigned char* Canny_Edge_Detector(unsigned char* data, int width, int height) {
 bool inRange(int pos, int max) {
     return pos >= 0 && pos < max;
 }
-
-// https://towardsdatascience.com/canny-edge-detection-step-by-step-in-python-computer-vision-b49c3a2d8123
 
 vector<vector<unsigned char>>* non_max_suppression(vector<vector<unsigned char>>* dx_plus_dy, int width, int height) {
     int M = height;
@@ -424,13 +425,13 @@ vector<vector<unsigned char>>* hysteresis(vector<vector<unsigned char>>* thresho
 }
 
 // Exercise 5
-unsigned char* halftone(unsigned char* data, int* width, int* height) {
-    vector<vector<unsigned char>>* grey_scale_matrix = greyScaleImageConverter(data, *width, *height);
+unsigned char* halftone(unsigned char* data, int width, int height) {
+    vector<vector<unsigned char>>* grey_scale_matrix = greyScaleImageConverter(data, width, height);
     vector<vector<unsigned char>>* newMat = new vector<vector<unsigned char>>();
-    for (int i = 0; i < *height; i++) {
+    for (int i = 0; i < height; i++) {
         vector<unsigned char> inner1;
         vector<unsigned char> inner2;
-        for (int j = 0; j < *width; j++) {
+        for (int j = 0; j < width; j++) {
             if ((*grey_scale_matrix)[i][j] <= 50) {
                 inner1.push_back(0);
                 inner1.push_back(0);
@@ -466,18 +467,18 @@ unsigned char* halftone(unsigned char* data, int* width, int* height) {
         newMat->push_back(inner2);
     }
 
-    *width *= 2;
-    *height *= 2;
+    width *= 2;
+    height *= 2;
 
     // write to file
-    writeToFile("../img5.txt", newMat, *width, *height, 256);
+    writeToFile("../img5.txt", newMat, width, height, 256);
 
-    unsigned char* data_copy = (unsigned char*)(malloc(4 * *width * *height));
-    for (int i = 0; i < *height; i++) {
-        for (int j = 0; j < *width; j++) {
-            data_copy[4 * (i * *width + j)] = (*newMat)[i][j];
-            data_copy[4 * (i * *width + j) + 1] = (*newMat)[i][j];
-            data_copy[4 * (i * *width + j) + 2] = (*newMat)[i][j];
+    unsigned char* data_copy = (unsigned char*)(malloc(4 * width * height));
+    for (int i = 0; i < height; i++) {
+        for (int j = 0; j < width; j++) {
+            data_copy[4 * (i * width + j)] = (*newMat)[i][j];
+            data_copy[4 * (i * width + j) + 1] = (*newMat)[i][j];
+            data_copy[4 * (i * width + j) + 2] = (*newMat)[i][j];
         }
     }
 

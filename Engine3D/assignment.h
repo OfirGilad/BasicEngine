@@ -33,7 +33,7 @@ vector<vector<unsigned char>>* threshold(vector<vector<unsigned char>>* nms, int
 vector<vector<unsigned char>>* hysteresis(vector<vector<unsigned char>>* threshold_image, int width, int height);
 
 // halftone
-unsigned char* halftone(unsigned char* data, int* width, int* height);
+unsigned char* halftone(unsigned char* data, int width, int height);
 
 // Floyd_Steinberg_Algorithm
 unsigned char* Floyd_Steinberg_Algorithm(unsigned char* data, int width, int height);

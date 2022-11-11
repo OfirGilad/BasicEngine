@@ -19,33 +19,30 @@ int main(int argc,char *argv[])
 	
 	//Init(display);
 
-
 	// lena as is
 	int width, height, numComponents;
-	unsigned char* data = stbi_load("../lena256.jpg", &width, &height, &numComponents, 4);
+	unsigned char* data0 = stbi_load("../lena256.jpg", &width, &height, &numComponents, 4);
 	
 	// Canny Edge Detection
-	unsigned char* data1 = Canny_Edge_Detector(data, width, height);
+	unsigned char* data1 = Canny_Edge_Detector(data0, width, height);
 	
 	// Halftone
-	int width2 = width;
-	int height2 = height;
-	unsigned char* data2 = halftone(data, &width2, &height2);
+	unsigned char* data2 = halftone(data0, width, height);
 	
 	// Floyd-Steinberg Algorithm
-	unsigned char* data3 = Floyd_Steinberg_Algorithm(data, width, height);
+	unsigned char* data3 = Floyd_Steinberg_Algorithm(data0, width, height);
 
-
-	scn->AddTexture(width2, height2, data2); // texture 0
-	scn->AddTexture(width, height, data3);  // texture 1
-	scn->AddTexture(width, height, data1); // texture 2
-	scn->AddTexture(width, height, data); // texture 3
+	scn->AddTexture(width*2, height*2, data2); // texture 0
+	scn->AddTexture(width, height, data3);     // texture 1
+	scn->AddTexture(width, height, data1);     // texture 2
+	scn->AddTexture(width, height, data0);     // texture 3
 
 	scn->Init();
 
 	display.SetScene(scn);
 	
 	int half = DISPLAY_WIDTH / 2;
+
 	// texture 0
 	scn->SetShapeTex(0, 0);
 	glViewport(0, 0, half, half);
