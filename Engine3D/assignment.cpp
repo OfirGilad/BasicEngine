@@ -166,6 +166,7 @@ vector<vector<char>>* applyFilter2(vector<vector<unsigned char>>* mat, int width
 
 vector<vector<unsigned char>>* greyScaleImageConverter(unsigned char* data, int width, int height) {
     vector<vector<unsigned char>>* grey_scale_matrix = new vector<vector<unsigned char>>();
+
     for (int i = 0; i < height; i++) {
         vector <unsigned char> inner_row;
         for (int j = 0; j < width; j++) {
@@ -179,6 +180,7 @@ vector<vector<unsigned char>>* greyScaleImageConverter(unsigned char* data, int 
 
 vector<vector<unsigned char>>* matrixAddition(const vector<vector<char>>* dx, const vector<vector<char>>* dy, int width, int height) {
     vector<vector<unsigned char>>* added = new vector<vector<unsigned char>>();
+
     for (int i = 0; i < height; i++) {
         vector<unsigned char> innerVec;
         for (int j = 0; j < width; j++) {
@@ -243,13 +245,11 @@ bool inRange(int pos, int max) {
 }
 
 vector<vector<unsigned char>>* non_max_suppression(vector<vector<unsigned char>>* dx_plus_dy, int width, int height) {
-    int M = height;
-    int N = width;
-    vector<vector<unsigned char>>* Z = new vector<vector<unsigned char>>();
+    vector<vector<unsigned char>>* newMat = new vector<vector<unsigned char>>();
 
     for (int i = 0; i < height; i++) {
         vector<unsigned char> innerVec(width, 0);
-        Z->push_back(innerVec);
+        newMat->push_back(innerVec);
     }
     
     vector<vector<unsigned char>> angle_matrix;
@@ -257,7 +257,7 @@ vector<vector<unsigned char>>* non_max_suppression(vector<vector<unsigned char>>
     for (int i = 0; i < height; i++) {
         vector<unsigned char> innerVec;
         for (int j = 0; j < width; j++) {
-            unsigned char angle = (*dx_plus_dy)[i][j] * (unsigned char)180 / 3.14;
+            unsigned char angle = (*dx_plus_dy)[i][j] * (unsigned char)(180 / 3.14);
             if (angle < 0) {
                 angle += (unsigned char)180;
             }
@@ -266,15 +266,15 @@ vector<vector<unsigned char>>* non_max_suppression(vector<vector<unsigned char>>
         angle_matrix.push_back(innerVec);
     }
 
-    for (int i = 1; i < M; i++) {
-        for (int j = 1; j < N; j++) {
+    for (int i = 1; i < height; i++) {
+        for (int j = 1; j < width; j++) {
             try {
-                unsigned char q = 255;
-                unsigned char r = 255;
+                unsigned char q = (unsigned char)255;
+                unsigned char r = (unsigned char)255;
 
                 // angle 0
                 if ((0 <= (angle_matrix)[i][j] < 22.5) || (157.5 <= (angle_matrix)[i][j] <= 180)) {
-                    if (inRange(i, M) && inRange(j + 1, N) && inRange(j - 1, N)) {
+                    if (inRange(i, height) && inRange(j + 1, width) && inRange(j - 1, width)) {
                         q = (*dx_plus_dy)[i][j + 1];
                         r = (*dx_plus_dy)[i][j - 1];
                     }
@@ -282,30 +282,30 @@ vector<vector<unsigned char>>* non_max_suppression(vector<vector<unsigned char>>
 
                 // angle 45
                 else if (22.5 <= (angle_matrix)[i][j] < 67.5) {
-                    if (inRange(i + 1, M) && inRange(i - 1, M) && inRange(j + 1, N) && inRange(j - 1, N)) {
+                    if (inRange(i + 1, height) && inRange(i - 1, height) && inRange(j + 1, width) && inRange(j - 1, width)) {
                         q = (*dx_plus_dy)[i + 1][j - 1];
                         r = (*dx_plus_dy)[i - 1][j + 1];
                     }
                 }
                 // angle 90
                 else if (67.5 <= (angle_matrix)[i][j] < 112.5) {
-                    if (inRange(i + 1, M) && inRange(i - 1, M) && inRange(j, N)) {
+                    if (inRange(i + 1, height) && inRange(i - 1, height) && inRange(j, width)) {
                         q = (*dx_plus_dy)[i + 1][j];
                         r = (*dx_plus_dy)[i - 1][j];
                     }
                 }
                 // angle 135
                 else if (112.5 <= (angle_matrix)[i][j] < 157.5) {
-                    if (inRange(i + 1, M) && inRange(i - 1, M) && inRange(j + 1, N) && inRange(j - 1, N)) {
+                    if (inRange(i + 1, height) && inRange(i - 1, height) && inRange(j + 1, width) && inRange(j - 1, width)) {
                         q = (*dx_plus_dy)[i - 1][j - 1];
                         r = (*dx_plus_dy)[i + 1][j + 1];
                     }
                 }
                 if (((*dx_plus_dy)[i][j] >= q) && ((*dx_plus_dy)[i][j] >= r)) {
-                    (*Z)[i][j] = (*dx_plus_dy)[i][j];
+                    (*newMat)[i][j] = (*dx_plus_dy)[i][j];
                 }
                 else {
-                    (*Z)[i][j] = (unsigned char)0;
+                    (*newMat)[i][j] = (unsigned char)0;
                 }
             }
             catch (int num) {
@@ -313,16 +313,14 @@ vector<vector<unsigned char>>* non_max_suppression(vector<vector<unsigned char>>
             }
         }
     }
-    return Z;
+    return newMat;
 }
 
 vector<vector<unsigned char>>* threshold(vector<vector<unsigned char>>* nms, int width, int height) {
     unsigned char highThreshold = 26;
     unsigned char lowThreshold = 5;
 
-    int M = height;
-    int N = width;
-    vector<vector<unsigned char>>* res = new vector<vector<unsigned char>>();
+    vector<vector<unsigned char>>* newMat = new vector<vector<unsigned char>>();
 
     for (int i = 0; i < height; i++) {
         vector<unsigned char> innerVec;
@@ -334,29 +332,27 @@ vector<vector<unsigned char>>* threshold(vector<vector<unsigned char>>* nms, int
                 innerVec.push_back((unsigned char)0);
             }
         }
-        res->push_back(innerVec);
+        newMat->push_back(innerVec);
     }
-    return res;
+    return newMat;
 }
 
 vector<vector<unsigned char>>* hysteresis(vector<vector<unsigned char>>* threshold_image, int width, int height) {
     unsigned char strong = (unsigned char)255;
 
-    int M = height;
-    int N = width;
-    vector<vector<unsigned char>>* Z = new vector<vector<unsigned char>>();
+    vector<vector<unsigned char>>* newMat = new vector<vector<unsigned char>>();
 
     for (int i = 0; i < height; i++) {
         vector<unsigned char> innerVec(width, 0);
-        Z->push_back(innerVec);
+        newMat->push_back(innerVec);
     }
 
-    for (int i = 1; i < M; i++) {
-        for (int j = 1; j < N; j++) {
+    for (int i = 1; i < height; i++) {
+        for (int j = 1; j < width; j++) {
             if (threshold_image->at(i).at(j) == (unsigned char)255) {
                 try {
                     if (threshold_image->at(i + 1).at(j - 1) == strong) {
-                        Z->at(i).at(j) = strong;
+                        newMat->at(i).at(j) = strong;
                     }
                 }
                 catch (...) {
@@ -364,7 +360,7 @@ vector<vector<unsigned char>>* hysteresis(vector<vector<unsigned char>>* thresho
                 }
                 try {
                     if (threshold_image->at(i + 1).at(j) == strong) {
-                        Z->at(i).at(j) = strong;
+                        newMat->at(i).at(j) = strong;
                     }
                 }
                 catch (...) {
@@ -372,7 +368,7 @@ vector<vector<unsigned char>>* hysteresis(vector<vector<unsigned char>>* thresho
                 }
                 try {
                     if (threshold_image->at(i + 1).at(j + 1) == strong) {
-                        Z->at(i).at(j) = strong;
+                        newMat->at(i).at(j) = strong;
                     }
                 }
                 catch (...) {
@@ -380,7 +376,7 @@ vector<vector<unsigned char>>* hysteresis(vector<vector<unsigned char>>* thresho
                 }
                 try {
                     if (threshold_image->at(i).at(j - 1) == strong) {
-                        Z->at(i).at(j) = strong;
+                        newMat->at(i).at(j) = strong;
                     }
                 }
                 catch (...) {
@@ -388,7 +384,7 @@ vector<vector<unsigned char>>* hysteresis(vector<vector<unsigned char>>* thresho
                 }
                 try {
                     if (threshold_image->at(i).at(j + 1) == strong) {
-                        Z->at(i).at(j) = strong;
+                        newMat->at(i).at(j) = strong;
                     }
                 }
                 catch (...) {
@@ -396,7 +392,7 @@ vector<vector<unsigned char>>* hysteresis(vector<vector<unsigned char>>* thresho
                 }
                 try {
                     if (threshold_image->at(i - 1).at(j - 1) == strong) {
-                        Z->at(i).at(j) = strong;
+                        newMat->at(i).at(j) = strong;
                     }
                 }
                 catch (...) {
@@ -404,7 +400,7 @@ vector<vector<unsigned char>>* hysteresis(vector<vector<unsigned char>>* thresho
                 }
                 try {
                     if (threshold_image->at(i - 1).at(j) == strong) {
-                        Z->at(i).at(j) = strong;
+                        newMat->at(i).at(j) = strong;
                     }
                 }
                 catch (...) {
@@ -412,7 +408,7 @@ vector<vector<unsigned char>>* hysteresis(vector<vector<unsigned char>>* thresho
                 }
                 try {
                     if (threshold_image->at(i - 1).at(j + 1) == strong) {
-                        Z->at(i).at(j) = strong;
+                        newMat->at(i).at(j) = strong;
                     }
                 }
                 catch (...) {
@@ -421,13 +417,14 @@ vector<vector<unsigned char>>* hysteresis(vector<vector<unsigned char>>* thresho
             }
         }
     }
-    return Z;
+    return newMat;
 }
 
 // Exercise 5
 unsigned char* halftone(unsigned char* data, int width, int height) {
     vector<vector<unsigned char>>* grey_scale_matrix = greyScaleImageConverter(data, width, height);
     vector<vector<unsigned char>>* newMat = new vector<vector<unsigned char>>();
+
     for (int i = 0; i < height; i++) {
         vector<unsigned char> inner1;
         vector<unsigned char> inner2;
