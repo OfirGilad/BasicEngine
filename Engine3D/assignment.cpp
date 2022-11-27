@@ -5,5 +5,5 @@
 using namespace std;
 
 void read_scene() {
-    cout << "Hi" << endl;
+    cout << "Test" << endl;
 }

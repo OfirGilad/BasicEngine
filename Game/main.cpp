@@ -3,6 +3,11 @@
 #include "game.h"
 #include "../res/includes/glm/glm.hpp"
 
+#include <iostream>
+#include <fstream>
+
+using namespace std;
+
 int main(int argc,char *argv[])
 {
 	const int DISPLAY_WIDTH = 800;
@@ -20,6 +25,18 @@ int main(int argc,char *argv[])
 	scn->Init();
 
 	display.SetScene(scn);
+
+    //
+
+	string myText;
+    ifstream scence_file("../scenes/scene.txt");
+
+	// Use a while loop together with the getline() function to read the file line by line
+	while (getline(scence_file, myText)) {
+		// Output the text from the file
+		cout << myText << endl;
+	}
+
 
 	while(!display.CloseWindow())
 	{
