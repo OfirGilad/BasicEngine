@@ -1,11 +1,11 @@
-//#include "InputManager.h"
-#include "display.h"
+#include "InputManager.h"
+// #include "../DisplayGLFW/display.h"
 #include "game.h"
-#include "glm\glm.hpp"
+#include "../res/includes/glm/glm.hpp"
 
 int main(int argc,char *argv[])
 {
-	const int DISPLAY_WIDTH = 1600;
+	const int DISPLAY_WIDTH = 800;
 	const int DISPLAY_HEIGHT = 800;
 	const float CAMERA_ANGLE = 0.0f;
 	const float NEAR = 1.0f;
@@ -15,7 +15,7 @@ int main(int argc,char *argv[])
 	
 	Display display(DISPLAY_WIDTH, DISPLAY_HEIGHT, "OpenGL");
 	
-	//Init(display);
+	Init(display);
 	
 	scn->Init();
 
@@ -26,7 +26,8 @@ int main(int argc,char *argv[])
 		scn->Draw(1,0,scn->BACK,true,false);
 		scn->Motion();
 		display.SwapBuffers();
-		display.PollEvents();		
+		display.PollEvents();	
+			
 	}
 	delete scn;
 	return 0;
