@@ -2,10 +2,9 @@
 // #include "../DisplayGLFW/display.h"
 #include "game.h"
 #include "../res/includes/glm/glm.hpp"
-#include "assignment.h"
 
-#include <iostream>
-#include <fstream>
+#include "assignment.h"
+#include <string>
 
 using namespace std;
 
@@ -27,19 +26,11 @@ int main(int argc,char *argv[])
 
 	display.SetScene(scn);
 
-    //
+	// new code here
+	string file_name = "../scenes/scene.txt";
 
-    read_scene();
-
-	string myText;
-    ifstream scence_file("../scenes/scene.txt");
-
-	// Use a while loop together with the getline() function to read the file line by line
-	while (getline(scence_file, myText)) {
-		// Output the text from the file
-		cout << myText << endl;
-	}
-
+	SceneData scene_data = SceneData();
+	scene_data.read_scene(file_name);
 
 	while(!display.CloseWindow())
 	{
