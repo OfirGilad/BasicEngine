@@ -2,6 +2,7 @@
 // #include "../DisplayGLFW/display.h"
 #include "game.h"
 #include "../res/includes/glm/glm.hpp"
+#include "assignment.h"
 
 #include <iostream>
 #include <fstream>
@@ -27,6 +28,8 @@ int main(int argc,char *argv[])
 	display.SetScene(scn);
 
     //
+
+    read_scene();
 
 	string myText;
     ifstream scence_file("../scenes/scene.txt");
