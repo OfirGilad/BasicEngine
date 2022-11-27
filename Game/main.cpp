@@ -2,6 +2,7 @@
 #include "display.h"
 #include "game.h"
 #include "glm\glm.hpp"
+#include "assignment.h"
 
 int main(int argc,char *argv[])
 {
@@ -16,6 +17,8 @@ int main(int argc,char *argv[])
 	Display display(DISPLAY_WIDTH, DISPLAY_HEIGHT, "OpenGL");
 	
 	//Init(display);
+
+    read_scene();
 	
 	scn->Init();
 
