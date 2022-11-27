@@ -15,7 +15,15 @@ public:
 
 	// Variables
 	vector<vector<string>> scene_data;
+
 	Vector3f eye;
 	int bonus_mode_flag;
 	Vector4f ambient;
+	vector<Vector4f>reflective_objects;
+	vector<Vector4f>transparent_objects;
+	vector<Vector4f>objects;
+	vector<Vector4f>colors;
+	vector<Vector4f>directions;
+	vector<Vector4f>positions;
+	vector<Vector4f>intensities;
 };

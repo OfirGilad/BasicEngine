@@ -32,12 +32,42 @@ void SceneData::read_scene(string file_name) {
         } 
     }
     for (int i = 0; i < scene_data.size(); i++) {
+        // e = eye - XYZ + Bonus Mode Flag
         if (scene_data[i][0] == "e") {
             eye = Vector3f(stof(scene_data[i][1]), stof(scene_data[i][2]), stof(scene_data[i][3]));
             bonus_mode_flag = stof(scene_data[i][4]);
         }
+        // a = ambient - RGBA
         if (scene_data[i][0] == "a") {
             ambient = Vector4f(stof(scene_data[i][1]), stof(scene_data[i][2]), stof(scene_data[i][3]), stof(scene_data[i][4]));
+        }
+        // r = reflective object - XYZR
+        if (scene_data[i][0] == "r") {
+            reflective_objects.push_back(Vector4f(stof(scene_data[i][1]), stof(scene_data[i][2]), stof(scene_data[i][3]), stof(scene_data[i][4])));
+        }
+        // t = transparent object - XYZR
+        if (scene_data[i][0] == "r") {
+            transparent_objects.push_back(Vector4f(stof(scene_data[i][1]), stof(scene_data[i][2]), stof(scene_data[i][3]), stof(scene_data[i][4])));
+        }
+        // o = object - XYZR (R>0 -> Spheres) / ABCD (D<0 -> Planes)
+        if (scene_data[i][0] == "o") {
+            objects.push_back(Vector4f(stof(scene_data[i][1]), stof(scene_data[i][2]), stof(scene_data[i][3]), stof(scene_data[i][4])));
+        }
+        // c = color (ambient and diffuse of object) - RGBA (A -> Shininess)
+        if (scene_data[i][0] == "c") {
+            colors.push_back(Vector4f(stof(scene_data[i][1]), stof(scene_data[i][2]), stof(scene_data[i][3]), stof(scene_data[i][4])));
+        }
+        // d = direction (of light sources)
+        if (scene_data[i][0] == "d") {
+            directions.push_back(Vector4f(stof(scene_data[i][1]), stof(scene_data[i][2]), stof(scene_data[i][3]), stof(scene_data[i][4])));
+        }
+        // p = position (of spotlights only) - XYZW
+        if (scene_data[i][0] == "p") {
+            positions.push_back(Vector4f(stof(scene_data[i][1]), stof(scene_data[i][2]), stof(scene_data[i][3]), stof(scene_data[i][4])));
+        }
+        // i = intensity (of light sources) - RGBA
+        if (scene_data[i][0] == "i") {
+            intensities.push_back(Vector4f(stof(scene_data[i][1]), stof(scene_data[i][2]), stof(scene_data[i][3]), stof(scene_data[i][4])));
         }
     }    
 }
