@@ -14,10 +14,10 @@ public:
 	void read_scene(string file_name);
     void find_pixel_size(int width, int height);
 
-	void ImageRayCasting();
+    Image ImageRayCasting();
 	vec3 ConstructRayThroughPixel(int i, int j);
-	vec3 ConstructRayThroughPixel(int i, int j);
-	Image RayCast(Scene scene, int width, int height);
+    vec3 FindIntersection(vec3 ray);
+    vec4 GetColor(ray, hit);
 
 	// Variables
 	vector<vector<string>> scene_data;
@@ -40,5 +40,4 @@ public:
 	vec3 up_vector;
 	vec3 right_vector;
     vec2 center_dot;
-    
 };

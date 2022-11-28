@@ -81,15 +81,16 @@ void SceneData::find_pixel_size(int width, int height) {
     pixel_height = 2 / height;
 }
 
-void SceneData::ImageRayCasting() {
-    //vec2 point_on_screen = vec2(1 - (pixel_width / 2), 1 - (pixel_height / 2));
-
-    for (float i = 0; i < image_width; i++) {
-        for (float j = 0; j < image_height; j++) {
-            vec3 Ray = ConstructRayThroughPixel(i, j);
-
+Image SceneData::ImageRayCasting() {
+    Image image = new Image(image_width, image_height);
+    for (int i = 0; i < image_width; i++) {
+        for (int j = 0; j < image_height; j++) {
+            vec3 ray = ConstructRayThroughPixel(i, j);
+            vec3 hit = FindIntersection(ray);
+            image[i][j] = GetColor(ray, hit);
         }
     }
+    return image;
 }
 
 // top-left (-1, 1)
@@ -103,21 +104,10 @@ vec3 SceneData::ConstructRayThroughPixel(int i, int j) {
     return hit_on_screen;
 }
 
-Image RayCast(Scene scene, int width, int height)
-{
-    Image image = new Image(width, height);
-    for (int i = 0; i < width; i++) {
-        for (int j = 0; j < height; j++) {
-            vec3 ray = ConstructRayThroughPixel(i, j);
-            vec3 hit = FindIntersection(ray, scene);
-            image[i][j] = GetColor(scene, ray, hit);
-        }
-    }
-    return image;
+vec3 SceneData::FindIntersection(vec3 ray) {
+    return vec3(0, 0, 0);
 }
 
-vec3 ConstructRayThroughPixel(int i, int j) {
-
+vec4 GetColor(ray, hit) {
+    return vec3(0, 0, 0, 0);
 }
-
-vec3 FindIntersection(vec3 ray, scene);
