@@ -14,6 +14,8 @@ public:
 	void read_scene(string file_name);
     void find_eye_vectors();
     void find_center(int width, int height);
+	vec3 ConstructRayThroughPixel(int i, int j);
+	Image RayCast(Scene scene, int width, int height);
 
 	// Variables
 	vector<vector<string>> scene_data;

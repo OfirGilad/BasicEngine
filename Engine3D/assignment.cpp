@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <sstream>
+#include "../Game/game.h"
 
 using namespace std;
 using namespace glm;
@@ -85,3 +86,22 @@ void SceneData::find_center(int width, int height) {
     epsilon_x = 2 / width;
     epsilon_y = 2 / height;
 }
+
+Image RayCast(Scene scene, int width, int height)
+{
+    Image image = new Image(width, height);
+    for (int i = 0; i < width; i++) {
+        for (int j = 0; j < height; j++) {
+            vec3 ray = ConstructRayThroughPixel(i, j);
+            vec3 hit = FindIntersection(ray, scene);
+            image[i][j] = GetColor(scene, ray, hit);
+        }
+    }
+    return image;
+}
+
+vec3 ConstructRayThroughPixel(int i, int j) {
+
+}
+
+vec3 FindIntersection(vec3 ray, scene);
