@@ -12,8 +12,10 @@ class SceneData
 public:
 	// Methods
 	void read_scene(string file_name);
-    void find_eye_vectors();
-    void find_center(int width, int height);
+    void find_pixel_size(int width, int height);
+
+	void ImageRayCasting();
+	vec3 ConstructRayThroughPixel(int i, int j);
 	vec3 ConstructRayThroughPixel(int i, int j);
 	Image RayCast(Scene scene, int width, int height);
 
@@ -31,8 +33,12 @@ public:
 	vector<vec4>positions;
 	vector<vec4>intensities;
 
+	int image_width, image_height;
+	float pixel_width, pixel_height;
 
 	vec3 forward_vector;
-	vec2 center_dot;
-    float epsilon_x, epsilon_y;
+	vec3 up_vector;
+	vec3 right_vector;
+    vec2 center_dot;
+    
 };

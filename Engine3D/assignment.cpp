@@ -73,18 +73,34 @@ void SceneData::read_scene(string file_name) {
     }    
 }
 
-void SceneData::find_eye_vectors() {
-    forward_vector = vec3(0, 0, 0) - eye;
+void SceneData::find_pixel_size(int width, int height) {
+    image_width = width;
+    image_width = height;
+
+    pixel_width = 2 / width;
+    pixel_height = 2 / height;
 }
 
-void SceneData::find_center(int width, int height) {
-    float center_x, center_y;
-    center_x = width / 2;
-    center_y = height / 2;
+void SceneData::ImageRayCasting() {
+    //vec2 point_on_screen = vec2(1 - (pixel_width / 2), 1 - (pixel_height / 2));
 
-    center_dot = vec2(center_x, center_y);
-    epsilon_x = 2 / width;
-    epsilon_y = 2 / height;
+    for (float i = 0; i < image_width; i++) {
+        for (float j = 0; j < image_height; j++) {
+            vec3 Ray = ConstructRayThroughPixel(i, j);
+
+        }
+    }
+}
+
+// top-left (-1, 1)
+vec3 SceneData::ConstructRayThroughPixel(int i, int j) {
+    vec3 top_left_point = vec3(-1 + (pixel_width / 2), 1 - (pixel_height / 2), 0);
+
+    vec3 hit_on_screen = top_left_point + vec3(i * pixel_width, -1 * (j * pixel_height), 0);
+
+    // 
+
+    return hit_on_screen;
 }
 
 Image RayCast(Scene scene, int width, int height)
