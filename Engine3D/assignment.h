@@ -12,6 +12,8 @@ class SceneData
 public:
 	// Methods
 	void read_scene(string file_name);
+    void find_eye_vectors();
+    void find_center(int width, int height);
 
 	// Variables
 	vector<vector<string>> scene_data;
@@ -26,4 +28,9 @@ public:
 	vector<Vector4f>directions;
 	vector<Vector4f>positions;
 	vector<Vector4f>intensities;
+
+
+    Vector3f forward_vector;
+    Vector2f center_dot;
+    float epsilon_x, epsilon_y;
 };

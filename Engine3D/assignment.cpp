@@ -71,3 +71,17 @@ void SceneData::read_scene(string file_name) {
         }
     }    
 }
+
+void SceneData::find_eye_vectors() {
+    forward_vector = Vector3f(0, 0, 0) - eye;
+}
+
+void SceneData::find_center(int width, int height) {
+    float center_x, center_y;
+    center_x = width / 2;
+    center_y = height / 2;
+
+    center_dot = Vector2f(center_x, center_y);
+    epsilon_x = 2 / width;
+    epsilon_y = 2 / height;
+}
