@@ -109,6 +109,44 @@ vec3 SceneData::FindIntersection(vec3 ray) {
     
 }
 
+
+float SceneData::FindIntersectionWithSphere(vec3 ray, vec4 sphere) {
+    float mx = sphere.x;
+    float my = sphere.y;
+    float mz = sphere.z;
+    float radius = sphere.a;
+
+    float x0 = eye.x;
+    float y0 = eye.y;
+    float z0 = eye.z;
+
+    vec3 vec = ray - eye;
+
+    float vecx = vec.x;
+    float vecy = vec.y;
+    float vecz = vec.z;
+
+    //quadratic = vec3(t^2, t, 1)
+    vec3 quadratic = vec3(
+        pow(vecx, 2) + pow(vecy, 2) + pow(vecz, 2),
+        2 * (x0 - mx + y0 - my + z0 - mz),
+        pow(x0 - mx, 2) + pow(y0 - my, 2) + pow(z0 - mz, 2) - pow(radius, 2)
+    );
+
+    float delta = pow(quadratic.y, 2) - 4 * quadratic.x * quadratic.z; // b^2-4*a*c
+
+    if (delta < 0.)
+        return -1;
+
+    float root = sqrt(delta);
+    float ans1 = (-quadratic.y + root) / (2 * quadratic.x); // (-b + root) / 2*a
+    float ans2 = (-quadratic.y - root) / (2 * quadratic.x); // (-b - root) / 2*a
+
+    return glm::min(ans1, ans2);
+}
+
+
+
 vec4 GetColor(vec3 ray, vec3 hit) {
     return vec4(0, 0, 0, 0);
 }

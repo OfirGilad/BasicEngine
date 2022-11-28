@@ -19,6 +19,7 @@ public:
 	vec3 ConstructRayThroughPixel(int i, int j);
     vec3 FindIntersection(vec3 ray);
     vec4 GetColor(vec3 ray, vec3 hit);
+	float FindIntersectionWithSphere(vec3 ray, vec4 sphere);
 
 	// Variables
 	vector<vector<string>> scene_data;
