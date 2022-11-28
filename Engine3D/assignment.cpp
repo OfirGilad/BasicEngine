@@ -161,8 +161,25 @@ float SceneData::FindIntersectionWithSphere(vec3 ray, vec4 sphere) {
     return glm::min(ans1, ans2);
 }
 
-float SceneData::FindIntersectionWithPlane(vec3 ray, vec4 object) {
-    return 0;
+float SceneData::FindIntersectionWithPlane(vec3 ray, vec4 plane) {
+    float mx = plane.x;
+    float my = plane.y;
+    float mz = plane.z;
+    float radius = plane.a;
+
+    float x0 = eye.x;
+    float y0 = eye.y;
+    float z0 = eye.z;
+
+    vec3 vec = ray - eye;
+
+    float vecx = vec.x;
+    float vecy = vec.y;
+    float vecz = vec.z;
+
+    float ans = 0.;
+
+    return ans;
 }
 
 vec4 GetColor(vec3 ray, vec3 hit) {
