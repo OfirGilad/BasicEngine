@@ -46,7 +46,7 @@ void SceneData::read_scene(string file_name) {
             reflective_objects.push_back(Vector4f(stof(scene_data[i][1]), stof(scene_data[i][2]), stof(scene_data[i][3]), stof(scene_data[i][4])));
         }
         // t = transparent object - XYZR
-        if (scene_data[i][0] == "r") {
+        if (scene_data[i][0] == "t") {
             transparent_objects.push_back(Vector4f(stof(scene_data[i][1]), stof(scene_data[i][2]), stof(scene_data[i][3]), stof(scene_data[i][4])));
         }
         // o = object - XYZR (R>0 -> Spheres) / ABCD (D<0 -> Planes)
