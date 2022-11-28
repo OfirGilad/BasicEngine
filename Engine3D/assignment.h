@@ -2,10 +2,10 @@
 #include <iostream>
 #include <vector>
 #include <string>
-#include <Eigen/Core>
+#include "../res/includes/glm/glm.hpp"
 
 using namespace std;
-using namespace Eigen;
+using namespace glm;
 
 class SceneData
 {
@@ -18,19 +18,19 @@ public:
 	// Variables
 	vector<vector<string>> scene_data;
 
-	Vector3f eye;
+	vec3 eye;
 	int bonus_mode_flag;
-	Vector4f ambient;
-	vector<Vector4f>reflective_objects;
-	vector<Vector4f>transparent_objects;
-	vector<Vector4f>objects;
-	vector<Vector4f>colors;
-	vector<Vector4f>directions;
-	vector<Vector4f>positions;
-	vector<Vector4f>intensities;
+	vec4 ambient;
+	vector<vec4>reflective_objects;
+	vector<vec4>transparent_objects;
+	vector<vec4>objects;
+	vector<vec4>colors;
+	vector<vec4>directions;
+	vector<vec4>positions;
+	vector<vec4>intensities;
 
 
-    Vector3f forward_vector;
-    Vector2f center_dot;
+	vec3 forward_vector;
+	vec2 center_dot;
     float epsilon_x, epsilon_y;
 };
