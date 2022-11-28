@@ -97,18 +97,34 @@ Image SceneData::ImageRayCasting() {
 // top-left (-1, 1)
 vec3 SceneData::ConstructRayThroughPixel(int i, int j) {
     vec3 top_left_point = vec3(-1 + (pixel_width / 2), 1 - (pixel_height / 2), 0);
-
     vec3 hit_on_screen = top_left_point + vec3(i * pixel_width, -1 * (j * pixel_height), 0);
-
     vec3 ray_direction = hit_on_screen - eye;
     
     return normalize(ray_direction);
 }
 
 vec3 SceneData::FindIntersection(vec3 ray) {
-    
+    float min_t = INFINITY;
+    vec4 min_pimitive;
+    for (int i = 0; i < objects.size(); i++) {
+        float t = Intersect(ray, objects[i]);
+        if (t < min_t) {
+            min_pimitive = objects[i];
+            min_t = t;
+        }
+    }
+    vec3 hit = eye + ray * min_t;
+    return hit;
 }
 
+float SceneData::Intersect(vec3 ray, vec4 object) {
+    if (object.r > 0) {
+        return FindIntersectionWithSphere(ray, object);
+    }
+    else {
+        return FindIntersectionWithPlane(ray, object);
+    }
+}
 
 float SceneData::FindIntersectionWithSphere(vec3 ray, vec4 sphere) {
     float mx = sphere.x;
@@ -145,7 +161,9 @@ float SceneData::FindIntersectionWithSphere(vec3 ray, vec4 sphere) {
     return glm::min(ans1, ans2);
 }
 
-
+float SceneData::FindIntersectionWithPlane(vec3 ray, vec4 object) {
+    return 0;
+}
 
 vec4 GetColor(vec3 ray, vec3 hit) {
     return vec4(0, 0, 0, 0);
