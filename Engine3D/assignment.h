@@ -17,7 +17,7 @@ public:
     Image ImageRayCasting();
 	vec3 ConstructRayThroughPixel(int i, int j);
     vec3 FindIntersection(vec3 ray);
-    vec4 GetColor(ray, hit);
+    vec4 GetColor(vec3 ray, vec3 hit);
 
 	// Variables
 	vector<vector<string>> scene_data;

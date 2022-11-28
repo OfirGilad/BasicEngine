@@ -108,6 +108,6 @@ vec3 SceneData::FindIntersection(vec3 ray) {
     return vec3(0, 0, 0);
 }
 
-vec4 GetColor(ray, hit) {
-    return vec3(0, 0, 0, 0);
+vec4 GetColor(vec3 ray, vec3 hit) {
+    return vec4(0, 0, 0, 0);
 }
