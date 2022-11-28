@@ -5,6 +5,7 @@
 #include <vector>
 #include <sstream>
 #include "../Game/game.h"
+#include "utilities.h"
 
 using namespace std;
 using namespace glm;
@@ -99,9 +100,9 @@ vec3 SceneData::ConstructRayThroughPixel(int i, int j) {
 
     vec3 hit_on_screen = top_left_point + vec3(i * pixel_width, -1 * (j * pixel_height), 0);
 
-    // 
-
-    return hit_on_screen;
+    vec3 ray_direction = hit_on_screen - eye;
+    
+    return normalize(ray_direction);
 }
 
 vec3 SceneData::FindIntersection(vec3 ray) {
