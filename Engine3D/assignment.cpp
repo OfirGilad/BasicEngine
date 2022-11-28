@@ -82,12 +82,12 @@ void SceneData::find_pixel_size(int width, int height) {
 }
 
 Image SceneData::ImageRayCasting() {
-    Image image = new Image(image_width, image_height);
+    Image image = Image(image_width, image_height);
     for (int i = 0; i < image_width; i++) {
         for (int j = 0; j < image_height; j++) {
             vec3 ray = ConstructRayThroughPixel(i, j);
             vec3 hit = FindIntersection(ray);
-            image[i][j] = GetColor(ray, hit);
+            image.setColor(i, j, GetColor(ray, hit));
         }
     }
     return image;
@@ -105,7 +105,7 @@ vec3 SceneData::ConstructRayThroughPixel(int i, int j) {
 }
 
 vec3 SceneData::FindIntersection(vec3 ray) {
-    return vec3(0, 0, 0);
+    
 }
 
 vec4 GetColor(vec3 ray, vec3 hit) {

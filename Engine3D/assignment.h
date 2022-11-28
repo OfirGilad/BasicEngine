@@ -3,6 +3,7 @@
 #include <vector>
 #include <string>
 #include "../res/includes/glm/glm.hpp"
+#include "utilities.h"
 
 using namespace std;
 using namespace glm;
