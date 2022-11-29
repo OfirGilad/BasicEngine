@@ -130,17 +130,15 @@ float SceneData::FindIntersectionWithSphere(vec3 ray, vec4 sphere) {
     float mx = sphere.x;
     float my = sphere.y;
     float mz = sphere.z;
-    float radius = sphere.a;
+    float radius = sphere.w;
 
     float x0 = eye.x;
     float y0 = eye.y;
     float z0 = eye.z;
 
-    vec3 vec = ray - eye;
-
-    float vecx = vec.x;
-    float vecy = vec.y;
-    float vecz = vec.z;
+    float vecx = ray.x;
+    float vecy = ray.y;
+    float vecz = ray.z;
 
     //quadratic = vec3(t^2, t, 1)
     vec3 quadratic = vec3(
@@ -173,15 +171,15 @@ float SceneData::FindIntersectionWithPlane(vec3 ray, vec4 plane) {
 
     vec3 vec = ray - eye;
 
-    float vecx = vec.x;
-    float vecy = vec.y;
-    float vecz = vec.z;
+    float vecx = ray.x;
+    float vecy = ray.y;
+    float vecz = ray.z;
 
     float ans = 0.;
 
     return ans;
 }
 
-vec4 GetColor(vec3 ray, vec3 hit) {
+vec4 SceneData::GetColor(vec3 ray, vec3 hit) {
     return vec4(0, 0, 0, 0);
 }
