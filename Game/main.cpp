@@ -32,7 +32,8 @@ int main(int argc,char *argv[])
 	SceneData scene_data = SceneData();
 	scene_data.read_scene(file_name);
     scene_data.find_pixel_size(DISPLAY_WIDTH, DISPLAY_HEIGHT);
-	cout << scene_data.FindIntersectionWithSphere(vec3(-1, 0, 0), vec4(0, 0, 0, 1)) << endl;
+	//cout << scene_data.FindIntersectionWithPlane(vec3(-1, 0, 0), vec4(1, 0, 0, -1)) << endl;
+	cout << scene_data.FindIntersectionWithSphere(vec3(1, 0, 0), vec4(0, 0, 0, 1)) << endl;
 
 	while(!display.CloseWindow())
 	{
