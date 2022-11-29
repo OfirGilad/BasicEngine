@@ -105,11 +105,11 @@ vec3 SceneData::ConstructRayThroughPixel(int i, int j) {
 
 vec3 SceneData::FindIntersection(vec3 ray) {
     float min_t = INFINITY;
-    vec4 min_pimitive;
+    vec4 min_primitive;
     for (int i = 0; i < objects.size(); i++) {
         float t = Intersect(ray, objects[i]);
         if (t < min_t) {
-            min_pimitive = objects[i];
+            min_primitive = objects[i];
             min_t = t;
         }
     }
@@ -160,22 +160,20 @@ float SceneData::FindIntersectionWithSphere(vec3 ray, vec4 sphere) {
 }
 
 float SceneData::FindIntersectionWithPlane(vec3 ray, vec4 plane) {
-    float mx = plane.x;
-    float my = plane.y;
-    float mz = plane.z;
-    float radius = plane.a;
+    float a = plane.x;
+    float b = plane.y;
+    float c = plane.z;
+    float d = - plane.w;
 
     float x0 = eye.x;
     float y0 = eye.y;
     float z0 = eye.z;
 
-    vec3 vec = ray - eye;
-
     float vecx = ray.x;
     float vecy = ray.y;
     float vecz = ray.z;
 
-    float ans = 0.;
+    float ans = -(a * x0 + b * y0 + c * z0 + d) / (a * vecx + b * vecy + c * vecz);
 
     return ans;
 }
