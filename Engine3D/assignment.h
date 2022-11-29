@@ -18,7 +18,8 @@ public:
     Image ImageRayCasting();
 	vec3 ConstructRayThroughPixel(int i, int j);
     vec3 FindIntersection(vec3 ray);
-    vec4 GetColor(vec3 ray, vec3 hit);
+    vec4 GetColor(vec3 ray, vec3 hit, vec4 obj);
+	float GetAngle(vec3 ray, vec3 hit, vec4 obj);
 
 	float Intersect(vec3 ray, vec4 object);
 	float FindIntersectionWithSphere(vec3 ray, vec4 object);

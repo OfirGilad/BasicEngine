@@ -87,8 +87,9 @@ Image SceneData::ImageRayCasting() {
     for (int i = 0; i < image_width; i++) {
         for (int j = 0; j < image_height; j++) {
             vec3 ray = ConstructRayThroughPixel(i, j);
+            vec4 obj;
             vec3 hit = FindIntersection(ray);
-            image.setColor(i, j, GetColor(ray, hit));
+            //image.setColor(i, j, GetColor(ray, hit));
         }
     }
     return image;
@@ -178,6 +179,12 @@ float SceneData::FindIntersectionWithPlane(vec3 ray, vec4 plane) {
     return ans;
 }
 
-vec4 SceneData::GetColor(vec3 ray, vec3 hit) {
+vec4 SceneData::GetColor(vec3 ray, vec3 hit, vec4 obj) {
+    
     return vec4(0, 0, 0, 0);
+}
+
+float SceneData::GetAngle(vec3 ray, vec3 hit, vec4 obj) {
+    vec3 normalToThePlane = obj.w < 0 ? normalize(vec3(obj.x, obj.y, obj.z)) : normalize(hit - vec3(obj.x, obj.y, obj.z));
+    return (acos(dot(ray, normalToThePlane)) - acos(.0)) / (4 * acos(.0)) * 360;
 }
