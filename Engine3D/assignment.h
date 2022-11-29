@@ -31,8 +31,8 @@ public:
 	vec3 eye;
 	int bonus_mode_flag;
 	vec4 ambient;
-	vector<vec4>reflective_objects;
-	vector<vec4>transparent_objects;
+	vector<Model*>reflective_objects;
+	vector<Model*>transparent_objects;
 	vector<Model*>objects;
 	vector<vec4>colors;
 	vector<vec4>directions;

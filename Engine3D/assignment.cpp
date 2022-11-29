@@ -45,11 +45,24 @@ void SceneData::read_scene(string file_name) {
         }
         // r = reflective object - XYZR
         if (scene_data[i][0] == "r") {
-            reflective_objects.push_back(vec4(stof(scene_data[i][1]), stof(scene_data[i][2]), stof(scene_data[i][3]), stof(scene_data[i][4])));
+            if (stof(scene_data[i][4]) > 0) {
+                reflective_objects.push_back(new Sphere(vec4(stof(scene_data[i][1]), stof(scene_data[i][2]), stof(scene_data[i][3]), stof(scene_data[i][4]))));
+            }
+            else {
+                reflective_objects.push_back(new Plane(vec4(stof(scene_data[i][1]), stof(scene_data[i][2]), stof(scene_data[i][3]), stof(scene_data[i][4]))));
+            }
+            //reflective_objects.push_back(vec4(stof(scene_data[i][1]), stof(scene_data[i][2]), stof(scene_data[i][3]), stof(scene_data[i][4])));
         }
         // t = transparent object - XYZR
         if (scene_data[i][0] == "t") {
-            transparent_objects.push_back(vec4(stof(scene_data[i][1]), stof(scene_data[i][2]), stof(scene_data[i][3]), stof(scene_data[i][4])));
+            if (stof(scene_data[i][4]) > 0) {
+                transparent_objects.push_back(new Sphere(vec4(stof(scene_data[i][1]), stof(scene_data[i][2]), stof(scene_data[i][3]), stof(scene_data[i][4]))));
+            }
+            else {
+                transparent_objects.push_back(new Plane(vec4(stof(scene_data[i][1]), stof(scene_data[i][2]), stof(scene_data[i][3]), stof(scene_data[i][4]))));
+            }
+
+            //transparent_objects.push_back(vec4(stof(scene_data[i][1]), stof(scene_data[i][2]), stof(scene_data[i][3]), stof(scene_data[i][4])));
         }
         // o = object - XYZR (R>0 -> Spheres) / ABCD (D<0 -> Planes)
         if (scene_data[i][0] == "o") {
