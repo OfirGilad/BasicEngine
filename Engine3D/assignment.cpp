@@ -53,7 +53,12 @@ void SceneData::read_scene(string file_name) {
         }
         // o = object - XYZR (R>0 -> Spheres) / ABCD (D<0 -> Planes)
         if (scene_data[i][0] == "o") {
-            objects.push_back(vec4(stof(scene_data[i][1]), stof(scene_data[i][2]), stof(scene_data[i][3]), stof(scene_data[i][4])));
+            if (stof(scene_data[i][4]) > 0) {
+                objects.push_back(new Sphere(vec4(stof(scene_data[i][1]), stof(scene_data[i][2]), stof(scene_data[i][3]), stof(scene_data[i][4]))));
+            }
+            else {
+                objects.push_back(new Plane(vec4(stof(scene_data[i][1]), stof(scene_data[i][2]), stof(scene_data[i][3]), stof(scene_data[i][4]))));
+            }
         }
         // c = color (ambient and diffuse of object) - RGBA (A -> Shininess)
         if (scene_data[i][0] == "c") {
@@ -87,9 +92,8 @@ Image SceneData::ImageRayCasting() {
     for (int i = 0; i < image_width; i++) {
         for (int j = 0; j < image_height; j++) {
             vec3 ray = ConstructRayThroughPixel(i, j);
-            vec4 obj;
-            vec3 hit = FindIntersection(ray);
-            //image.setColor(i, j, GetColor(ray, hit));
+            Hit hit = FindIntersection(ray);
+            image.setColor(i, j, hit.obj->getColor(ray, hit.hitPoint));
         }
     }
     return image;
@@ -104,87 +108,91 @@ vec3 SceneData::ConstructRayThroughPixel(int i, int j) {
     return normalize(ray_direction);
 }
 
-vec3 SceneData::FindIntersection(vec3 ray) {
+Hit SceneData::FindIntersection(vec3 ray) {
     float min_t = INFINITY;
-    vec4 min_primitive;
+    Model* min_primitive;
     for (int i = 0; i < objects.size(); i++) {
-        float t = Intersect(ray, objects[i]);
+        float t = objects[i]->FindIntersection(ray, eye);
+        //float t = Intersect(ray, objects[i]);
         if (t < min_t) {
             min_primitive = objects[i];
             min_t = t;
         }
     }
-    vec3 hit = eye + ray * min_t;
+    Hit hit = Hit(eye + ray * min_t, min_primitive);
     return hit;
 }
 
-float SceneData::Intersect(vec3 ray, vec4 object) {
-    if (object.r > 0) {
-        return FindIntersectionWithSphere(ray, object);
-    }
-    else {
-        return FindIntersectionWithPlane(ray, object);
-    }
-}
+//float SceneData::Intersect(vec3 ray, vec4 object) {
+//    if (object.r > 0) {
+//        return FindIntersectionWithSphere(ray, object);
+//    }
+//    else {
+//        return FindIntersectionWithPlane(ray, object);
+//    }
+//}
 
-float SceneData::FindIntersectionWithSphere(vec3 ray, vec4 sphere) {
-    float mx = sphere.x;
-    float my = sphere.y;
-    float mz = sphere.z;
-    float radius = sphere.w;
+//float SceneData::FindIntersectionWithSphere(vec3 ray, vec4 sphere) {
+//    float mx = sphere.x;
+//    float my = sphere.y;
+//    float mz = sphere.z;
+//    float radius = sphere.w;
+//
+//    float x0 = eye.x;
+//    float y0 = eye.y;
+//    float z0 = eye.z;
+//
+//    float vecx = ray.x;
+//    float vecy = ray.y;
+//    float vecz = ray.z;
+//
+//    //quadratic = vec3(t^2, t, 1)
+//    vec3 quadratic = vec3(
+//        pow(vecx, 2) + pow(vecy, 2) + pow(vecz, 2),
+//        2 * (x0 - mx + y0 - my + z0 - mz),
+//        pow(x0 - mx, 2) + pow(y0 - my, 2) + pow(z0 - mz, 2) - pow(radius, 2)
+//    );
+//
+//    float delta = pow(quadratic.y, 2) - 4 * quadratic.x * quadratic.z; // b^2-4*a*c
+//
+//    if (delta < 0.)
+//        return -1;
+//
+//    float root = sqrt(delta);
+//    float ans1 = (-quadratic.y + root) / (2 * quadratic.x); // (-b + root) / 2*a
+//    float ans2 = (-quadratic.y - root) / (2 * quadratic.x); // (-b - root) / 2*a
+//
+//    return glm::min(ans1, ans2);
+//}
 
-    float x0 = eye.x;
-    float y0 = eye.y;
-    float z0 = eye.z;
+//float SceneData::FindIntersectionWithPlane(vec3 ray, vec4 plane) {
+//    float a = plane.x;
+//    float b = plane.y;
+//    float c = plane.z;
+//    float d = - plane.w;
+//
+//    float x0 = eye.x;
+//    float y0 = eye.y;
+//    float z0 = eye.z;
+//
+//    float vecx = ray.x;
+//    float vecy = ray.y;
+//    float vecz = ray.z;
+//
+//    float ans = -(a * x0 + b * y0 + c * z0 + d) / (a * vecx + b * vecy + c * vecz);
+//
+//    return ans;
+//}
 
-    float vecx = ray.x;
-    float vecy = ray.y;
-    float vecz = ray.z;
+//vec4 SceneData::GetColor(vec3 ray, Hit hit) {
+//    return hit.obj.getColor(ray, hit.hitPoint);
+//}
 
-    //quadratic = vec3(t^2, t, 1)
-    vec3 quadratic = vec3(
-        pow(vecx, 2) + pow(vecy, 2) + pow(vecz, 2),
-        2 * (x0 - mx + y0 - my + z0 - mz),
-        pow(x0 - mx, 2) + pow(y0 - my, 2) + pow(z0 - mz, 2) - pow(radius, 2)
-    );
-
-    float delta = pow(quadratic.y, 2) - 4 * quadratic.x * quadratic.z; // b^2-4*a*c
-
-    if (delta < 0.)
-        return -1;
-
-    float root = sqrt(delta);
-    float ans1 = (-quadratic.y + root) / (2 * quadratic.x); // (-b + root) / 2*a
-    float ans2 = (-quadratic.y - root) / (2 * quadratic.x); // (-b - root) / 2*a
-
-    return glm::min(ans1, ans2);
-}
-
-float SceneData::FindIntersectionWithPlane(vec3 ray, vec4 plane) {
-    float a = plane.x;
-    float b = plane.y;
-    float c = plane.z;
-    float d = - plane.w;
-
-    float x0 = eye.x;
-    float y0 = eye.y;
-    float z0 = eye.z;
-
-    float vecx = ray.x;
-    float vecy = ray.y;
-    float vecz = ray.z;
-
-    float ans = -(a * x0 + b * y0 + c * z0 + d) / (a * vecx + b * vecy + c * vecz);
-
-    return ans;
-}
-
-vec4 SceneData::GetColor(vec3 ray, vec3 hit, vec4 obj) {
-    
-    return vec4(0, 0, 0, 0);
-}
-
-float SceneData::GetAngle(vec3 ray, vec3 hit, vec4 obj) {
-    vec3 normalToThePlane = obj.w < 0 ? normalize(vec3(obj.x, obj.y, obj.z)) : normalize(hit - vec3(obj.x, obj.y, obj.z));
-    return (acos(dot(ray, normalToThePlane)) - acos(.0)) / (4 * acos(.0)) * 360;
-}
+//float SceneData::GetAngle(vec3 ray, Hit hit) {
+//    vec4 hitObj = hit.getObj();
+//    vec3 normalToThePlane = 
+//        hitObj.w < 0 ?
+//        normalize(vec3(hitObj.x, hitObj.y, hitObj.z)) :
+//        normalize(hit.hitPoint - vec3(hitObj.x, hitObj.y, hitObj.z));
+//    return (acos(dot(ray, normalToThePlane)) - acos(.0)) / (4 * acos(.0)) * 360;
+//}

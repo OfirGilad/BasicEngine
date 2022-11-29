@@ -34,7 +34,6 @@ int main(int argc,char *argv[])
     scene_data.find_pixel_size(DISPLAY_WIDTH, DISPLAY_HEIGHT);
 	//cout << scene_data.FindIntersectionWithPlane(vec3(-1, 0, 0), vec4(1, 0, 0, -1)) << endl;
 	//cout << scene_data.FindIntersectionWithSphere(vec3(1, 0, 0), vec4(0, 0, 0, 1)) << endl;
-	cout << scene_data.GetAngle(vec3(1, 0, 0), vec3(-1 / sqrt(2.), 1 / sqrt(2.), 0), vec4(0, 0, 0, 1)) << endl;
 	cout << acos(dot(vec3(1, 0, 0), vec3(-1 / sqrt(2.), 1 / sqrt(2.), 0))) / (4 * acos(.0)) * 360 << endl;
 
 	while(!display.CloseWindow())
