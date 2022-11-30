@@ -30,19 +30,17 @@ public:
 
 	float calcSpecular(float Ks, vec3 normalizedV, vec3 normalizedR, int n, float Il);
 
-	vec4 calcPhongColor(vec3 ray, Hit hit, vector<Light> Ls);
+	//vec4 calcPhongColor(vec3 ray, Hit hit, vector<Light> Ls);
 
 	// Variables
 	vector<vector<string>> scene_data;
 
 	vec3 eye;
-	int bonus_mode_flag;
+	float bonus_mode_flag;
 	vec4 ambient;
-	vector<Model*>reflective_objects;
-	vector<Model*>transparent_objects;
 	vector<Model*>objects;
-	vector<vec4>colors;
-	vector<vec4>directions;
+	// vector<vec4>colors;
+	vector<Light*>lights;
 	vector<vec4>positions;
 	vector<vec4>intensities;
 

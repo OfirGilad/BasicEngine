@@ -19,12 +19,12 @@ vec3 projection(vec3 u, vec3 v);
 
 class Image {
 
-private:
+
+public:
 	unsigned char* data;
 	int width;
 	int height;
-
-public:
+	
 	Image(int width, int height);
 
 	void setColor(int pixelX, int pixelY, vec4 rgba);
@@ -35,12 +35,20 @@ public:
 
 //---------------------------------  Model  -------------------------------------------
 
+enum objectType {
+	Regular,
+	Transparent,
+	Reflective
+};
+
 class Model {
 protected:
 	vec4 details;
-
+	vec4 color;
+	objectType objType;
 public:
 	virtual float FindIntersection(vec3 ray, vec3 somePointOnRay) = 0;
+	virtual void setColor(vec4 color);
 	virtual vec4 getColor(vec3 ray, vec3 hitPoint) = 0;
 	virtual float getAngle(vec3 ray, vec3 hitPoint);
 	virtual vec3 getNormal(vec3 hitPoint) = 0;
@@ -49,10 +57,10 @@ public:
 
 //---------------------------------  Plane  -------------------------------------------
 
-class Plane : public virtual Model{
+class Plane : public Model{
 
 public:
-	Plane(vec4 details);
+	Plane(vec4 details, objectType objType);
 	vec3 normal();
 	float d();
 	float FindIntersection(vec3 ray, vec3 somePointOnRay);
@@ -63,10 +71,10 @@ public:
 
 //---------------------------------  Sphere  ------------------------------------------
 
-class Sphere : public virtual Model {
+class Sphere : public Model {
 
 public:
-	Sphere(vec4 details);
+	Sphere(vec4 details, objectType objType);
 	vec3 center();
 	float radius();
 	float FindIntersection(vec3 ray, vec3 somePointOnRay);
@@ -87,8 +95,33 @@ public:
 
 //---------------------------------  Light  -------------------------------------------
 
+enum lightType {
+	Directional,
+	Spot
+};
+
 class Light {
 public:
-	vec3 point;
-	Light(vec3 point);
+	lightType liType;
+	vec3 direction;
+	vec4 intensity;
+	virtual void setParams(vec3 point, float cosAngle) = 0;
+};
+
+//---------------------------  DirectionalLight  --------------------------------------
+
+class DirectionalLight : public Light{
+public:
+	DirectionalLight(vec3 direction);
+	virtual void setParams(vec3 point, float cosAngle);
+};
+
+//------------------------------  SpotLight  ------------------------------------------
+
+class SpotLight : public Light {	
+public:
+	vec3 position;
+	float cosAngle;
+	SpotLight(vec3 direction);
+	void setParams(vec3 point, float cosAngle);
 };

@@ -33,56 +33,82 @@ void SceneData::read_scene(string file_name) {
             index = (index + 1) % 5;
         } 
     }
+    scene_data.push_back(scene_line);
+	vector<vec4>colors;
+
     for (int i = 0; i < scene_data.size(); i++) {
+		vec4 input_vector = vec4(stof(scene_data[i][1]), stof(scene_data[i][2]), stof(scene_data[i][3]), stof(scene_data[i][4]));
+
         // e = eye - XYZ + Bonus Mode Flag
         if (scene_data[i][0] == "e") {
-            eye = vec3(stof(scene_data[i][1]), stof(scene_data[i][2]), stof(scene_data[i][3]));
-            bonus_mode_flag = stof(scene_data[i][4]);
+            eye = vec3(input_vector.x, input_vector.y, input_vector.z);
+            bonus_mode_flag = input_vector.w;
         }
         // a = ambient - RGBA
         if (scene_data[i][0] == "a") {
-            ambient = vec4(stof(scene_data[i][1]), stof(scene_data[i][2]), stof(scene_data[i][3]), stof(scene_data[i][4]));
+            ambient = input_vector;
         }
-        // r = reflective object - XYZR
+        // r = reflective object - XYZR (R>0 -> Spheres) / ABCD (D<0 -> Planes)
         if (scene_data[i][0] == "r") {
-            if (stof(scene_data[i][4]) > 0)
-                reflective_objects.push_back(new Sphere(vec4(stof(scene_data[i][1]), stof(scene_data[i][2]), stof(scene_data[i][3]), stof(scene_data[i][4]))));
-            else reflective_objects.push_back(new Plane(vec4(stof(scene_data[i][1]), stof(scene_data[i][2]), stof(scene_data[i][3]), stof(scene_data[i][4]))));
+            if (input_vector.r > 0)
+                objects.push_back(new Sphere(input_vector, Reflective));
+            else objects.push_back(new Plane(input_vector, Reflective));
         }
-        // t = transparent object - XYZR
+        // t = transparent object - XYZR (R>0 -> Spheres) / ABCD (D<0 -> Planes)
         if (scene_data[i][0] == "t") {
-            if (stof(scene_data[i][4]) > 0)
-                transparent_objects.push_back(new Sphere(vec4(stof(scene_data[i][1]), stof(scene_data[i][2]), stof(scene_data[i][3]), stof(scene_data[i][4]))));
-            else transparent_objects.push_back(new Plane(vec4(stof(scene_data[i][1]), stof(scene_data[i][2]), stof(scene_data[i][3]), stof(scene_data[i][4]))));
+            if (input_vector.r > 0)
+                objects.push_back(new Sphere(input_vector, Transparent));
+            else objects.push_back(new Plane(input_vector, Transparent));
         }
         // o = object - XYZR (R>0 -> Spheres) / ABCD (D<0 -> Planes)
         if (scene_data[i][0] == "o") {
-            if (stof(scene_data[i][4]) > 0)
-                objects.push_back(new Sphere(vec4(stof(scene_data[i][1]), stof(scene_data[i][2]), stof(scene_data[i][3]), stof(scene_data[i][4]))));
-            else objects.push_back(new Plane(vec4(stof(scene_data[i][1]), stof(scene_data[i][2]), stof(scene_data[i][3]), stof(scene_data[i][4]))));
+            if (input_vector.r > 0)
+                objects.push_back(new Sphere(input_vector, Regular));
+            else objects.push_back(new Plane(input_vector, Regular));
         }
         // c = color (ambient and diffuse of object) - RGBA (A -> Shininess)
         if (scene_data[i][0] == "c") {
-            colors.push_back(vec4(stof(scene_data[i][1]), stof(scene_data[i][2]), stof(scene_data[i][3]), stof(scene_data[i][4])));
+            colors.push_back(input_vector);
         }
         // d = direction (of light sources)
         if (scene_data[i][0] == "d") {
-            directions.push_back(vec4(stof(scene_data[i][1]), stof(scene_data[i][2]), stof(scene_data[i][3]), stof(scene_data[i][4])));
+            if(input_vector.w > 0)
+                lights.push_back(new SpotLight(vec3(input_vector.x, input_vector.y, input_vector.z)));
+            else lights.push_back(new DirectionalLight(vec3(input_vector.x, input_vector.y, input_vector.z)));
         }
         // p = position (of spotlights only) - XYZW
         if (scene_data[i][0] == "p") {
-            positions.push_back(vec4(stof(scene_data[i][1]), stof(scene_data[i][2]), stof(scene_data[i][3]), stof(scene_data[i][4])));
+            positions.push_back(input_vector);
         }
         // i = intensity (of light sources) - RGBA
         if (scene_data[i][0] == "i") {
-            intensities.push_back(vec4(stof(scene_data[i][1]), stof(scene_data[i][2]), stof(scene_data[i][3]), stof(scene_data[i][4])));
+            intensities.push_back(input_vector);
+            cout << "sdfghjh" << endl;
         }
-    }    
+    }
+
+    // Set objects colors
+    for (int i = 0; i < objects.size(); i++) {
+        objects[i]->setColor(colors[i]);
+    }
+
+    // Set spotlight positions
+    int j = 0;
+
+    for (int i = 0; i < lights.size(); i++) {
+        if (lights[i]->liType == Spot) {
+            vec3 point = vec3(positions[j].x, positions[j].y, positions[j].z);
+            float cosAngle = positions[j++].w;
+            lights[i]->setParams(point, cosAngle);
+        }
+        lights[i]->intensity = intensities[i];
+    }
+
 }
 
 void SceneData::find_pixel_size(int width, int height) {
     image_width = width;
-    image_width = height;
+    image_height = height;
 
     pixel_width = 2 / width;
     pixel_height = 2 / height;
@@ -120,22 +146,7 @@ Hit SceneData::FindIntersection(vec3 ray) {
             min_t = t;
         }
     }
-    for (int i = 0; i < reflective_objects.size(); i++) {
-        float t = reflective_objects[i]->FindIntersection(ray, eye);
-        //float t = Intersect(ray, objects[i]);
-        if (t < min_t) {
-            min_primitive = reflective_objects[i];
-            min_t = t;
-        }
-    }
-    for (int i = 0; i < transparent_objects.size(); i++) {
-        float t = transparent_objects[i]->FindIntersection(ray, eye);
-        //float t = Intersect(ray, objects[i]);
-        if (t < min_t) {
-            min_primitive = transparent_objects[i];
-            min_t = t;
-        }
-    }
+    
     Hit hit = Hit(eye + ray * min_t, min_primitive);
     return hit;
 }
@@ -226,30 +237,30 @@ float SceneData::calcSpecular(float Ks, vec3 normalizedV, vec3 normalizedR, int 
     return Ks * pow(dot(normalizedV, normalizedR), n) * Il; //Is = Ks * (V^ dot R^) ^ n * Il
 }
 
-vec4 SceneData::calcPhongColor(vec3 ray, Hit hit, vector<Light> lights) {
-    vec3 V = -ray;
-    vec3 N = hit.obj->getNormal(hit.hitPoint);
-
-    vec4 Ie = vec4(0., 0., 0., 0.);
-    vec4 Ia = vec4(0., 0., 0., 0.);
-    float Ka = 0.;
-    float Kd = 0.;
-    float Ks = 0.;
-
-    float sumDiffuseSpecular = 0.;
-    for each (Light light in lights) {
-        vec3 L = light.point - hit.hitPoint;
-        vec3 R = 2.f * projection(L, N) - L;
-
-        for each (Model * someObj in objects) {
-            vec3 lightRay = hit.hitPoint - light.point;
-            float otherT = someObj->FindIntersection(lightRay, hit.hitPoint);
-
-            //if(light
-        }
-
-        //sumDiffuseSpecular += calcDiffuse(Kd, N, L, lightIntensity) + calcSpecular(Ks, V, R, n, lightIntensity);
-    }
-
-    return Ie + Ka * Ia + sumDiffuseSpecular;
-}
+//vec4 SceneData::calcPhongColor(vec3 ray, Hit hit, vector<Light> lights) {
+//    vec3 V = -ray;
+//    vec3 N = hit.obj->getNormal(hit.hitPoint);
+//
+//    vec4 Ie = vec4(0., 0., 0., 0.);
+//    vec4 Ia = vec4(0., 0., 0., 0.);
+//    float Ka = 0.;
+//    float Kd = 0.;
+//    float Ks = 0.7;
+//
+//    float sumDiffuseSpecular = 0.;
+//    for each (Light light in lights) {
+//        vec3 L = light.point - hit.hitPoint;
+//        vec3 R = 2.f * projection(L, N) - L;
+//
+//        for each (Model * someObj in objects) {
+//            vec3 lightRay = hit.hitPoint - light.point;
+//            float otherT = someObj->FindIntersection(lightRay, hit.hitPoint);
+//
+//            //if(light
+//        }
+//
+//        //sumDiffuseSpecular += calcDiffuse(Kd, N, L, lightIntensity) + calcSpecular(Ks, V, R, n, lightIntensity);
+//    }
+//
+//    return Ie + Ka * Ia + sumDiffuseSpecular;
+//}

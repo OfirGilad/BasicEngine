@@ -37,10 +37,17 @@ int main(int argc,char *argv[])
 	cout << acos(dot(vec3(1, 0, 0), vec3(-1 / sqrt(2.), 1 / sqrt(2.), 0))) / (4 * acos(.0)) * 360 << endl;
 	//vec3 proj = projection(vec3(4, 3, 0), vec3(100, 0, 0));
 	//cout << proj.x << " " << proj.y << " " << proj.z << endl;
+	Image img = scene_data.ImageRayCasting();
+	unsigned char* data = img.data;
+	cout << img.width << " " << img.height << endl;
+	scn->AddTexture(img.width, img.height, data);
 
 	while(!display.CloseWindow())
 	{
+		scn->SetShapeTex(0, 0);
+		glViewport(0, 0, DISPLAY_WIDTH, DISPLAY_HEIGHT);
 		scn->Draw(1,0,scn->BACK,true,false);
+		
 		scn->Motion();
 		display.SwapBuffers();
 		display.PollEvents();

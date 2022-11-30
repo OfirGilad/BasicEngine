@@ -49,6 +49,10 @@ unsigned char* Image::getData() {
 
 //---------------------------------  Model  -------------------------------------------
 
+void Model::setColor(vec4 color) {
+	this->color = color;
+}
+
 float Model::getAngle(vec3 hitVec, vec3 normal) {
 	// dot product returns cos ==> acos returns angle between the vectors (we need the angle between hitVec and plane) 
 	// ==> subtracting pi/2 gives us the actual angle ==> division by 2*pi and multiply by 360 gives us an angle in degrees
@@ -57,8 +61,9 @@ float Model::getAngle(vec3 hitVec, vec3 normal) {
 
 //---------------------------------  Plane  -------------------------------------------
 
-Plane::Plane(vec4 details) {
+Plane::Plane(vec4 details, objectType objType) {
 	this->details = details;
+	this->objType = objType;
 }
 
 vec3 Plane::normal() {
@@ -95,7 +100,7 @@ float Plane::FindIntersection(vec3 ray, vec3 somePointOnRay) {
 
 vec4 Plane::getColor(vec3 ray, vec3 hitPoint) {
 	float angle = this->getAngle(ray, hitPoint);
-	return vec4(0, 0, 0, 0); //I = I(emission) + K(ambient) * I(AL) + K(diffuse) * (N dot L) * I(light intensity) + K(specular) * (V dot R)^n I(light intensity)
+	return this->color; //I = I(emission) + K(ambient) * I(AL) + K(diffuse) * (N dot L) * I(light intensity) + K(specular) * (V dot R)^n I(light intensity)
 }
 
 float Plane::getAngle(vec3 ray, vec3 hitPoint) {
@@ -109,8 +114,9 @@ vec3 Plane::getNormal(vec3 hitPoint) {
 
 //---------------------------------  Sphere  ------------------------------------------
 
-Sphere::Sphere(vec4 details) {
+Sphere::Sphere(vec4 details, objectType objType) {
 	this->details = details;
+	this->objType = objType;
 }
 
 vec3 Sphere::center() {
@@ -163,7 +169,7 @@ float Sphere::FindIntersection(vec3 ray, vec3 somePointOnRay) {
 
 vec4 Sphere::getColor(vec3 ray, vec3 hitPoint) {
 	float angle = this->getAngle(ray, hitPoint);
-	return vec4(0, 0, 0, 0); //I = I(emission) + K(ambient) * I(AL) + K(diffuse) * (N dot L) * I(light intensity) + K(specular) * (V dot R)^n I(light intensity)
+	return this->color; //I = I(emission) + K(ambient) * I(AL) + K(diffuse) * (N dot L) * I(light intensity) + K(specular) * (V dot R)^n I(light intensity)
 }
 
 float Sphere::getAngle(vec3 ray, vec3 hitPoint) {
@@ -180,4 +186,25 @@ vec3 Sphere::getNormal(vec3 hitPoint) {
 Hit::Hit(vec3 hitPoint, Model* obj) {
 	this->hitPoint = hitPoint;
 	this->obj = obj;
+}
+
+//---------------------------  DirectionalLight  --------------------------------------
+
+DirectionalLight::DirectionalLight(vec3 direction) {
+	this->liType = Directional;
+	this->direction = direction;
+}
+
+void DirectionalLight::setParams(vec3 point, float cosAngle){}
+
+//------------------------------  SpotLight  ------------------------------------------
+
+SpotLight::SpotLight(vec3 direction) {
+	this->liType = Spot;
+	this->direction = direction;
+}
+
+void SpotLight::setParams(vec3 point, float cosAngle) {
+	this->position = point;
+	this->cosAngle = cosAngle;
 }
