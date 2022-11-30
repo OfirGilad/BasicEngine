@@ -24,6 +24,10 @@ float getT(vec3 normalizedVec, vec3 otherVec) {
 	return vectorSize(otherVec) / vectorSize(normalizedVec);
 }
 
+vec3 projection(vec3 u, vec3 v) {
+	return v * (dot(u, v) / pow(vectorSize(v), 2.f));
+}
+
 //---------------------------------  Image  -------------------------------------------
 
 Image::Image(int width, int height) {
@@ -69,22 +73,22 @@ float Plane::d() {
 	return details.w;
 }
 
-float Plane::FindIntersection(vec3 ray, vec3 eye) {
-	vec3 plane = this->normal();
-	float a = plane.x;
-	float b = plane.y;
-	float c = plane.z;
+float Plane::FindIntersection(vec3 ray, vec3 somePointOnRay) {
+	vec3 planeNormal = this->normal();
+	float a = planeNormal.x;
+	float b = planeNormal.y;
+	float c = planeNormal.z;
 	float d = -this->d();
 
-	float x0 = eye.x;
-	float y0 = eye.y;
-	float z0 = eye.z;
+	float x0 = somePointOnRay.x;
+	float y0 = somePointOnRay.y;
+	float z0 = somePointOnRay.z;
 
 	float vecx = ray.x;
 	float vecy = ray.y;
 	float vecz = ray.z;
 
-	float ans = -(a * x0 + b * y0 + c * z0 + d) / (a * vecx + b * vecy + c * vecz);
+	float ans = -(a * x0 + b * y0 + c * z0 + d) / (a * vecx + b * vecy + c * vecz); // = -(dot(planeNormal, somePointOnRay) + d) / dot(planeNormal, ray);
 
 	return ans;
 }
@@ -97,6 +101,10 @@ vec4 Plane::getColor(vec3 ray, vec3 hitPoint) {
 float Plane::getAngle(vec3 ray, vec3 hitPoint) {
 	vec3 normalToThePlane = normalize(this->normal());
 	return Model::getAngle(ray, normalToThePlane);
+}
+
+vec3 Plane::getNormal(vec3 hitPoint) {
+	return normal();
 }
 
 //---------------------------------  Sphere  ------------------------------------------
@@ -117,26 +125,28 @@ float Sphere::radius() {
 	return details.w;
 }
 
-float Sphere::FindIntersection(vec3 ray, vec3 eye) {
+float Sphere::FindIntersection(vec3 ray, vec3 somePointOnRay) {
 	vec3 center = this->center();
 	float mx = center.x;
 	float my = center.y;
 	float mz = center.z;
 	float radius = this->radius();
 
-	float x0 = eye.x;
-	float y0 = eye.y;
-	float z0 = eye.z;
+	float x0 = somePointOnRay.x;
+	float y0 = somePointOnRay.y;
+	float z0 = somePointOnRay.z;
 
 	float vecx = ray.x;
 	float vecy = ray.y;
 	float vecz = ray.z;
 
+	vec3 pointMinusCenterVec = somePointOnRay - center;
+
 	//quadratic = vec3(t^2, t, 1)
 	vec3 quadratic = vec3(
-		pow(vecx, 2) + pow(vecy, 2) + pow(vecz, 2),
-		2 * (x0 - mx + y0 - my + z0 - mz),
-		pow(x0 - mx, 2) + pow(y0 - my, 2) + pow(z0 - mz, 2) - pow(radius, 2)
+		1, //pow(vecx, 2) + pow(vecy, 2) + pow(vecz, 2) == 1 (ray is normalized)
+		2 * dot(ray, pointMinusCenterVec),
+		dot(pointMinusCenterVec, pointMinusCenterVec) - pow(radius, 2)
 	);
 
 	float delta = pow(quadratic.y, 2) - 4 * quadratic.x * quadratic.z; // b^2-4*a*c
@@ -157,8 +167,12 @@ vec4 Sphere::getColor(vec3 ray, vec3 hitPoint) {
 }
 
 float Sphere::getAngle(vec3 ray, vec3 hitPoint) {
-	vec3 normalToThePlane = normalize(hitPoint - this->center());
+	vec3 normalToThePlane = normalize(getNormal(hitPoint));
 	return Model::getAngle(ray, normalToThePlane);
+}
+
+vec3 Sphere::getNormal(vec3 hitPoint) {
+	return hitPoint - center();
 }
 
 //---------------------------------  Hit  -------------------------------------------

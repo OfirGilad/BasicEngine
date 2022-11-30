@@ -35,6 +35,8 @@ int main(int argc,char *argv[])
 	//cout << scene_data.FindIntersectionWithPlane(vec3(-1, 0, 0), vec4(1, 0, 0, -1)) << endl;
 	//cout << scene_data.FindIntersectionWithSphere(vec3(1, 0, 0), vec4(0, 0, 0, 1)) << endl;
 	cout << acos(dot(vec3(1, 0, 0), vec3(-1 / sqrt(2.), 1 / sqrt(2.), 0))) / (4 * acos(.0)) * 360 << endl;
+	//vec3 proj = projection(vec3(4, 3, 0), vec3(100, 0, 0));
+	//cout << proj.x << " " << proj.y << " " << proj.z << endl;
 
 	while(!display.CloseWindow())
 	{
