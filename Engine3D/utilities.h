@@ -49,7 +49,7 @@ protected:
 public:
 	virtual float FindIntersection(vec3 ray, vec3 somePointOnRay) = 0;
 	virtual void setColor(vec4 color);
-	virtual vec4 getColor(vec3 ray, vec3 hitPoint) = 0;
+	virtual vec4 getColor(vec3 hitPoint) = 0;
 	virtual float getAngle(vec3 ray, vec3 hitPoint);
 	virtual vec3 getNormal(vec3 hitPoint) = 0;
 	//virtual void setPhongParams(vec4);
@@ -64,7 +64,7 @@ public:
 	vec3 normal();
 	float d();
 	float FindIntersection(vec3 ray, vec3 somePointOnRay);
-	vec4 getColor(vec3 ray, vec3 hitPoint);
+	vec4 getColor(vec3 hitPoint);
 	float getAngle(vec3 ray, vec3 hitPoint);
 	vec3 getNormal(vec3 hitPoint);
 };
@@ -78,7 +78,7 @@ public:
 	vec3 center();
 	float radius();
 	float FindIntersection(vec3 ray, vec3 somePointOnRay);
-	vec4 getColor(vec3 ray, vec3 hitPoint);
+	vec4 getColor(vec3 hitPoint);
 	float getAngle(vec3 ray, vec3 hitPoint);
 	vec3 getNormal(vec3 hitPoint);
 };
@@ -104,8 +104,10 @@ class Light {
 public:
 	lightType liType;
 	vec3 direction;
+	vec3 position;
+	float cosAngle;
 	vec4 intensity;
-	virtual void setParams(vec3 point, float cosAngle) = 0;
+	/*virtual void setParams(vec3 point, float cosAngle) = 0;*/
 };
 
 //---------------------------  DirectionalLight  --------------------------------------
@@ -113,15 +115,13 @@ public:
 class DirectionalLight : public Light{
 public:
 	DirectionalLight(vec3 direction);
-	virtual void setParams(vec3 point, float cosAngle);
+	/*virtual void setParams(vec3 point, float cosAngle);*/
 };
 
 //------------------------------  SpotLight  ------------------------------------------
 
 class SpotLight : public Light {	
 public:
-	vec3 position;
-	float cosAngle;
 	SpotLight(vec3 direction);
-	void setParams(vec3 point, float cosAngle);
+	/*void setParams(vec3 point, float cosAngle);*/
 };

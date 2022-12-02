@@ -103,13 +103,13 @@ float Plane::FindIntersection(vec3 ray, vec3 somePointOnRay) {
 	return ans;
 }
 
-vec4 Plane::getColor(vec3 ray, vec3 hitPoint) {
-	float angle = this->getAngle(ray, hitPoint);
+vec4 Plane::getColor(vec3 hitPoint) {
+	//float angle = this->getAngle(ray, hitPoint);
 
 	// checkers board pattern
-	//if ((int(1.5 * hitPoint.x) % 2) == (int(1.5 * hitPoint.y) % 2)) {
-	//	return vec4(0, 0, 0, 0);
-	//}
+	if ((int(1.5 * hitPoint.x) % 2) == (int(1.5 * hitPoint.y) % 2)) {
+		return vec4(0, 0, 0, 0);
+	}
 
 	return this->color; //I = I(emission) + K(ambient) * I(AL) + K(diffuse) * (N dot L) * I(light intensity) + K(specular) * (V dot R)^n I(light intensity)
 }
@@ -178,8 +178,8 @@ float Sphere::FindIntersection(vec3 ray, vec3 somePointOnRay) {
 	return glm::min(ans1, ans2);
 }
 
-vec4 Sphere::getColor(vec3 ray, vec3 hitPoint) {
-	float angle = this->getAngle(ray, hitPoint);
+vec4 Sphere::getColor(vec3 hitPoint) {
+	//float angle = this->getAngle(ray, hitPoint);
 	return this->color; //I = I(emission) + K(ambient) * I(AL) + K(diffuse) * (N dot L) * I(light intensity) + K(specular) * (V dot R)^n I(light intensity)
 }
 
@@ -206,7 +206,7 @@ DirectionalLight::DirectionalLight(vec3 direction) {
 	this->direction = direction;
 }
 
-void DirectionalLight::setParams(vec3 point, float cosAngle){}
+//void DirectionalLight::setParams(vec3 point, float cosAngle){}
 
 //------------------------------  SpotLight  ------------------------------------------
 
@@ -215,7 +215,7 @@ SpotLight::SpotLight(vec3 direction) {
 	this->direction = direction;
 }
 
-void SpotLight::setParams(vec3 point, float cosAngle) {
-	this->position = point;
-	this->cosAngle = cosAngle;
-}
+//void SpotLight::setParams(vec3 point, float cosAngle) {
+//	this->position = point;
+//	this->cosAngle = cosAngle;
+//}
