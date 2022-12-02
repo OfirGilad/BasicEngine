@@ -88,7 +88,7 @@ float Plane::FindIntersection(vec3 ray, vec3 somePointOnRay) {
 	float a = planeNormal.x;
 	float b = planeNormal.y;
 	float c = planeNormal.z;
-	float d = -this->d();
+	float d = this->d();
 
 	float x0 = somePointOnRay.x;
 	float y0 = somePointOnRay.y;
