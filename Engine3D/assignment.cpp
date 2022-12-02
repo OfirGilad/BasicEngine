@@ -110,8 +110,8 @@ void SceneData::find_pixel_size(int width, int height) {
     image_width = width;
     image_height = height;
 
-    pixel_width = 2 / width;
-    pixel_height = 2 / height;
+    pixel_width = 2.0 / float(width);
+    pixel_height = 2.0 / float(height);
 }
 
 Image SceneData::ImageRayCasting() {
@@ -138,20 +138,25 @@ vec3 SceneData::ConstructRayThroughPixel(int i, int j) {
 Hit SceneData::FindIntersection(vec3 ray) {
     // Set Default Values
     float min_t = INFINITY;
-    Model* min_primitive = new Plane(vec4(0, 0, 0, 0), Regular);
-    min_primitive->setColor(vec4(0, 0, 0, 0));
+    Model* min_primitive = new Plane(vec4(1.0, 1.0, 1.0, 1.0), Regular);
+    min_primitive->setColor(vec4(0.0, 0.0, 0.0, 0.0));
+    bool got_hit = false;
 
     // Looping over all the objects
     for (int i = 0; i < objects.size(); i++) {
         float t = objects[i]->FindIntersection(ray, eye);
         //float t = Intersect(ray, objects[i]);
         if (t < min_t) {
+            got_hit = true;
             min_primitive = objects[i];
             min_t = t;
         }
     }
 
-    Hit hit = Hit(eye + ray * min_t, min_primitive);
+    Hit hit = Hit(eye + ray, min_primitive);
+    if (got_hit) {
+        hit = Hit(eye + ray * min_t, min_primitive);
+    }
     return hit;
 }
 
