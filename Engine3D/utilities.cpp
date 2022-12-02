@@ -37,10 +37,15 @@ Image::Image(int width, int height) {
 }
 
 void Image::setColor(int pixelX, int pixelY, vec4 rgba) {
-	data[(this->width * pixelY + pixelX) * 4] = rgba.r;
-	data[(this->width * pixelY + pixelX) * 4 + 1] = rgba.g;
-	data[(this->width * pixelY + pixelX) * 4 + 2] = rgba.b;
-	data[(this->width * pixelY + pixelX) * 4 + 3] = rgba.a;
+	data[(this->width * pixelY + pixelX) * 4] = (unsigned char) (rgba.r * 255);
+	data[(this->width * pixelY + pixelX) * 4 + 1] = (unsigned char) (rgba.g * 255);
+	data[(this->width * pixelY + pixelX) * 4 + 2] = (unsigned char) (rgba.b * 255);
+	data[(this->width * pixelY + pixelX) * 4 + 3] = (unsigned char) (rgba.a * 255);
+
+	//data[(this->width * pixelY + pixelX) * 4] = (unsigned char) 100;
+	//data[(this->width * pixelY + pixelX) * 4 + 1] = (unsigned char) 100;
+	//data[(this->width * pixelY + pixelX) * 4 + 2] = (unsigned char) 100;
+	//data[(this->width * pixelY + pixelX) * 4 + 3] = (unsigned char) 100;
 }
 
 unsigned char* Image::getData() {
@@ -157,8 +162,8 @@ float Sphere::FindIntersection(vec3 ray, vec3 somePointOnRay) {
 
 	float delta = pow(quadratic.y, 2) - 4 * quadratic.x * quadratic.z; // b^2-4*a*c
 
-	if (delta < 0.)
-		return -1;
+	if (delta < 0.0)
+		return INFINITY;
 
 	float root = sqrt(delta);
 	float ans1 = (-quadratic.y + root) / (2 * quadratic.x); // (-b + root) / 2*a

@@ -5,6 +5,7 @@
 
 #include "assignment.h"
 #include <string>
+#include <stb_image.h>
 
 using namespace std;
 
@@ -26,28 +27,38 @@ int main(int argc,char *argv[])
 
 	display.SetScene(scn);
 
+
 	// new code here
 	string file_name = "../scenes/scene.txt";
 
 	SceneData scene_data = SceneData();
 	scene_data.read_scene(file_name);
     scene_data.find_pixel_size(DISPLAY_WIDTH, DISPLAY_HEIGHT);
+
 	//cout << scene_data.FindIntersectionWithPlane(vec3(-1, 0, 0), vec4(1, 0, 0, -1)) << endl;
 	//cout << scene_data.FindIntersectionWithSphere(vec3(1, 0, 0), vec4(0, 0, 0, 1)) << endl;
+
 	cout << acos(dot(vec3(1, 0, 0), vec3(-1 / sqrt(2.), 1 / sqrt(2.), 0))) / (4 * acos(.0)) * 360 << endl;
+
 	//vec3 proj = projection(vec3(4, 3, 0), vec3(100, 0, 0));
 	//cout << proj.x << " " << proj.y << " " << proj.z << endl;
+
+	
 	Image img = scene_data.ImageRayCasting();
-	unsigned char* data = img.data;
-	cout << img.width << " " << img.height << endl;
-	scn->AddTexture(img.width, img.height, data);
+	scn->AddTexture(img.width, img.height, img.data);
+
+
+	// Test image
+	
+	/*int width, height, numComponents;
+	unsigned char* data = stbi_load("../scenes/raycasting.png", &width, &height, &numComponents, 4);
+	scn->AddTexture(width, height, data);*/
+
+	//
 
 	while(!display.CloseWindow())
 	{
-		scn->SetShapeTex(0, 0);
-		//glViewport(0, 0, DISPLAY_WIDTH, DISPLAY_HEIGHT);
 		scn->Draw(1,0,scn->BACK,true,false);
-		
 		scn->Motion();
 		display.SwapBuffers();
 		display.PollEvents();

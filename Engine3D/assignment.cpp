@@ -49,21 +49,21 @@ void SceneData::read_scene(string file_name) {
         if (scene_data[i][0] == "a") {
             ambient = input_vector;
         }
-        // r = reflective object - XYZR (R>0 -> Spheres) / ABCD (D<0 -> Planes)
+        // r = reflective object - XYZW (W>0 -> Spheres) / (W<0 -> Planes)
         if (scene_data[i][0] == "r") {
-            if (input_vector.r > 0)
+            if (input_vector.w > 0)
                 objects.push_back(new Sphere(input_vector, Reflective));
             else objects.push_back(new Plane(input_vector, Reflective));
         }
-        // t = transparent object - XYZR (R>0 -> Spheres) / ABCD (D<0 -> Planes)
+        // t = transparent object - XYZW (W>0 -> Spheres) / (W<0 -> Planes)
         if (scene_data[i][0] == "t") {
-            if (input_vector.r > 0)
+            if (input_vector.w > 0)
                 objects.push_back(new Sphere(input_vector, Transparent));
             else objects.push_back(new Plane(input_vector, Transparent));
         }
-        // o = object - XYZR (R>0 -> Spheres) / ABCD (D<0 -> Planes)
+        // o = object - XYZW (W>0 -> Spheres) / (W<0 -> Planes)
         if (scene_data[i][0] == "o") {
-            if (input_vector.r > 0)
+            if (input_vector.w > 0)
                 objects.push_back(new Sphere(input_vector, Regular));
             else objects.push_back(new Plane(input_vector, Regular));
         }
@@ -71,7 +71,7 @@ void SceneData::read_scene(string file_name) {
         if (scene_data[i][0] == "c") {
             colors.push_back(input_vector);
         }
-        // d = direction (of light sources)
+        // d = direction (of light sources) - XYZW
         if (scene_data[i][0] == "d") {
             if(input_vector.w > 0)
                 lights.push_back(new SpotLight(vec3(input_vector.x, input_vector.y, input_vector.z)));
@@ -136,8 +136,12 @@ vec3 SceneData::ConstructRayThroughPixel(int i, int j) {
 }
 
 Hit SceneData::FindIntersection(vec3 ray) {
+    // Set Default Values
     float min_t = INFINITY;
-    Model* min_primitive;
+    Model* min_primitive = new Plane(vec4(0, 0, 0, 0), Regular);
+    min_primitive->setColor(vec4(0, 0, 0, 0));
+
+    // Looping over all the objects
     for (int i = 0; i < objects.size(); i++) {
         float t = objects[i]->FindIntersection(ray, eye);
         //float t = Intersect(ray, objects[i]);
@@ -146,7 +150,7 @@ Hit SceneData::FindIntersection(vec3 ray) {
             min_t = t;
         }
     }
-    
+
     Hit hit = Hit(eye + ray * min_t, min_primitive);
     return hit;
 }
