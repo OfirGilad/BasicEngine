@@ -116,11 +116,17 @@ void SceneData::find_pixel_size(int width, int height) {
 
 Image SceneData::ImageRayCasting() {
     Image image = Image(image_width, image_height);
-    for (int i = 0; i < image_width; i++) {
-        for (int j = 0; j < image_height; j++) {
+
+    for (int j = 0; j < image_height; j++) {
+        for (int i = 0; i < image_width; i++) {
+            if ((i == 200) && (j == 600)) {
+                cout << "TEST" << endl;
+            }
             vec3 ray = ConstructRayThroughPixel(i, j);
             Hit hit = FindIntersection(ray);
-            image.setColor(i, j, hit.obj->getColor(ray, hit.hitPoint));
+            vec4 pixel_color = GetColor(ray, hit);
+
+            image.setColor(i, j, pixel_color);
         }
     }
     return image;
@@ -146,6 +152,7 @@ Hit SceneData::FindIntersection(vec3 ray) {
     for (int i = 0; i < objects.size(); i++) {
         float t = objects[i]->FindIntersection(ray, eye);
         //float t = Intersect(ray, objects[i]);
+
         if (t < min_t) {
             got_hit = true;
             min_primitive = objects[i];
@@ -159,6 +166,40 @@ Hit SceneData::FindIntersection(vec3 ray) {
     }
     return hit;
 }
+
+vec4 SceneData::GetColor(vec3 ray, Hit hit) {
+    vec4 color = hit.obj->getColor(ray, hit.hitPoint);
+    vec4 diffuse_color;
+    vec4 specular_color;
+
+    for (int i = 0; i < lights.size(); i++) {
+        diffuse_color += calcDiffuseColor(hit, lights[i]);
+        specular_color += calcSpecularColor(hit, lights[i]);
+    }
+    color = color * diffuse_color;
+    return color;
+}
+
+vec4 SceneData::calcDiffuseColor(Hit hit, Light* light) {
+    vec3 object_normal = hit.obj->getNormal(hit.hitPoint);
+    vec3 light_hit = normalize(light->direction);
+    // N*L = cos(t)
+    float cos_value = dot(object_normal, light_hit);
+    // Id = Kd*(N*L)*Il
+    vec4 diffuse_color = cos_value * light->intensity;
+    return diffuse_color;
+}
+vec4 SceneData::calcSpecularColor(Hit hit, Light* light) {
+    vec3 object_normal = hit.obj->getNormal(hit.hitPoint);
+    vec3 light_hit = normalize(light->direction);
+    // N*L = cos(t)
+    float cos_value = dot(object_normal, light_hit);
+
+
+    // Id = Ks*(V*R)^n*Il
+    return vec4(0, 0, 0, 0);
+}
+
 
 //float SceneData::Intersect(vec3 ray, vec4 object) {
 //    if (object.r > 0) {

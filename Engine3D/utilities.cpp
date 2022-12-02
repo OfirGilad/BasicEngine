@@ -105,6 +105,12 @@ float Plane::FindIntersection(vec3 ray, vec3 somePointOnRay) {
 
 vec4 Plane::getColor(vec3 ray, vec3 hitPoint) {
 	float angle = this->getAngle(ray, hitPoint);
+
+	// checkers board pattern
+	//if ((int(1.5 * hitPoint.x) % 2) == (int(1.5 * hitPoint.y) % 2)) {
+	//	return vec4(0, 0, 0, 0);
+	//}
+
 	return this->color; //I = I(emission) + K(ambient) * I(AL) + K(diffuse) * (N dot L) * I(light intensity) + K(specular) * (V dot R)^n I(light intensity)
 }
 
