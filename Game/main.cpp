@@ -45,7 +45,7 @@ int main(int argc,char *argv[])
 	while(!display.CloseWindow())
 	{
 		scn->SetShapeTex(0, 0);
-		glViewport(0, 0, DISPLAY_WIDTH, DISPLAY_HEIGHT);
+		//glViewport(0, 0, DISPLAY_WIDTH, DISPLAY_HEIGHT);
 		scn->Draw(1,0,scn->BACK,true,false);
 		
 		scn->Motion();

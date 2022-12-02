@@ -25,15 +25,16 @@ void SceneData::read_scene(string file_name) {
         std::stringstream text_line_stream(text_line);
 
         while (getline(text_line_stream, text_argument, ' ')) {
+            scene_line.push_back(text_argument);
+            index = (index + 1) % 5;
+
             if (index == 4) {
                 scene_data.push_back(scene_line);
                 scene_line.clear();
             }
-            scene_line.push_back(text_argument);
-            index = (index + 1) % 5;
         } 
     }
-    scene_data.push_back(scene_line);
+
 	vector<vec4>colors;
 
     for (int i = 0; i < scene_data.size(); i++) {
@@ -83,7 +84,6 @@ void SceneData::read_scene(string file_name) {
         // i = intensity (of light sources) - RGBA
         if (scene_data[i][0] == "i") {
             intensities.push_back(input_vector);
-            cout << "sdfghjh" << endl;
         }
     }
 
