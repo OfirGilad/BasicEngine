@@ -115,12 +115,12 @@ vec4 Plane::getColor(vec3 hitPoint) {
 }
 
 float Plane::getAngle(vec3 ray, vec3 hitPoint) {
-	vec3 normalToThePlane = normalize(this->normal());
+	vec3 normalToThePlane = normalizedVector(this->normal());
 	return Model::getAngle(ray, normalToThePlane);
 }
 
 vec3 Plane::getNormal(vec3 hitPoint) {
-	return normal();
+	return normalizedVector(normal());
 }
 
 //---------------------------------  Sphere  ------------------------------------------
@@ -184,12 +184,12 @@ vec4 Sphere::getColor(vec3 hitPoint) {
 }
 
 float Sphere::getAngle(vec3 ray, vec3 hitPoint) {
-	vec3 normalToThePlane = normalize(getNormal(hitPoint));
+	vec3 normalToThePlane = normalizedVector(getNormal(hitPoint));
 	return Model::getAngle(ray, normalToThePlane);
 }
 
 vec3 Sphere::getNormal(vec3 hitPoint) {
-	return hitPoint - center();
+	return normalizedVector(hitPoint - center());
 }
 
 //---------------------------------  Hit  -------------------------------------------

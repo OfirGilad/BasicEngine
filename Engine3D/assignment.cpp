@@ -139,7 +139,7 @@ vec3 SceneData::ConstructRayThroughPixel(int i, int j) {
     vec3 hit_on_screen = top_left_point + vec3(i * pixel_width, -1 * (j * pixel_height), 0);
     vec3 ray_direction = hit_on_screen - eye;
     
-    return normalize(ray_direction);
+    return normalizedVector(ray_direction);
 }
 
 Hit SceneData::FindIntersection(vec3 ray) {
@@ -175,7 +175,7 @@ vec4 SceneData::GetColor(vec3 ray, Hit hit) {
 
     for (int i = 0; i < lights.size(); i++) {
         color += color * calcDiffuseColor(hit, lights[i]);
-        color += color * calcSpecularColor(hit, lights[i]);
+        color += 0.7f * calcSpecularColor(hit, lights[i]);
     }
     //color = color * diffuse_color;
     return color;
@@ -183,10 +183,10 @@ vec4 SceneData::GetColor(vec3 ray, Hit hit) {
 
 vec4 SceneData::calcDiffuseColor(Hit hit, Light* light) {
     float light_cos_value = 1.0;
-    vec3 virtual_spotlight_ray = light->direction;
+    vec3 virtual_spotlight_ray = normalizedVector(light->direction);
 
     if (light->liType == Spot) {
-        virtual_spotlight_ray = normalize(hit.hitPoint - light->position);
+        virtual_spotlight_ray = normalizedVector(hit.hitPoint - light->position);
         light_cos_value = dot(virtual_spotlight_ray, light->direction);
 
         if (light_cos_value > light->cosAngle) {
@@ -194,7 +194,7 @@ vec4 SceneData::calcDiffuseColor(Hit hit, Light* light) {
         }
     }
     vec3 object_normal = hit.obj->getNormal(hit.hitPoint);
-    vec3 light_hit_direction = normalize(virtual_spotlight_ray);
+    vec3 light_hit_direction = normalizedVector(virtual_spotlight_ray);
 
     // N*L = cos(t)
     float hit_cos_value = dot(object_normal, light_hit_direction);
@@ -206,10 +206,10 @@ vec4 SceneData::calcDiffuseColor(Hit hit, Light* light) {
 
 vec4 SceneData::calcSpecularColor(Hit hit, Light* light) {
     float light_cos_value = 1.0;
-    vec3 virtual_spotlight_ray = light->direction;
+    vec3 virtual_spotlight_ray = normalizedVector(light->direction);
 
     if (light->liType == Spot) {
-        virtual_spotlight_ray = normalize(hit.hitPoint - light->position);
+        virtual_spotlight_ray = normalizedVector(hit.hitPoint - light->position);
         light_cos_value = dot(virtual_spotlight_ray, light->direction);
 
         if (light_cos_value > light->cosAngle) {
@@ -218,11 +218,11 @@ vec4 SceneData::calcSpecularColor(Hit hit, Light* light) {
     }
 
     vec3 object_normal = hit.obj->getNormal(hit.hitPoint);
-    vec3 light_hit_direction = normalize(virtual_spotlight_ray);
+    vec3 light_hit_direction = normalizedVector(virtual_spotlight_ray);
     float scalar2 = 2.0;
 
     vec3 reflected_light_ray = light_hit_direction - scalar2 * object_normal * dot(light_hit_direction, object_normal);
-    vec3 obj_to_eye_vec = normalize(eye - hit.hitPoint);
+    vec3 obj_to_eye_vec = normalizedVector(eye - hit.hitPoint);
 
     // V*R = cos(t)
     float hit_cos_value = dot(object_normal, light_hit_direction);
@@ -299,8 +299,8 @@ vec4 SceneData::calcSpecularColor(Hit hit, Light* light) {
 //    vec4 hitObj = hit.getObj();
 //    vec3 normalToThePlane = 
 //        hitObj.w < 0 ?
-//        normalize(vec3(hitObj.x, hitObj.y, hitObj.z)) :
-//        normalize(hit.hitPoint - vec3(hitObj.x, hitObj.y, hitObj.z));
+//        normalizedVector(vec3(hitObj.x, hitObj.y, hitObj.z)) :
+//        normalizedVector(hit.hitPoint - vec3(hitObj.x, hitObj.y, hitObj.z));
 //    return (acos(dot(ray, normalToThePlane)) - acos(.0)) / (4 * acos(.0)) * 360;
 //}
 
