@@ -107,11 +107,11 @@ vec3 Plane::getColor(vec3 hitPoint) {
 		return 0.5f * this->rgb_color;
 	}
 
-	return this->rgb_color; //I = I(emission) + K(ambient) * I(AL) + K(diffuse) * (N dot L) * I(light intensity) + K(specular) * (V dot R)^n I(light intensity)
+	return this->rgb_color; // I = I(emission) + K(ambient) * I(ambient) + K(diffuse) * (N dot L) * I(light intensity) + K(specular) * (V dot R)^n * I(light intensity)
 }
 
 float Plane::getAngle(vec3 ray, vec3 hitPoint) {
-	vec3 normalToThePlane = normalizedVector(this->normal());
+	vec3 normalToThePlane = getNormal(hitPoint);
 	return Model::getAngle(ray, normalToThePlane);
 }
 
@@ -176,12 +176,12 @@ float Sphere::FindIntersection(vec3 ray, vec3 somePointOnRay) {
 
 vec3 Sphere::getColor(vec3 hitPoint) {
 	//float angle = this->getAngle(ray, hitPoint);
-	return this->rgb_color; //I = I(emission) + K(ambient) * I(AL) + K(diffuse) * (N dot L) * I(light intensity) + K(specular) * (V dot R)^n I(light intensity)
+	return this->rgb_color; // I = I(emission) + K(ambient) * I(ambient) + K(diffuse) * (N dot L) * I(light intensity) + K(specular) * (V dot R)^n * I(light intensity)
 }
 
 float Sphere::getAngle(vec3 ray, vec3 hitPoint) {
-	vec3 normalToThePlane = normalizedVector(getNormal(hitPoint));
-	return Model::getAngle(ray, normalToThePlane);
+	vec3 normalToTheSphere = getNormal(hitPoint);
+	return Model::getAngle(ray, normalToTheSphere);
 }
 
 vec3 Sphere::getNormal(vec3 hitPoint) {

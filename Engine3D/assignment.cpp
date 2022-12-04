@@ -173,30 +173,40 @@ vec4 SceneData::GetColor(vec3 ray, Hit hit) {
     vec3 color = hit.obj->getColor(hit.hitPoint);
     
     //vec3 final_color = color * vec3(ambient.r, ambient.g, ambient.b);
+    //vec3 final_color = vec3(0, 0, 0);
     vec3 final_color = color;
     vec3 total_diffuse_color = vec3(0, 0, 0);
     vec3 total_specular_color = vec3(0, 0, 0);
+    vec3 sum_color = vec3(1, 1, 1);
     
     for (int i = 0; i < lights.size(); i++) {
         vec3 diffuse_color = color * calcDiffuseColor(hit, lights[i]);
         vec3 specular_color = calcSpecularColor(hit, lights[i]);
+        float shadow_term = calcShadowTerm(hit, lights[i]);
 
-        total_diffuse_color += diffuse_color;
-        total_specular_color += specular_color;
+        //total_diffuse_color += diffuse_color;
+        //total_specular_color += specular_color;
+         
+        if (shadow_term > 0.5) {
+            total_diffuse_color += diffuse_color;
+            total_specular_color += specular_color;
+        }
+        //sum_color *= shadow_term;
+
     }
-    final_color = total_diffuse_color + total_specular_color;
+    final_color += total_diffuse_color + total_specular_color;
+    //final_color = sum_color;
     final_color = min(final_color, vec3(1.0, 1.0, 1.0));
 
     return vec4(final_color.r, final_color.g, final_color.b, 0.0);
 }
 
 vec3 SceneData::calcDiffuseColor(Hit hit, Light* light) {
-    float light_cos_value = 1.0;
     vec3 normalized_ray_direction = normalizedVector(light->direction);
 
     if (light->liType == Spot) {
         vec3 virtual_spotlight_ray = normalizedVector(hit.hitPoint - light->position);
-        light_cos_value = dot(virtual_spotlight_ray, normalized_ray_direction);
+        float light_cos_value = dot(virtual_spotlight_ray, normalized_ray_direction);
 
         if (light_cos_value > light->cosAngle) {
             return vec3(0.0, 0.0, 0.0);
@@ -207,21 +217,20 @@ vec3 SceneData::calcDiffuseColor(Hit hit, Light* light) {
     }
     vec3 object_normal = hit.obj->getNormal(hit.hitPoint);
 
-    // N*L = cos(t)
+    // N^*L^ = cos(t)
     float hit_cos_value = dot(object_normal, -normalized_ray_direction);
 
-    // Id = Kd*(N*L)*Il
+    // Id = Kd*(N^*L^)*Il
     vec3 diffuse_color = hit_cos_value * light->rgb_intensity;
     return diffuse_color;
 }
 
 vec3 SceneData::calcSpecularColor(Hit hit, Light* light) {
-    float light_cos_value = 1.0;
     vec3 normalized_ray_direction = normalizedVector(light->direction);
 
     if (light->liType == Spot) {
         vec3 virtual_spotlight_ray = normalizedVector(hit.hitPoint - light->position);
-        light_cos_value = dot(virtual_spotlight_ray, normalized_ray_direction);
+        float light_cos_value = dot(virtual_spotlight_ray, normalized_ray_direction);
 
         if (light_cos_value > light->cosAngle) {
             return vec3(0.0, 0.0, 0.0);
@@ -235,23 +244,45 @@ vec3 SceneData::calcSpecularColor(Hit hit, Light* light) {
     vec3 reflected_light_ray = normalized_ray_direction - 2.0f * object_normal * dot(normalized_ray_direction, object_normal);
     vec3 obj_to_eye_vec = normalizedVector(eye - hit.hitPoint);
 
-    // V*R = cos(t)
+    // V^*R^ = max(0, V^*R^)
     float hit_cos_value = dot(obj_to_eye_vec, reflected_light_ray);
+    hit_cos_value = glm::max(0.0f, hit_cos_value);
+    // (V^*R^)^n
     hit_cos_value = pow(hit_cos_value, hit.obj->shiness);
 
-    // Id = Ks*(V*R)^n*Il
+    // Id = Ks*(V^*R^)^n*Il
     // Ks = (0.7, 0.7, 0.7)
     vec3 speculat_color = 0.7f * hit_cos_value * light->rgb_intensity;
     return speculat_color;
 }
 
 float SceneData::calcShadowTerm(Hit hit, Light* light) {
-    vec3 normalized_ray_direction = -normalizedVector(light->direction);
+    vec3 normalized_ray_direction = normalizedVector(light->direction);
 
     if (light->liType == Spot) {
-        normalized_ray_direction = normalizedVector(light->position - hit.hitPoint);
+        vec3 virtual_spotlight_ray = normalizedVector(light->position - hit.hitPoint);
+        float light_cos_value = dot(-virtual_spotlight_ray, normalized_ray_direction);
+
+        if (light_cos_value > light->cosAngle) {
+            return 0.0;
+        }
+        else {
+            normalized_ray_direction = virtual_spotlight_ray;
+        }
     }
 
+    // Checking the path between the light source and the object
+    float min_t = INFINITY;
+    // Looping over all the objects
+    for (int i = 0; i < objects.size(); i++) {
+        if (i != hit.obj->objIndex) {
+            float t = objects[i]->FindIntersection(-normalized_ray_direction, hit.hitPoint);
+
+            if ((t > 0) && (t < min_t)) {
+                return 0.0;
+            }
+        }
+    }
     return 1.0;
 }
 
