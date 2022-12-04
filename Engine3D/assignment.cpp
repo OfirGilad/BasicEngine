@@ -189,7 +189,7 @@ vec4 SceneData::calcDiffuseColor(Hit hit, Light* light) {
         virtual_spotlight_ray = normalizedVector(hit.hitPoint - light->position);
         light_cos_value = dot(virtual_spotlight_ray, light->direction);
 
-        if (light_cos_value > light->cosAngle) {
+        if (light_cos_value > light->cosAngle || -light_cos_value < light->cosAngle) {
             return vec4(0.0, 0.0, 0.0, 0.0);
         }
     }
