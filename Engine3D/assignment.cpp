@@ -260,8 +260,8 @@ float SceneData::calcShadowTerm(Hit hit, Light* light) {
     vec3 normalized_ray_direction = normalizedVector(light->direction);
 
     if (light->liType == Spot) {
-        vec3 virtual_spotlight_ray = normalizedVector(light->position - hit.hitPoint);
-        float light_cos_value = dot(-virtual_spotlight_ray, normalized_ray_direction);
+        vec3 virtual_spotlight_ray = normalizedVector(hit.hitPoint - light->position);
+        float light_cos_value = dot(virtual_spotlight_ray, normalized_ray_direction);
 
         if (light_cos_value > light->cosAngle) {
             return 0.0;
