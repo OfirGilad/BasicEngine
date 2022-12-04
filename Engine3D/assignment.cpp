@@ -89,6 +89,7 @@ void SceneData::read_scene(string file_name) {
 
     // Set objects colors
     for (int i = 0; i < objects.size(); i++) {
+        objects[i]->objIndex = i;
         objects[i]->setColor(colors[i]);
     }
 
@@ -238,6 +239,16 @@ vec3 SceneData::calcSpecularColor(Hit hit, Light* light) {
     // Ks = (0.7, 0.7, 0.7)
     vec3 speculat_color = 0.7f * hit_cos_value * light->rgb_intensity;
     return speculat_color;
+}
+
+float SceneData::calcShadowTerm(Hit hit, Light* light) {
+    vec3 normalized_ray_direction = -normalizedVector(light->direction);
+
+    if (light->liType == Spot) {
+        normalized_ray_direction = normalizedVector(light->position - hit.hitPoint);
+    }
+
+    return 1.0;
 }
 
 

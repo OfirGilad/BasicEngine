@@ -22,13 +22,13 @@ public:
 
 	vec3 calcDiffuseColor(Hit hit, Light* light);
 	vec3 calcSpecularColor(Hit hit, Light* light);
-
+	float calcShadowTerm(Hit hit, Light* light);
 	
+
 	// Kd = diffuse constant for this type of object, normalizedN = normal orthogonal to the surface, normalizedL = direction from hit point to light, Il = intensity of light
 	float calcDiffuse(float Kd, vec3 normalizedN, vec3 normalizedL, float Il);
 
 	float calcSpecular(float Ks, vec3 normalizedV, vec3 normalizedR, int n, float Il);
-
 
 	//float GetAngle(vec3 ray, Hit hit);
 

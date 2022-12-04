@@ -43,10 +43,11 @@ enum objectType {
 
 class Model {
 public:
+	objectType objType;
 	vec4 details;
 	vec3 rgb_color;
 	float shiness;
-	objectType objType;
+	int objIndex;
 
 	virtual float FindIntersection(vec3 ray, vec3 somePointOnRay) = 0;
 	virtual void setColor(vec4 color);
