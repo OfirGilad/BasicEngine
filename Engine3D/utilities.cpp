@@ -40,12 +40,7 @@ void Image::setColor(int pixelX, int pixelY, vec4 rgba) {
 	data[(this->width * pixelY + pixelX) * 4] = (unsigned char) (rgba.r * 255);
 	data[(this->width * pixelY + pixelX) * 4 + 1] = (unsigned char) (rgba.g * 255);
 	data[(this->width * pixelY + pixelX) * 4 + 2] = (unsigned char) (rgba.b * 255);
-	data[(this->width * pixelY + pixelX) * 4 + 3] = (unsigned char) (rgba.a * 255);
-
-	//data[(this->width * pixelY + pixelX) * 4] = (unsigned char) 100;
-	//data[(this->width * pixelY + pixelX) * 4 + 1] = (unsigned char) 100;
-	//data[(this->width * pixelY + pixelX) * 4 + 2] = (unsigned char) 100;
-	//data[(this->width * pixelY + pixelX) * 4 + 3] = (unsigned char) 100;
+	data[(this->width * pixelY + pixelX) * 4 + 3] = (unsigned char) (rgba.a * 0);
 }
 
 unsigned char* Image::getData() {
@@ -55,7 +50,8 @@ unsigned char* Image::getData() {
 //---------------------------------  Model  -------------------------------------------
 
 void Model::setColor(vec4 color) {
-	this->color = color;
+	this->rgb_color = vec3(color.r, color.g, color.b);
+	this->shiness = color.a;
 }
 
 float Model::getAngle(vec3 hitVec, vec3 normal) {
@@ -103,15 +99,15 @@ float Plane::FindIntersection(vec3 ray, vec3 somePointOnRay) {
 	return ans;
 }
 
-vec4 Plane::getColor(vec3 hitPoint) {
+vec3 Plane::getColor(vec3 hitPoint) {
 	//float angle = this->getAngle(ray, hitPoint);
 
 	// checkers board pattern
 	if ((int(1.5 * hitPoint.x) % 2) == (int(1.5 * hitPoint.y) % 2)) {
-		return vec4(0, 0, 0, 0);
+		return 0.5f * this->rgb_color;
 	}
 
-	return this->color; //I = I(emission) + K(ambient) * I(AL) + K(diffuse) * (N dot L) * I(light intensity) + K(specular) * (V dot R)^n I(light intensity)
+	return this->rgb_color; //I = I(emission) + K(ambient) * I(AL) + K(diffuse) * (N dot L) * I(light intensity) + K(specular) * (V dot R)^n I(light intensity)
 }
 
 float Plane::getAngle(vec3 ray, vec3 hitPoint) {
@@ -178,9 +174,9 @@ float Sphere::FindIntersection(vec3 ray, vec3 somePointOnRay) {
 	return glm::min(ans1, ans2);
 }
 
-vec4 Sphere::getColor(vec3 hitPoint) {
+vec3 Sphere::getColor(vec3 hitPoint) {
 	//float angle = this->getAngle(ray, hitPoint);
-	return this->color; //I = I(emission) + K(ambient) * I(AL) + K(diffuse) * (N dot L) * I(light intensity) + K(specular) * (V dot R)^n I(light intensity)
+	return this->rgb_color; //I = I(emission) + K(ambient) * I(AL) + K(diffuse) * (N dot L) * I(light intensity) + K(specular) * (V dot R)^n I(light intensity)
 }
 
 float Sphere::getAngle(vec3 ray, vec3 hitPoint) {
@@ -197,6 +193,12 @@ vec3 Sphere::getNormal(vec3 hitPoint) {
 Hit::Hit(vec3 hitPoint, Model* obj) {
 	this->hitPoint = hitPoint;
 	this->obj = obj;
+}
+
+
+void Light::setIntensity(vec4 intensity) {
+	this->rgb_intensity = vec3(intensity.r, intensity.g, intensity.b);
+	this->shiness = intensity.a;
 }
 
 //---------------------------  DirectionalLight  --------------------------------------

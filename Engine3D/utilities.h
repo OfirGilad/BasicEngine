@@ -42,14 +42,15 @@ enum objectType {
 };
 
 class Model {
-protected:
-	vec4 details;
-	vec4 color;
-	objectType objType;
 public:
+	vec4 details;
+	vec3 rgb_color;
+	float shiness;
+	objectType objType;
+
 	virtual float FindIntersection(vec3 ray, vec3 somePointOnRay) = 0;
 	virtual void setColor(vec4 color);
-	virtual vec4 getColor(vec3 hitPoint) = 0;
+	virtual vec3 getColor(vec3 hitPoint) = 0;
 	virtual float getAngle(vec3 ray, vec3 hitPoint);
 	virtual vec3 getNormal(vec3 hitPoint) = 0;
 	//virtual void setPhongParams(vec4);
@@ -64,7 +65,7 @@ public:
 	vec3 normal();
 	float d();
 	float FindIntersection(vec3 ray, vec3 somePointOnRay);
-	vec4 getColor(vec3 hitPoint);
+	vec3 getColor(vec3 hitPoint);
 	float getAngle(vec3 ray, vec3 hitPoint);
 	vec3 getNormal(vec3 hitPoint);
 };
@@ -78,7 +79,7 @@ public:
 	vec3 center();
 	float radius();
 	float FindIntersection(vec3 ray, vec3 somePointOnRay);
-	vec4 getColor(vec3 hitPoint);
+	vec3 getColor(vec3 hitPoint);
 	float getAngle(vec3 ray, vec3 hitPoint);
 	vec3 getNormal(vec3 hitPoint);
 };
@@ -106,7 +107,9 @@ public:
 	vec3 direction;
 	vec3 position;
 	float cosAngle;
-	vec4 intensity;
+	vec3 rgb_intensity;
+	float shiness;
+	virtual void setIntensity(vec4 intensity);
 	/*virtual void setParams(vec3 point, float cosAngle) = 0;*/
 };
 

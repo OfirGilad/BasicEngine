@@ -20,8 +20,8 @@ public:
     Hit FindIntersection(vec3 ray);
     vec4 GetColor(vec3 ray, Hit hit);
 
-	vec4 calcDiffuseColor(Hit hit, Light* light);
-	vec4 calcSpecularColor(Hit hit, Light* light);
+	vec3 calcDiffuseColor(Hit hit, Light* light);
+	vec3 calcSpecularColor(Hit hit, Light* light);
 
 	
 	// Kd = diffuse constant for this type of object, normalizedN = normal orthogonal to the surface, normalizedL = direction from hit point to light, Il = intensity of light
