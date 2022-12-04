@@ -174,14 +174,19 @@ vec4 SceneData::GetColor(vec3 ray, Hit hit) {
     
     //vec3 final_color = color * vec3(ambient.r, ambient.g, ambient.b);
     vec3 final_color = color;
-    vec3 diffuse_color;
-    vec3 specular_color;
+    vec3 total_diffuse_color = vec3(0, 0, 0);
+    vec3 total_specular_color = vec3(0, 0, 0);
     
     for (int i = 0; i < lights.size(); i++) {
-        diffuse_color += color * calcDiffuseColor(hit, lights[i]);
-        specular_color += calcSpecularColor(hit, lights[i]);
+        vec3 diffuse_color = color * calcDiffuseColor(hit, lights[i]);
+        vec3 specular_color = calcSpecularColor(hit, lights[i]);
+
+        total_diffuse_color += diffuse_color;
+        total_specular_color += specular_color;
     }
-    final_color += diffuse_color + specular_color;
+    final_color = total_diffuse_color + total_specular_color;
+    final_color = min(final_color, vec3(1.0, 1.0, 1.0));
+
     return vec4(final_color.r, final_color.g, final_color.b, 0.0);
 }
 
@@ -191,7 +196,6 @@ vec3 SceneData::calcDiffuseColor(Hit hit, Light* light) {
 
     if (light->liType == Spot) {
         vec3 virtual_spotlight_ray = normalizedVector(hit.hitPoint - light->position);
-
         light_cos_value = dot(virtual_spotlight_ray, normalized_ray_direction);
 
         if (light_cos_value > light->cosAngle) {
@@ -204,7 +208,7 @@ vec3 SceneData::calcDiffuseColor(Hit hit, Light* light) {
     vec3 object_normal = hit.obj->getNormal(hit.hitPoint);
 
     // N*L = cos(t)
-    float hit_cos_value = dot(object_normal, normalized_ray_direction);
+    float hit_cos_value = dot(object_normal, -normalized_ray_direction);
 
     // Id = Kd*(N*L)*Il
     vec3 diffuse_color = hit_cos_value * light->rgb_intensity;
@@ -232,7 +236,7 @@ vec3 SceneData::calcSpecularColor(Hit hit, Light* light) {
     vec3 obj_to_eye_vec = normalizedVector(eye - hit.hitPoint);
 
     // V*R = cos(t)
-    float hit_cos_value = dot(object_normal, normalized_ray_direction);
+    float hit_cos_value = dot(obj_to_eye_vec, reflected_light_ray);
     hit_cos_value = pow(hit_cos_value, hit.obj->shiness);
 
     // Id = Ks*(V*R)^n*Il
