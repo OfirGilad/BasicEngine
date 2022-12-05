@@ -197,17 +197,20 @@ vec4 SceneData::GetColor(vec3 ray, Hit hit) {
 }
 
 vec3 SceneData::calcDiffuseColor(Hit hit, Light* light) {
-    vec3 normalized_ray_direction = normalizedVector(light->direction);
+    float object_factor = 1;
+    if (hit.obj->details.w < 0.0) object_factor = -1;
+
+    vec3 normalized_ray_direction = object_factor * normalizedVector(light->direction);
 
     if (light->liType == Spot) {
         vec3 virtual_spotlight_ray = normalizedVector(hit.hitPoint - light->position);
-        float light_cos_value = dot(virtual_spotlight_ray, normalized_ray_direction);
+        float light_cos_value = dot(virtual_spotlight_ray, object_factor *normalized_ray_direction);
 
         if (light_cos_value < light->cosAngle) {
             return vec3(0.0, 0.0, 0.0);
         }
         else {
-            normalized_ray_direction = virtual_spotlight_ray;
+            normalized_ray_direction = object_factor * virtual_spotlight_ray;
         }
     }
     vec3 object_normal = hit.obj->getNormal(hit.hitPoint);
