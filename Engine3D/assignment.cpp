@@ -10,7 +10,7 @@
 using namespace std;
 using namespace glm;
 
-void SceneData::read_scene(string file_name) {
+void SceneData::read_scene(string file_name, int width, int height) {
     int index = -1;
     string text_line, text_argument;
     vector<string> scene_line;
@@ -34,8 +34,6 @@ void SceneData::read_scene(string file_name) {
             }
         } 
     }
-
-	vector<vec4>colors;
 
     for (int i = 0; i < scene_data.size(); i++) {
 		vec4 input_vector = vec4(stof(scene_data[i][1]), stof(scene_data[i][2]), stof(scene_data[i][3]), stof(scene_data[i][4]));
@@ -95,7 +93,6 @@ void SceneData::read_scene(string file_name) {
 
     // Set spotlight positions
     int j = 0;
-
     for (int i = 0; i < lights.size(); i++) {
         if (lights[i]->liType == Spot) {
             vec3 point = vec3(positions[j].x, positions[j].y, positions[j].z);
@@ -106,14 +103,11 @@ void SceneData::read_scene(string file_name) {
         lights[i]->setIntensity(intensities[i]);
     }
 
-}
-
-void SceneData::find_pixel_size(int width, int height) {
-    image_width = width;
-    image_height = height;
-
+    // Finding pixel width and height and saving parameters
     pixel_width = 2.0 / float(width);
     pixel_height = 2.0 / float(height);
+    image_width = width;
+    image_height = height;
 }
 
 Image SceneData::ImageRayCasting() {

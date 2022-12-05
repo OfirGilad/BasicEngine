@@ -12,8 +12,7 @@ class SceneData
 {
 public:
 	// Methods
-	void read_scene(string file_name);
-    void find_pixel_size(int width, int height);
+	void read_scene(string file_name, int width, int height);
 
     Image ImageRayCasting();
 	vec3 ConstructRayThroughPixel(int i, int j);
@@ -45,7 +44,7 @@ public:
 	float bonus_mode_flag;
 	vec4 ambient;
 	vector<Model*>objects;
-	// vector<vec4>colors;
+	vector<vec4>colors;
 	vector<Light*>lights;
 	vector<vec4>positions;
 	vector<vec4>intensities;

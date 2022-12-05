@@ -103,7 +103,11 @@ vec3 Plane::getColor(vec3 hitPoint) {
 	//float angle = this->getAngle(ray, hitPoint);
 
 	// checkers board pattern
-	if ((int(1.5 * hitPoint.x) % 2) == (int(1.5 * hitPoint.y) % 2)) {
+	//if ((int(1.5 * hitPoint.x) % 2) == (int(1.5 * hitPoint.y) % 2)) {
+	//	return 0.5f * this->rgb_color;
+	//}
+	if (((((int(1.5 * hitPoint.x) % 2) == (int(1.5 * hitPoint.y) % 2)) && (hitPoint.x > 0 && hitPoint.y > 0))) ||
+		((((int(1.5 * hitPoint.x) % 2) != (int(1.5 * hitPoint.y) % 2)) && ((hitPoint.x < 0 && hitPoint.y > 0) || (hitPoint.x > 0 && hitPoint.y < 0))))) {
 		return 0.5f * this->rgb_color;
 	}
 
