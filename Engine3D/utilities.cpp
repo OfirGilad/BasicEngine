@@ -115,8 +115,23 @@ vec3 Plane::getColor(vec3 hitPoint) {
 	//}
 	
 	// Checkerboard pattern
-	float scaler_parameter = 0.6f;
-	float chessboard = floor((hitPoint.x + 2.0f) / scaler_parameter) + floor((hitPoint.y + 2.0f) / scaler_parameter);
+	float scaler_parameter = 0.5f;
+	float chessboard = 0;
+
+	if (hitPoint.x < 0) {
+		chessboard += floor((0.5 - hitPoint.x) / scaler_parameter);
+	}
+	else {
+		chessboard += floor(hitPoint.x / scaler_parameter);
+	}
+
+	if (hitPoint.y < 0) {
+		chessboard += floor((0.5 - hitPoint.y) / scaler_parameter);
+	}
+	else {
+		chessboard += floor(hitPoint.y / scaler_parameter);
+	}
+
 	chessboard = (chessboard * 0.5) - int(chessboard * 0.5);
 	chessboard *= 2;
 	if (chessboard > 0.5) {
