@@ -174,7 +174,8 @@ vec4 SceneData::GetColor(vec3 ray, Hit hit) {
     
     //vec3 final_color = color * vec3(ambient.r, ambient.g, ambient.b);
     //vec3 final_color = vec3(0, 0, 0);
-    vec3 final_color = color;
+    vec3 final_color = vec3(ambient.r, ambient.g, ambient.b) * color;
+
     vec3 total_diffuse_color = vec3(0, 0, 0);
     vec3 total_specular_color = vec3(0, 0, 0);
     vec3 sum_color = vec3(1, 1, 1);
@@ -184,12 +185,12 @@ vec4 SceneData::GetColor(vec3 ray, Hit hit) {
         vec3 specular_color = calcSpecularColor(hit, lights[i]);
         float shadow_term = calcShadowTerm(hit, lights[i]);
 
-        //total_diffuse_color += diffuse_color;
-        //total_specular_color += specular_color;
+        //total_diffuse_color += max(diffuse_color, vec3(0, 0, 0));
+        //total_specular_color += max(specular_color, vec3(0, 0, 0));
          
         if (shadow_term > 0.5) {
-            total_diffuse_color += diffuse_color;
-            total_specular_color += specular_color;
+            total_diffuse_color += max(diffuse_color, vec3(0, 0, 0));
+            total_specular_color += max(specular_color, vec3(0, 0, 0));
         }
         //sum_color *= shadow_term;
 
@@ -208,7 +209,7 @@ vec3 SceneData::calcDiffuseColor(Hit hit, Light* light) {
         vec3 virtual_spotlight_ray = normalizedVector(hit.hitPoint - light->position);
         float light_cos_value = dot(virtual_spotlight_ray, normalized_ray_direction);
 
-        if (light_cos_value > light->cosAngle) {
+        if (light_cos_value < light->cosAngle) {
             return vec3(0.0, 0.0, 0.0);
         }
         else {
@@ -232,7 +233,7 @@ vec3 SceneData::calcSpecularColor(Hit hit, Light* light) {
         vec3 virtual_spotlight_ray = normalizedVector(hit.hitPoint - light->position);
         float light_cos_value = dot(virtual_spotlight_ray, normalized_ray_direction);
 
-        if (light_cos_value > light->cosAngle) {
+        if (light_cos_value < light->cosAngle) {
             return vec3(0.0, 0.0, 0.0);
         }
         else {
@@ -263,7 +264,7 @@ float SceneData::calcShadowTerm(Hit hit, Light* light) {
         vec3 virtual_spotlight_ray = normalizedVector(hit.hitPoint - light->position);
         float light_cos_value = dot(virtual_spotlight_ray, normalized_ray_direction);
 
-        if (light_cos_value > light->cosAngle) {
+        if (light_cos_value < light->cosAngle) {
             return 0.0;
         }
         else {
