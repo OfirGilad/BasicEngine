@@ -165,35 +165,18 @@ Hit SceneData::FindIntersection(vec3 ray) {
 
 vec4 SceneData::GetColor(vec3 ray, Hit hit) {
     vec3 color = hit.obj->getColor(hit.hitPoint);
-    
-    //vec3 final_color = color * vec3(ambient.r, ambient.g, ambient.b);
-    //vec3 final_color = vec3(0, 0, 0);
-    vec3 final_color = vec3(ambient.r, ambient.g, ambient.b) * color;
+    vec3 phong_model_color = color * vec3(ambient.r, ambient.g, ambient.b); // Ambient
 
-    vec3 total_diffuse_color = vec3(0, 0, 0);
-    vec3 total_specular_color = vec3(0, 0, 0);
-    vec3 sum_color = vec3(1, 1, 1);
-    
     for (int i = 0; i < lights.size(); i++) {
-        vec3 diffuse_color = color * calcDiffuseColor(hit, lights[i]);
-        vec3 specular_color = calcSpecularColor(hit, lights[i]);
+        vec3 diffuse_color = max(calcDiffuseColor(hit, lights[i]), vec3(0, 0, 0)); // Diffuse
+        vec3 specular_color = max(calcSpecularColor(hit, lights[i]), vec3(0, 0, 0)); // Specular
         float shadow_term = calcShadowTerm(hit, lights[i]);
 
-        //total_diffuse_color += max(diffuse_color, vec3(0, 0, 0));
-        //total_specular_color += max(specular_color, vec3(0, 0, 0));
-         
-        if (shadow_term > 0.5) {
-            total_diffuse_color += max(diffuse_color, vec3(0, 0, 0));
-            total_specular_color += max(specular_color, vec3(0, 0, 0));
-        }
-        //sum_color *= shadow_term;
-
+        phong_model_color += (diffuse_color + specular_color) * shadow_term;
     }
-    final_color += total_diffuse_color + total_specular_color;
-    //final_color = sum_color;
-    final_color = min(final_color, vec3(1.0, 1.0, 1.0));
 
-    return vec4(final_color.r, final_color.g, final_color.b, 0.0);
+    phong_model_color = min(phong_model_color, vec3(1.0, 1.0, 1.0));
+    return vec4(phong_model_color.r, phong_model_color.g, phong_model_color.b, 0.0);
 }
 
 vec3 SceneData::calcDiffuseColor(Hit hit, Light* light) {
@@ -219,7 +202,7 @@ vec3 SceneData::calcDiffuseColor(Hit hit, Light* light) {
     float hit_cos_value = dot(object_normal, -normalized_ray_direction);
 
     // Id = Kd*(N^*L^)*Il
-    vec3 diffuse_color = hit_cos_value * light->rgb_intensity;
+    vec3 diffuse_color = hit.obj->getColor(hit.hitPoint) * hit_cos_value * light->rgb_intensity;
     return diffuse_color;
 }
 
@@ -238,12 +221,11 @@ vec3 SceneData::calcSpecularColor(Hit hit, Light* light) {
         }
     }
     vec3 object_normal = hit.obj->getNormal(hit.hitPoint);
-
     vec3 reflected_light_ray = normalized_ray_direction - 2.0f * object_normal * dot(normalized_ray_direction, object_normal);
-    vec3 obj_to_eye_vec = normalizedVector(eye - hit.hitPoint);
+    vec3 ray_to_viewer = normalizedVector(eye - hit.hitPoint);
 
     // V^*R^ = max(0, V^*R^)
-    float hit_cos_value = dot(obj_to_eye_vec, reflected_light_ray);
+    float hit_cos_value = dot(ray_to_viewer, reflected_light_ray);
     hit_cos_value = glm::max(0.0f, hit_cos_value);
     // (V^*R^)^n
     hit_cos_value = pow(hit_cos_value, hit.obj->shiness);
