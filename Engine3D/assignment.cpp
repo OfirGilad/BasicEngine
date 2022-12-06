@@ -120,7 +120,7 @@ Image SceneData::ImageRayCasting() {
             }
             vec3 ray = ConstructRayThroughPixel(i, j);
             Hit hit = FindIntersection(ray);
-            vec4 pixel_color = GetColor(ray, hit);
+            vec4 pixel_color = GetColor(ray, hit, 0);
 
             image.setColor(i, j, pixel_color);
         }
@@ -140,7 +140,7 @@ vec3 SceneData::ConstructRayThroughPixel(int i, int j) {
 Hit SceneData::FindIntersection(vec3 ray) {
     // Set Default Values
     float min_t = INFINITY;
-    Model* min_primitive = new Plane(vec4(1.0, 1.0, 1.0, 1.0), Regular);
+    Model* min_primitive = new Plane(vec4(1.0, 1.0, 1.0, 1.0), Space);
     min_primitive->setColor(vec4(0.0, 0.0, 0.0, 0.0));
     bool got_hit = false;
 
@@ -149,7 +149,7 @@ Hit SceneData::FindIntersection(vec3 ray) {
         float t = objects[i]->FindIntersection(ray, eye);
         //float t = Intersect(ray, objects[i]);
 
-        if (t < min_t) {
+        if ((t > 0) && (t < min_t)) {
             got_hit = true;
             min_primitive = objects[i];
             min_t = t;
@@ -163,7 +163,7 @@ Hit SceneData::FindIntersection(vec3 ray) {
     return hit;
 }
 
-vec4 SceneData::GetColor(vec3 ray, Hit hit) {
+vec4 SceneData::GetColor(vec3 ray, Hit hit, int level) {
     vec3 color = hit.obj->getColor(hit.hitPoint);
     vec3 phong_model_color = color * vec3(ambient.r, ambient.g, ambient.b); // Ambient
 
@@ -174,8 +174,23 @@ vec4 SceneData::GetColor(vec3 ray, Hit hit) {
 
         phong_model_color += (diffuse_color + specular_color) * shadow_term;
     }
-
     phong_model_color = min(phong_model_color, vec3(1.0, 1.0, 1.0));
+
+    if (hit.obj->objType == Reflective) {
+        if (level == 3) { // MAX_LEVEL=3
+            return vec4(0, 0, 0, 0);
+        }
+        vec3 reflection_ray = ray - 2.0f * hit.obj->getNormal(hit.hitPoint) * dot(ray, hit.obj->getNormal(hit.hitPoint));
+        Hit reflected_hit = FindIntersection(reflection_ray);
+
+        if (reflected_hit.obj->objType == Space) {
+            return vec4(0, 0, 0, 0);
+        }
+
+        vec4 reflection_color = GetColor(reflection_ray, reflected_hit, level + 1);
+        phong_model_color += hit.obj->rgb_color * vec3(reflection_color.r, reflection_color.g, reflection_color.b);
+    }
+
     return vec4(phong_model_color.r, phong_model_color.g, phong_model_color.b, 0.0);
 }
 

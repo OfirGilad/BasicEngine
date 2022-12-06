@@ -38,7 +38,8 @@ public:
 enum objectType {
 	Regular,
 	Transparent,
-	Reflective
+	Reflective,
+	Space // When a ray intersects with nothing
 };
 
 class Model {
