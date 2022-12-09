@@ -50,7 +50,7 @@ public:
 	float shiness;
 	int objIndex;
 
-	virtual float FindIntersection(vec3 ray, vec3 somePointOnRay) = 0;
+	virtual float FindIntersection(vec3 ray, vec3 somePointOnRay, bool second_result) = 0;
 	virtual void setColor(vec4 color);
 	virtual vec3 getColor(vec3 hitPoint) = 0;
 	virtual float getAngle(vec3 ray, vec3 hitPoint);
@@ -66,7 +66,7 @@ public:
 	Plane(vec4 details, objectType objType);
 	vec3 normal();
 	float d();
-	float FindIntersection(vec3 ray, vec3 somePointOnRay);
+	float FindIntersection(vec3 ray, vec3 somePointOnRay, bool second_result);
 	vec3 getColor(vec3 hitPoint);
 	float getAngle(vec3 ray, vec3 hitPoint);
 	vec3 getNormal(vec3 hitPoint);
@@ -80,7 +80,7 @@ public:
 	Sphere(vec4 details, objectType objType);
 	vec3 center();
 	float radius();
-	float FindIntersection(vec3 ray, vec3 somePointOnRay);
+	float FindIntersection(vec3 ray, vec3 somePointOnRay, bool second_result);
 	vec3 getColor(vec3 hitPoint);
 	float getAngle(vec3 ray, vec3 hitPoint);
 	vec3 getNormal(vec3 hitPoint);

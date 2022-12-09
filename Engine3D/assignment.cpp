@@ -147,7 +147,7 @@ Hit SceneData::FindIntersection(vec3 ray, vec3 ray_start, int from_object_index)
     // Looping over all the objects
     for (int i = 0; i < objects.size(); i++) {
         if (i != from_object_index) {
-            float t = objects[i]->FindIntersection(ray, ray_start);
+            float t = objects[i]->FindIntersection(ray, ray_start, false);
             //float t = Intersect(ray, objects[i]);
 
             if ((t > 0) && (t < min_t)) {
@@ -221,27 +221,27 @@ vec4 SceneData::GetColor(vec3 ray, Hit hit, vec3 ray_start, int depth) {
         else {
             // Snell's law
             float cos_from = dot(hit.obj->getNormal(hit.hitPoint), -ray);
-            float theta_from = acos(cos_from) * 180 / 3.14;
+            float theta_from = acos(cos_from) * (180.0f / 3.14f);
             float snell_frac = (1.0f / 1.5f);
             float sin_to = snell_frac * sin(theta_from);
-            float theta_to = asin(sin_to) * 180 / 3.14;
+            float theta_to = asin(sin_to) * (180.0f / 3.14f);
             float cos_to = cos(theta_to);
 
             // Finding the second hit inside the sphere
             vec3 ray_in = (snell_frac * cos_from - cos_to) * hit.obj->getNormal(hit.hitPoint) - snell_frac * (-ray);
-            float t = hit.obj->FindIntersection(ray_in, hit.hitPoint);
+            float t = hit.obj->FindIntersection(ray_in, hit.hitPoint, true);
             vec3 second_hit_point = hit.hitPoint + ray_in * t;
 
             // Reverse calculations
             cos_from = dot(-hit.obj->getNormal(hit.hitPoint), ray_in);
-            theta_from = acos(cos_from) * 180 / 3.14;
+            theta_from = acos(cos_from) * (180.0f / 3.14f);
             snell_frac = (1.5f / 1.0f);
             sin_to = snell_frac * sin(theta_from);
-            theta_to = asin(sin_to) * 180 / 3.14;
+            theta_to = asin(sin_to) * (180.0f / 3.14f);
             cos_to = cos(theta_to);
 
             // Finding the raw out of the sphere
-            vec3 ray_out = (snell_frac * cos_from - cos_to) * hit.obj->getNormal(hit.hitPoint) - snell_frac * (-ray_in);
+            vec3 ray_out = (snell_frac * cos_from - cos_to) * -hit.obj->getNormal(hit.hitPoint) - snell_frac * (-ray_in);
 
             
             Hit transparency_hit = FindIntersection(ray_out, second_hit_point, hit.obj->objIndex);
@@ -250,7 +250,7 @@ vec4 SceneData::GetColor(vec3 ray, Hit hit, vec3 ray_start, int depth) {
                 return vec4(0, 0, 0, 0);
             }
 
-            transparency_color = GetColor(ray_out, transparency_hit, transparency_hit.hitPoint, depth + 1);
+            transparency_color = GetColor(ray_out, transparency_hit, second_hit_point, depth + 1);
         }
 
 
@@ -342,7 +342,7 @@ float SceneData::calcShadowTerm(Hit hit, Light* light) {
     // Looping over all the objects
     for (int i = 0; i < objects.size(); i++) {
         if (i != hit.obj->objIndex) {
-            float t = objects[i]->FindIntersection(-normalized_ray_direction, hit.hitPoint);
+            float t = objects[i]->FindIntersection(-normalized_ray_direction, hit.hitPoint, false);
 
             if ((t > 0) && (t < min_t)) {
                 return 0.0;
