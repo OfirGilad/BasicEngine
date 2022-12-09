@@ -94,11 +94,12 @@ float Plane::FindIntersection(vec3 ray, vec3 somePointOnRay) {
 	float vecy = ray.y;
 	float vecz = ray.z;
 
-	//float ans = -(a * x0 + b * y0 + c * z0 + d) / (a * vecx + b * vecy + c * vecz); // = -(dot(planeNormal, somePointOnRay) + d) / dot(planeNormal, ray);
-	float ans = INFINITY;
-	if (abs(dot(ray, planeNormal)) > 0.0) {
-		ans = -(dot(somePointOnRay, planeNormal) + d) / dot(ray, planeNormal);
-	}
+	float ans = -(a * x0 + b * y0 + c * z0 + d) / (a * vecx + b * vecy + c * vecz); // = -(dot(planeNormal, somePointOnRay) + d) / dot(planeNormal, ray);
+
+	//float ans = INFINITY;
+	//if (abs(dot(ray, planeNormal)) > 0.0) {
+	//	ans = -(dot(somePointOnRay, planeNormal) + d) / dot(ray, planeNormal);
+	//}
 	return ans;
 }
 
