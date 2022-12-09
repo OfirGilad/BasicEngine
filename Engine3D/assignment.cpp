@@ -240,7 +240,7 @@ vec4 SceneData::GetColor(vec3 ray, Hit hit, vec3 ray_start, int depth) {
             theta_to = asin(sin_to) * (180.0f / 3.14f);
             cos_to = cos(theta_to);
 
-            // Finding the raw out of the sphere
+            // Finding the ray out of the sphere
             vec3 ray_out = (snell_frac * cos_from - cos_to) * -hit.obj->getNormal(hit.hitPoint) - snell_frac * (-ray_in);
 
             
