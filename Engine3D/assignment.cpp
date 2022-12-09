@@ -265,7 +265,7 @@ float SceneData::calcShadowTerm(Hit hit, Light* light) {
         else {
             normalized_ray_direction = virtual_spotlight_ray;
             // Update min_t to the value of the light position
-            min_t = -(dot(hit.hitPoint, light->position)) / dot(-normalized_ray_direction, light->position);
+            min_t = -(dot(hit.hitPoint, light->position));// / dot(-normalized_ray_direction, light->position);
         }
     }
 
