@@ -158,14 +158,14 @@ Hit SceneData::FindIntersection(vec3 ray, vec3 ray_start, int from_object_index)
         }
     }
 
-    Hit hit = Hit(eye + ray, min_primitive);
+    Hit hit = Hit(ray_start + ray, min_primitive);
     if (got_hit) {
-        hit = Hit(eye + ray * min_t, min_primitive);
+        hit = Hit(ray_start + ray * min_t, min_primitive);
     }
     return hit;
 }
 
-vec4 SceneData::GetColor(vec3 ray, Hit hit, vec3 ray_start, int level) {
+vec4 SceneData::GetColor(vec3 ray, Hit hit, vec3 ray_start, int depth) {
     vec3 color = hit.obj->getColor(hit.hitPoint);
     vec3 phong_model_color = color * vec3(ambient.r, ambient.g, ambient.b); // Ambient
 
@@ -179,7 +179,7 @@ vec4 SceneData::GetColor(vec3 ray, Hit hit, vec3 ray_start, int level) {
     phong_model_color = min(phong_model_color, vec3(1.0, 1.0, 1.0));
 
     if (hit.obj->objType == Reflective) {
-        if (level == 2) { // MAX_LEVEL=1
+        if (depth == 5) { // MAX_LEVEL=1
             return vec4(0, 0, 0, 0);
         }
         vec3 reflection_ray = ray - 2.0f * hit.obj->getNormal(hit.hitPoint) * dot(ray, hit.obj->getNormal(hit.hitPoint));
@@ -189,9 +189,57 @@ vec4 SceneData::GetColor(vec3 ray, Hit hit, vec3 ray_start, int level) {
             return vec4(0, 0, 0, 0);
         }
 
-        vec4 reflection_color = GetColor(reflection_ray, reflected_hit, hit.hitPoint, level + 1);
-        //phong_model_color = hit.obj->rgb_color * vec3(reflection_color.r, reflection_color.g, reflection_color.b);
+        vec4 reflection_color = GetColor(reflection_ray, reflected_hit, hit.hitPoint, depth + 1);
+        //phong_model_color += 0.7f * vec3(reflection_color.r, reflection_color.g, reflection_color.b);
         phong_model_color = vec3(reflection_color.r, reflection_color.g, reflection_color.b);
+        phong_model_color = min(phong_model_color, vec3(1.0, 1.0, 1.0));
+    }
+
+    if (hit.obj->objType == Transparent) {
+        if (depth == 5) { // MAX_LEVEL=1
+            return vec4(0, 0, 0, 0);
+        }
+        vec4 transparency_color = vec4(0, 0, 0, 0);
+
+        // Transparent Plane
+        if (hit.obj->details.w < 0.0) {
+            Hit transparency_hit = FindIntersection(ray, hit.hitPoint, hit.obj->objIndex);
+
+            if (transparency_hit.obj->objType == Space) {
+                return vec4(0, 0, 0, 0);
+            }
+
+            transparency_color = GetColor(ray, transparency_hit, transparency_hit.hitPoint, depth + 1);
+        }
+        // Transparent Sphere
+        else {
+            // Snell's law
+            float cos_out = dot(hit.obj->getNormal(hit.hitPoint), -ray);
+            float theta_out = acos(cos_out) * 180 / 3.14;
+            float snell_frac = (1.0f / 1.5f);
+            float sin_in = snell_frac * sin(theta_out);
+            float theta_in = asin(sin_in) * 180 / 3.14;
+            float cos_in = cos(theta_in);
+
+            vec3 ray_in = (snell_frac * cos_out - cos_in) * hit.obj->getNormal(hit.hitPoint) - snell_frac * (-ray);
+
+            float t = hit.obj->FindIntersection(ray_in, hit.hitPoint);
+
+            vec3 second_hit_point = hit.hitPoint + ray_in * t;
+
+
+
+            Hit transparency_hit = FindIntersection(ray, hit.hitPoint, hit.obj->objIndex);
+
+            if (transparency_hit.obj->objType == Space) {
+                return vec4(0, 0, 0, 0);
+            }
+
+            transparency_color = GetColor(ray, transparency_hit, transparency_hit.hitPoint, depth + 1);
+        }
+
+        //phong_model_color = 0.7f * vec3(transparency_color.r, transparency_color.g, transparency_color.b);
+        phong_model_color = vec3(transparency_color.r, transparency_color.g, transparency_color.b);
         phong_model_color = min(phong_model_color, vec3(1.0, 1.0, 1.0));
     }
 
