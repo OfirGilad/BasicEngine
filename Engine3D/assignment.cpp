@@ -253,6 +253,7 @@ vec3 SceneData::calcSpecularColor(Hit hit, Light* light) {
 
 float SceneData::calcShadowTerm(Hit hit, Light* light) {
     vec3 normalized_ray_direction = normalizedVector(light->direction);
+    float min_t = INFINITY;
 
     if (light->liType == Spot) {
         vec3 virtual_spotlight_ray = normalizedVector(hit.hitPoint - light->position);
@@ -263,11 +264,12 @@ float SceneData::calcShadowTerm(Hit hit, Light* light) {
         }
         else {
             normalized_ray_direction = virtual_spotlight_ray;
+            // Update min_t to the value of the light position
+            min_t = -(dot(hit.hitPoint, light->position)) / dot(-normalized_ray_direction, light->position);
         }
     }
 
     // Checking the path between the light source and the object
-    float min_t = INFINITY;
     // Looping over all the objects
     for (int i = 0; i < objects.size(); i++) {
         if (i != hit.obj->objIndex) {
