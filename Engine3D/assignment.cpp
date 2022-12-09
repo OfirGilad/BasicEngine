@@ -119,7 +119,7 @@ Image SceneData::ImageRayCasting() {
                 cout << "TEST" << endl;
             }
             vec3 ray = ConstructRayThroughPixel(i, j);
-            Hit hit = FindIntersection(ray, eye);
+            Hit hit = FindIntersection(ray, eye, -1);
             vec4 pixel_color = GetColor(ray, hit, eye, 0);
 
             image.setColor(i, j, pixel_color);
@@ -137,7 +137,7 @@ vec3 SceneData::ConstructRayThroughPixel(int i, int j) {
     return normalizedVector(ray_direction);
 }
 
-Hit SceneData::FindIntersection(vec3 ray, vec3 ray_start) {
+Hit SceneData::FindIntersection(vec3 ray, vec3 ray_start, int from_object_index) {
     // Set Default Values
     float min_t = INFINITY;
     Model* min_primitive = new Plane(vec4(1.0, 1.0, 1.0, 1.0), Space);
@@ -146,13 +146,15 @@ Hit SceneData::FindIntersection(vec3 ray, vec3 ray_start) {
 
     // Looping over all the objects
     for (int i = 0; i < objects.size(); i++) {
-        float t = objects[i]->FindIntersection(ray, ray_start);
-        //float t = Intersect(ray, objects[i]);
+        if (i != from_object_index) {
+            float t = objects[i]->FindIntersection(ray, ray_start);
+            //float t = Intersect(ray, objects[i]);
 
-        if ((t > 0) && (t < min_t)) {
-            got_hit = true;
-            min_primitive = objects[i];
-            min_t = t;
+            if ((t > 0) && (t < min_t)) {
+                got_hit = true;
+                min_primitive = objects[i];
+                min_t = t;
+            }
         }
     }
 
@@ -177,11 +179,11 @@ vec4 SceneData::GetColor(vec3 ray, Hit hit, vec3 ray_start, int level) {
     phong_model_color = min(phong_model_color, vec3(1.0, 1.0, 1.0));
 
     if (hit.obj->objType == Reflective) {
-        if (level == 1) { // MAX_LEVEL=1
+        if (level == 2) { // MAX_LEVEL=1
             return vec4(0, 0, 0, 0);
         }
         vec3 reflection_ray = ray - 2.0f * hit.obj->getNormal(hit.hitPoint) * dot(ray, hit.obj->getNormal(hit.hitPoint));
-        Hit reflected_hit = FindIntersection(reflection_ray, hit.hitPoint);
+        Hit reflected_hit = FindIntersection(reflection_ray, hit.hitPoint, hit.obj->objIndex);
 
         if (reflected_hit.obj->objType == Space) {
             return vec4(0, 0, 0, 0);
