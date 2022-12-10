@@ -258,12 +258,13 @@ vec4 SceneData::GetColor(vec3 ray, Hit hit, vec3 ray_start, int depth) {
         // Transparent Sphere
         else {
             // Snell's law
+            float pi = 3.14159265;
             float cos_from = dot(hit.obj->getNormal(hit.hitPoint), -ray);
-            float theta_from = acos(cos_from) * (180.0f / 3.14f);
+            float theta_from = acos(cos_from) * (180.0f / pi);
             float snell_frac = (1.0f / 1.5f);
             float sin_from = sin(theta_from);
             float sin_to = snell_frac * sin_from;
-            float theta_to = asin(sin_to) * (180.0f / 3.14f);
+            float theta_to = asin(sin_to) * (180.0f / pi);
             float cos_to = cos(theta_to);
 
             // Finding the second hit inside the sphere
@@ -286,12 +287,12 @@ vec4 SceneData::GetColor(vec3 ray, Hit hit, vec3 ray_start, int depth) {
                 vec3 second_hit_point = hit.hitPoint + ray_in * t;
 
                 // Reverse calculations
-                cos_from = dot(-hit.obj->getNormal(second_hit_point), ray_in);
-                theta_from = acos(cos_from) * (180.0f / 3.14f);
+                cos_from = dot(-hit.obj->getNormal(second_hit_point), -ray_in);
+                theta_from = acos(cos_from) * (180.0f / pi);
                 snell_frac = (1.5f / 1.0f);
                 sin_from = sin(theta_from);
                 sin_to = snell_frac * sin_from;
-                theta_to = asin(sin_to) * (180.0f / 3.14f);
+                theta_to = asin(sin_to) * (180.0f / pi);
                 cos_to = cos(theta_to);
 
                 // Finding the ray out of the sphere
