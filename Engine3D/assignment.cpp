@@ -229,6 +229,7 @@ vec4 SceneData::GetColor(vec3 ray, Hit hit, vec3 ray_start, int depth) {
 
             // Finding the second hit inside the sphere
             vec3 ray_in = (snell_frac * cos_from - cos_to) * hit.obj->getNormal(hit.hitPoint) - snell_frac * (-ray);
+            ray_in = normalizedVector(ray_in);
             float t = hit.obj->FindIntersection(ray_in, hit.hitPoint, true);
             vec3 second_hit_point = hit.hitPoint + ray_in * t;
 
@@ -242,7 +243,7 @@ vec4 SceneData::GetColor(vec3 ray, Hit hit, vec3 ray_start, int depth) {
 
             // Finding the ray out of the sphere
             vec3 ray_out = (snell_frac * cos_from - cos_to) * -hit.obj->getNormal(hit.hitPoint) - snell_frac * (-ray_in);
-
+            ray_out = normalizedVector(ray_out);
             
             Hit transparency_hit = FindIntersection(ray_out, second_hit_point, hit.obj->objIndex);
 
