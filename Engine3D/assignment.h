@@ -15,7 +15,7 @@ public:
 	void read_scene(string file_name, int width, int height);
 
     Image ImageRayCasting();
-	vec3 ConstructRayThroughPixel(int i, int j);
+	vec3 ConstructRayThroughPixel(int i, int j, int position_on_pixel);
     Hit FindIntersection(vec3 ray, vec3 ray_start, int from_object_index);
     vec4 GetColor(vec3 ray, Hit hit, vec3 ray_start, int depth);
 

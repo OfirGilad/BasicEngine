@@ -118,10 +118,29 @@ Image SceneData::ImageRayCasting() {
             if ((i == 750) && (j == 500)) {
                 cout << "TEST" << endl;
             }
-            vec3 ray = ConstructRayThroughPixel(i, j);
-            Hit hit = FindIntersection(ray, eye, -1);
-            vec4 pixel_color = GetColor(ray, hit, eye, 0);
+            vec4 pixel_color;
 
+            if (bonus_mode_flag < 0.5) {
+                vec3 ray = ConstructRayThroughPixel(i, j, 0);
+                Hit hit = FindIntersection(ray, eye, -1);
+                pixel_color = GetColor(ray, hit, eye, 0);
+            }
+            // Multi Sampling (Bonus)
+            else {
+                vec3 ray1 = ConstructRayThroughPixel(i, j, 1);
+                vec3 ray2 = ConstructRayThroughPixel(i, j, 2);
+                vec3 ray3 = ConstructRayThroughPixel(i, j, 3);
+                vec3 ray4 = ConstructRayThroughPixel(i, j, 4);
+                Hit hit1 = FindIntersection(ray1, eye, -1);
+                Hit hit2 = FindIntersection(ray2, eye, -1);
+                Hit hit3 = FindIntersection(ray3, eye, -1);
+                Hit hit4 = FindIntersection(ray4, eye, -1);
+                vec4 pixel_color1 = GetColor(ray1, hit1, eye, 0);
+                vec4 pixel_color2 = GetColor(ray2, hit2, eye, 0);
+                vec4 pixel_color3 = GetColor(ray3, hit3, eye, 0);
+                vec4 pixel_color4 = GetColor(ray4, hit4, eye, 0);
+                pixel_color = (pixel_color1 + pixel_color2 + pixel_color3 + pixel_color4) / 4.0f;
+            }
             image.setColor(i, j, pixel_color);
         }
     }
@@ -129,11 +148,29 @@ Image SceneData::ImageRayCasting() {
 }
 
 // top-left (-1, 1)
-vec3 SceneData::ConstructRayThroughPixel(int i, int j) {
-    vec3 top_left_point = vec3(-1 + (pixel_width / 2), 1 - (pixel_height / 2), 0);
-    vec3 hit_on_screen = top_left_point + vec3(i * pixel_width, -1 * (j * pixel_height), 0);
-    vec3 ray_direction = hit_on_screen - eye;
-    
+vec3 SceneData::ConstructRayThroughPixel(int i, int j, int position_on_pixel) {
+    vec3 top_left_point, hit_on_screen, ray_direction;
+
+    if (position_on_pixel == 0) {
+        top_left_point = vec3(-1 + (pixel_width / 2), 1 - (pixel_height / 2), 0);
+        hit_on_screen = top_left_point + vec3(i * pixel_width, -1 * (j * pixel_height), 0);
+    }
+    else {
+        top_left_point = vec3(-1 + (pixel_width / 4), 1 - (pixel_height / 4), 0);
+        if (position_on_pixel == 1) {
+            hit_on_screen = top_left_point + vec3(i * pixel_width, -1 * (j * pixel_height), 0);
+        }
+        if (position_on_pixel == 2) {
+            hit_on_screen = top_left_point + vec3((i * pixel_width) + (pixel_width / 2), -1 * (j * pixel_height), 0);
+        }
+        if (position_on_pixel == 3) {
+            hit_on_screen = top_left_point + vec3(i * pixel_width, -1 * ((j * pixel_height) + (pixel_height / 2)), 0);
+        }
+        if (position_on_pixel == 4) {
+            hit_on_screen = top_left_point + vec3((i * pixel_width) + (pixel_width / 2), -1 * ((j * pixel_height) + (pixel_height / 2)), 0);
+        }
+    }
+    ray_direction = hit_on_screen - eye;
     return normalizedVector(ray_direction);
 }
 
