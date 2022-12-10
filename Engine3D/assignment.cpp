@@ -141,6 +141,7 @@ Hit SceneData::FindIntersection(vec3 ray, vec3 ray_start, int from_object_index)
     // Set Default Values
     float min_t = INFINITY;
     Model* min_primitive = new Plane(vec4(1.0, 1.0, 1.0, 1.0), Space);
+    min_primitive->objIndex = -1;
     min_primitive->setColor(vec4(0.0, 0.0, 0.0, 0.0));
     bool got_hit = false;
 
@@ -193,7 +194,7 @@ vec4 SceneData::GetColor(vec3 ray, Hit hit, vec3 ray_start, int depth) {
 
         vec4 reflection_color = GetColor(reflection_ray, reflected_hit, hit.hitPoint, depth + 1);
 
-        // The Correct, but less beautiful, equation
+        // The Correct, but less beautiful equation
         //phong_model_color = 0.7f * vec3(reflection_color.r, reflection_color.g, reflection_color.b);
 
         phong_model_color = vec3(reflection_color.r, reflection_color.g, reflection_color.b);
@@ -223,44 +224,58 @@ vec4 SceneData::GetColor(vec3 ray, Hit hit, vec3 ray_start, int depth) {
             float cos_from = dot(hit.obj->getNormal(hit.hitPoint), -ray);
             float theta_from = acos(cos_from) * (180.0f / 3.14f);
             float snell_frac = (1.0f / 1.5f);
-            float sin_to = snell_frac * sin(theta_from);
+            float sin_from = sin(theta_from);
+            float sin_to = snell_frac * sin_from;
             float theta_to = asin(sin_to) * (180.0f / 3.14f);
             float cos_to = cos(theta_to);
 
             // Finding the second hit inside the sphere
             vec3 ray_in = (snell_frac * cos_from - cos_to) * hit.obj->getNormal(hit.hitPoint) - snell_frac * (-ray);
             ray_in = normalizedVector(ray_in);
-            float t = hit.obj->FindIntersection(ray_in, hit.hitPoint, true);
-            vec3 second_hit_point = hit.hitPoint + ray_in * t;
+            Hit transparency_hit = FindIntersection(ray_in, hit.hitPoint, -1);
 
-            // Reverse calculations
-            cos_from = dot(-hit.obj->getNormal(hit.hitPoint), ray_in);
-            theta_from = acos(cos_from) * (180.0f / 3.14f);
-            snell_frac = (1.5f / 1.0f);
-            sin_to = snell_frac * sin(theta_from);
-            theta_to = asin(sin_to) * (180.0f / 3.14f);
-            cos_to = cos(theta_to);
+            // Other object was found inside the sphere
+            if (transparency_hit.obj->objIndex != hit.obj->objIndex) {
+                Hit transparency_hit = FindIntersection(ray, hit.hitPoint, -1);
 
-            // Finding the ray out of the sphere
-            vec3 ray_out = (snell_frac * cos_from - cos_to) * -hit.obj->getNormal(hit.hitPoint) - snell_frac * (-ray_in);
-            ray_out = normalizedVector(ray_out);
-            
-            Hit transparency_hit = FindIntersection(ray_out, second_hit_point, hit.obj->objIndex);
-
-            if (transparency_hit.obj->objType == Space) {
-                return vec4(0, 0, 0, 0);
+                if (transparency_hit.obj->objType == Space) {
+                    return vec4(0, 0, 0, 0);
+                }
+                transparency_color = GetColor(ray_in, transparency_hit, hit.hitPoint, depth + 1);
             }
+            // Second hit on the sphere to outside
+            else {
+                float t = hit.obj->FindIntersection(ray_in, hit.hitPoint, true);
+                vec3 second_hit_point = hit.hitPoint + ray_in * t;
 
-            transparency_color = GetColor(ray_out, transparency_hit, second_hit_point, depth + 1);
+                // Reverse calculations
+                cos_from = dot(-hit.obj->getNormal(second_hit_point), ray_in);
+                theta_from = acos(cos_from) * (180.0f / 3.14f);
+                snell_frac = (1.5f / 1.0f);
+                sin_from = sin(theta_from);
+                sin_to = snell_frac * sin_from;
+                theta_to = asin(sin_to) * (180.0f / 3.14f);
+                cos_to = cos(theta_to);
+
+                // Finding the ray out of the sphere
+                vec3 ray_out = (snell_frac * cos_from - cos_to) * -hit.obj->getNormal(hit.hitPoint) - snell_frac * (-ray_in);
+                ray_out = normalizedVector(ray_out);
+                Hit transparency_hit = FindIntersection(ray_out, second_hit_point, hit.obj->objIndex);
+
+                if (transparency_hit.obj->objType == Space) {
+                    return vec4(0, 0, 0, 0);
+                }
+
+                transparency_color = GetColor(ray_out, transparency_hit, second_hit_point, depth + 1);
+            }
         }
 
-
+        // The Correct, but less beautiful equation
         //phong_model_color = 0.7f * vec3(transparency_color.r, transparency_color.g, transparency_color.b);
 
         phong_model_color = vec3(transparency_color.r, transparency_color.g, transparency_color.b);
         phong_model_color = min(phong_model_color, vec3(1.0, 1.0, 1.0));
     }
-
     return vec4(phong_model_color.r, phong_model_color.g, phong_model_color.b, 0.0);
 }
 
