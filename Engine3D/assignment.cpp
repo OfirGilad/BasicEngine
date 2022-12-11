@@ -188,7 +188,7 @@ Hit SceneData::FindIntersection(vec3 ray, vec3 ray_start, int from_object_index)
             float t = objects[i]->FindIntersection(ray, ray_start);
             //float t = Intersect(ray, objects[i]);
 
-            if ((t > 0) && (t < min_t)) {
+            if ((t >= 0) && (t < min_t)) {
                 got_hit = true;
                 min_primitive = objects[i];
                 min_t = t;
@@ -257,16 +257,19 @@ vec4 SceneData::GetColor(vec3 ray, Hit hit, vec3 ray_start, int depth) {
         }
         // Transparent Sphere
         else {
+            //float t = objects[1]->FindIntersection(ray, hit.hitPoint);
+            //Hit transparency_hit = FindIntersection(ray, hit.hitPoint, -1);
+            //transparency_color = GetColor(ray, transparency_hit, transparency_hit.hitPoint, depth + 1);
+
             // Snell's law
             float pi = 3.14159265;
             float cos_from = dot(hit.obj->getNormal(hit.hitPoint), -ray);
             float theta_from = acos(cos_from) * (180.0f / pi);
             float snell_frac = (1.0f / 1.5f);
-            float sin_from = sin(theta_from);
+            float sin_from = sin(theta_from * (pi / 180.0f));
             float sin_to = snell_frac * sin_from;
             float theta_to = asin(sin_to) * (180.0f / pi);
-            float cos_to = cos(theta_to);
-
+            float cos_to = cos(theta_to * (pi / 180.0f));
             // Finding the second hit inside the sphere
             vec3 ray_in = (snell_frac * cos_from - cos_to) * hit.obj->getNormal(hit.hitPoint) - snell_frac * (-ray);
             ray_in = normalizedVector(ray_in);
@@ -288,10 +291,10 @@ vec4 SceneData::GetColor(vec3 ray, Hit hit, vec3 ray_start, int depth) {
                 cos_from = dot(-hit.obj->getNormal(second_hit_point), -ray_in);
                 theta_from = acos(cos_from) * (180.0f / pi);
                 snell_frac = (1.5f / 1.0f);
-                sin_from = sin(theta_from);
+                sin_from = sin(theta_from * (pi / 180.0f));
                 sin_to = snell_frac * sin_from;
                 theta_to = asin(sin_to) * (180.0f / pi);
-                cos_to = cos(theta_to);
+                cos_to = cos(theta_to * (pi / 180.0f));
 
                 // Finding the ray out of the sphere
                 vec3 ray_out = (snell_frac * cos_from - cos_to) * -hit.obj->getNormal(hit.hitPoint) - snell_frac * (-ray_in);

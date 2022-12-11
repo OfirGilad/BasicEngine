@@ -203,10 +203,13 @@ float Sphere::FindIntersection(vec3 ray, vec3 somePointOnRay) {
 	float ans2 = (-quadratic.y - root) / (2 * quadratic.x); // (-b - root) / 2*a
 	float result = glm::min(ans1, ans2);
 
-	// In case of Transperant spheres
-	if (result < 0.0) {
-		result = glm::max(ans1, ans2);
-	}
+	//// In case of Transperant spheres
+	//if (result <= 0.0) {
+	//	ans1 = abs(ans1);
+	//	ans2 = abs(ans2);
+	//	result = glm::max(ans1, ans2);
+	//}
+
 	return result;
 }
 
