@@ -42,7 +42,7 @@ enum objectType {
 	Space // When a ray intersects with nothing
 };
 
-class Model {
+class SceneObject {
 public:
 	objectType objType;
 	vec4 details;
@@ -50,39 +50,35 @@ public:
 	float shiness;
 	int objIndex;
 
-	virtual float FindIntersection(vec3 ray, vec3 somePointOnRay) = 0;
+	virtual float Intersect(vec3 ray, vec3 somePointOnRay) = 0;
 	virtual void setColor(vec4 color);
 	virtual vec3 getColor(vec3 hitPoint) = 0;
-	virtual float getAngle(vec3 ray, vec3 hitPoint);
 	virtual vec3 getNormal(vec3 hitPoint) = 0;
-	//virtual void setPhongParams(vec4);
 };
 
 //---------------------------------  Plane  -------------------------------------------
 
-class Plane : public Model{
+class Plane : public SceneObject {
 
 public:
 	Plane(vec4 details, objectType objType);
 	vec3 normal();
 	float d();
-	float FindIntersection(vec3 ray, vec3 somePointOnRay);
+	float Intersect(vec3 ray, vec3 somePointOnRay);
 	vec3 getColor(vec3 hitPoint);
-	float getAngle(vec3 ray, vec3 hitPoint);
 	vec3 getNormal(vec3 hitPoint);
 };
 
 //---------------------------------  Sphere  ------------------------------------------
 
-class Sphere : public Model {
+class Sphere : public SceneObject {
 
 public:
 	Sphere(vec4 details, objectType objType);
 	vec3 center();
 	float radius();
-	float FindIntersection(vec3 ray, vec3 somePointOnRay);
+	float Intersect(vec3 ray, vec3 somePointOnRay);
 	vec3 getColor(vec3 hitPoint);
-	float getAngle(vec3 ray, vec3 hitPoint);
 	vec3 getNormal(vec3 hitPoint);
 };
 
@@ -92,8 +88,8 @@ class Hit {
 
 public:
 	vec3 hitPoint;
-	Model* obj;
-	Hit(vec3 hitPoint, Model* obj);
+	SceneObject* obj;
+	Hit(vec3 hitPoint, SceneObject* obj);
 };
 
 //---------------------------------  Light  -------------------------------------------

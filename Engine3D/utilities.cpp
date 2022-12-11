@@ -12,7 +12,6 @@ vec3 normalizedVector(vec3 vec) {
 	normalized.x /= vecSize;
 	normalized.y /= vecSize;
 	normalized.z /= vecSize;
-	/*normalized.w /= vecSize;*/
 	return normalized;
 }
 
@@ -47,17 +46,11 @@ unsigned char* Image::getData() {
 	return data;
 }
 
-//---------------------------------  Model  -------------------------------------------
+//---------------------------------  SceneObject  -------------------------------------------
 
-void Model::setColor(vec4 color) {
+void SceneObject::setColor(vec4 color) {
 	this->rgb_color = vec3(color.r, color.g, color.b);
 	this->shiness = color.a;
-}
-
-float Model::getAngle(vec3 hitVec, vec3 normal) {
-	// dot product returns cos ==> acos returns angle between the vectors (we need the angle between hitVec and plane) 
-	// ==> subtracting pi/2 gives us the actual angle ==> division by 2*pi and multiply by 360 gives us an angle in degrees
-	return (acos(dot(hitVec, normal)) - acos(.0)) / (4 * acos(.0)) * 360;
 }
 
 //---------------------------------  Plane  -------------------------------------------
@@ -79,7 +72,7 @@ float Plane::d() {
 	return details.w;
 }
 
-float Plane::FindIntersection(vec3 ray, vec3 somePointOnRay) {
+float Plane::Intersect(vec3 ray, vec3 somePointOnRay) {
 	vec3 planeNormal = this->normal();
 	float a = planeNormal.x;
 	float b = planeNormal.y;
@@ -94,27 +87,12 @@ float Plane::FindIntersection(vec3 ray, vec3 somePointOnRay) {
 	float vecy = ray.y;
 	float vecz = ray.z;
 
-	float ans = -(a * x0 + b * y0 + c * z0 + d) / (a * vecx + b * vecy + c * vecz); // = -(dot(planeNormal, somePointOnRay) + d) / dot(planeNormal, ray);
+	float ans = -(a * x0 + b * y0 + c * z0 + d) / (a * vecx + b * vecy + c * vecz); 
 
-	//float ans = INFINITY;
-	//if (abs(dot(ray, planeNormal)) > 0.0) {
-	//	ans = -(dot(somePointOnRay, planeNormal) + d) / dot(ray, planeNormal);
-	//}
 	return ans;
 }
 
 vec3 Plane::getColor(vec3 hitPoint) {
-	//float angle = this->getAngle(ray, hitPoint);
-
-	//if ((int(1.5 * hitPoint.x) % 2) == (int(1.5 * hitPoint.y) % 2)) {
-	//	return 0.5f * this->rgb_color;
-	//}
-
-	//if (((((int(1.5 * hitPoint.x) % 2) == (int(1.5 * hitPoint.y) % 2)) && ((hitPoint.x > 0 && hitPoint.y > 0) || (hitPoint.x < 0 && hitPoint.y < 0)))) ||
-	//	((((int(1.5 * hitPoint.x) % 2) != (int(1.5 * hitPoint.y) % 2)) && ((hitPoint.x < 0 && hitPoint.y > 0) || (hitPoint.x > 0 && hitPoint.y < 0))))) {
-	//	return 0.5f * this->rgb_color;
-	//}
-	
 	// Checkerboard pattern
 	float scaler_parameter = 0.5f;
 	float chessboard = 0;
@@ -138,12 +116,7 @@ vec3 Plane::getColor(vec3 hitPoint) {
 	if (chessboard > 0.5) {
 		return 0.5f * this->rgb_color;
 	}
-	return this->rgb_color; // I = I(emission) + K(ambient) * I(ambient) + K(diffuse) * (N dot L) * I(light intensity) + K(specular) * (V dot R)^n * I(light intensity)
-}
-
-float Plane::getAngle(vec3 ray, vec3 hitPoint) {
-	vec3 normalToThePlane = getNormal(hitPoint);
-	return Model::getAngle(ray, normalToThePlane);
+	return this->rgb_color;
 }
 
 vec3 Plane::getNormal(vec3 hitPoint) {
@@ -169,7 +142,7 @@ float Sphere::radius() {
 	return details.w;
 }
 
-float Sphere::FindIntersection(vec3 ray, vec3 somePointOnRay) {
+float Sphere::Intersect(vec3 ray, vec3 somePointOnRay) {
 	vec3 center = this->center();
 	float mx = center.x;
 	float my = center.y;
@@ -214,13 +187,7 @@ float Sphere::FindIntersection(vec3 ray, vec3 somePointOnRay) {
 }
 
 vec3 Sphere::getColor(vec3 hitPoint) {
-	//float angle = this->getAngle(ray, hitPoint);
-	return this->rgb_color; // I = I(emission) + K(ambient) * I(ambient) + K(diffuse) * (N dot L) * I(light intensity) + K(specular) * (V dot R)^n * I(light intensity)
-}
-
-float Sphere::getAngle(vec3 ray, vec3 hitPoint) {
-	vec3 normalToTheSphere = getNormal(hitPoint);
-	return Model::getAngle(ray, normalToTheSphere);
+	return this->rgb_color;
 }
 
 vec3 Sphere::getNormal(vec3 hitPoint) {
@@ -229,7 +196,7 @@ vec3 Sphere::getNormal(vec3 hitPoint) {
 
 //---------------------------------  Hit  -------------------------------------------
 
-Hit::Hit(vec3 hitPoint, Model* obj) {
+Hit::Hit(vec3 hitPoint, SceneObject* obj) {
 	this->hitPoint = hitPoint;
 	this->obj = obj;
 }
@@ -247,16 +214,9 @@ DirectionalLight::DirectionalLight(vec3 direction) {
 	this->direction = direction;
 }
 
-//void DirectionalLight::setParams(vec3 point, float cosAngle){}
-
 //------------------------------  SpotLight  ------------------------------------------
 
 SpotLight::SpotLight(vec3 direction) {
 	this->liType = Spot;
 	this->direction = direction;
 }
-
-//void SpotLight::setParams(vec3 point, float cosAngle) {
-//	this->position = point;
-//	this->cosAngle = cosAngle;
-//}

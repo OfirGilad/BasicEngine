@@ -147,8 +147,11 @@ Image SceneData::ImageRayCasting() {
     return image;
 }
 
-// top-left (-1, 1)
 vec3 SceneData::ConstructRayThroughPixel(int i, int j, int position_on_pixel) {
+    // top-left     (-1,  1)
+    // top-right    ( 1,  1)
+    // bottom-left  (-1, -1)
+    // bottom-right ( 1, -1)
     vec3 top_left_point, hit_on_screen, ray_direction;
 
     if (position_on_pixel == 0) {
@@ -177,7 +180,7 @@ vec3 SceneData::ConstructRayThroughPixel(int i, int j, int position_on_pixel) {
 Hit SceneData::FindIntersection(vec3 ray, vec3 ray_start, int from_object_index) {
     // Set Default Values
     float min_t = INFINITY;
-    Model* min_primitive = new Plane(vec4(1.0, 1.0, 1.0, 1.0), Space);
+    SceneObject* min_primitive = new Plane(vec4(1.0, 1.0, 1.0, 1.0), Space);
     min_primitive->objIndex = -1;
     min_primitive->setColor(vec4(0.0, 0.0, 0.0, 0.0));
     bool got_hit = false;
@@ -185,7 +188,7 @@ Hit SceneData::FindIntersection(vec3 ray, vec3 ray_start, int from_object_index)
     // Looping over all the objects
     for (int i = 0; i < objects.size(); i++) {
         if (i != from_object_index) {
-            float t = objects[i]->FindIntersection(ray, ray_start);
+            float t = objects[i]->Intersect(ray, ray_start);
             //float t = Intersect(ray, objects[i]);
 
             if ((t >= 0) && (t < min_t)) {
@@ -204,18 +207,23 @@ Hit SceneData::FindIntersection(vec3 ray, vec3 ray_start, int from_object_index)
 }
 
 vec4 SceneData::GetColor(vec3 ray, Hit hit, vec3 ray_start, int depth) {
+    vec3 phong_model_color = vec3(0, 0, 0);
+
     // Regular case
-    vec3 color = hit.obj->getColor(hit.hitPoint);
-    vec3 phong_model_color = color * vec3(ambient.r, ambient.g, ambient.b); // Ambient
+    if (hit.obj->objType == Regular) {
+        vec3 color = hit.obj->getColor(hit.hitPoint);
+        phong_model_color = color * vec3(ambient.r, ambient.g, ambient.b); // Ambient
 
-    for (int i = 0; i < lights.size(); i++) {
-        vec3 diffuse_color = max(calcDiffuseColor(hit, lights[i]), vec3(0, 0, 0)); // Diffuse
-        vec3 specular_color = max(calcSpecularColor(hit, lights[i], ray_start), vec3(0, 0, 0)); // Specular
-        float shadow_term = calcShadowTerm(hit, lights[i]);
+        for (int i = 0; i < lights.size(); i++) {
+            vec3 diffuse_color = max(calcDiffuseColor(hit, lights[i]), vec3(0, 0, 0)); // Diffuse
+            vec3 specular_color = max(calcSpecularColor(hit, lights[i], ray_start), vec3(0, 0, 0)); // Specular
+            float shadow_term = calcShadowTerm(hit, lights[i]); // Shadow
 
-        phong_model_color += (diffuse_color + specular_color) * shadow_term;
+            // I = I(emission) + K(ambient) * I(ambient) + (K(diffuse) * dot(N,L) * I(light intensity) + K(specular) * dot(V,R)^n * I(light intensity)) * S * I(shadow)
+            phong_model_color += (diffuse_color + specular_color) * shadow_term;
+        }
+        phong_model_color = min(phong_model_color, vec3(1.0, 1.0, 1.0));
     }
-    phong_model_color = min(phong_model_color, vec3(1.0, 1.0, 1.0));
 
     // Reflective case
     if (hit.obj->objType == Reflective) {
@@ -257,10 +265,6 @@ vec4 SceneData::GetColor(vec3 ray, Hit hit, vec3 ray_start, int depth) {
         }
         // Transparent Sphere
         else {
-            //float t = objects[1]->FindIntersection(ray, hit.hitPoint);
-            //Hit transparency_hit = FindIntersection(ray, hit.hitPoint, -1);
-            //transparency_color = GetColor(ray, transparency_hit, transparency_hit.hitPoint, depth + 1);
-
             // Snell's law
             float pi = 3.14159265;
             float cos_from = dot(hit.obj->getNormal(hit.hitPoint), -ray);
@@ -270,6 +274,7 @@ vec4 SceneData::GetColor(vec3 ray, Hit hit, vec3 ray_start, int depth) {
             float sin_to = snell_frac * sin_from;
             float theta_to = asin(sin_to) * (180.0f / pi);
             float cos_to = cos(theta_to * (pi / 180.0f));
+
             // Finding the second hit inside the sphere
             vec3 ray_in = (snell_frac * cos_from - cos_to) * hit.obj->getNormal(hit.hitPoint) - snell_frac * (-ray);
             ray_in = normalizedVector(ray_in);
@@ -277,14 +282,11 @@ vec4 SceneData::GetColor(vec3 ray, Hit hit, vec3 ray_start, int depth) {
 
             // Second hit inside the sphere to other object
             if (transparency_hit.obj->objIndex != hit.obj->objIndex) {
-                if (transparency_hit.obj->objType == Space) {
-                    return vec4(0, 0, 0, 0);
-                }
                 transparency_color = GetColor(ray_in, transparency_hit, hit.hitPoint, depth + 1);
             }
             // Second hit inside the sphere to outside
             else {
-                float t = hit.obj->FindIntersection(ray_in, hit.hitPoint);
+                float t = hit.obj->Intersect(ray_in, hit.hitPoint);
                 vec3 second_hit_point = hit.hitPoint + ray_in * t;
 
                 // Reverse calculations
@@ -366,6 +368,7 @@ vec3 SceneData::calcSpecularColor(Hit hit, Light* light, vec3 ray_start) {
     // V^*R^ = max(0, V^*R^)
     float hit_cos_value = dot(ray_to_viewer, reflected_light_ray);
     hit_cos_value = glm::max(0.0f, hit_cos_value);
+
     // (V^*R^)^n
     hit_cos_value = pow(hit_cos_value, hit.obj->shiness);
 
@@ -388,16 +391,16 @@ float SceneData::calcShadowTerm(Hit hit, Light* light) {
         }
         else {
             normalized_ray_direction = virtual_spotlight_ray;
+
             // Update min_t to the value of the light position
             min_t = -(dot(hit.hitPoint, light->position)) / abs(dot(-normalized_ray_direction, light->position));
         }
     }
 
-    // Checking the path between the light source and the object
-    // Looping over all the objects
+    // Checking the path between the light source and the object by looping over all the objects
     for (int i = 0; i < objects.size(); i++) {
         if (i != hit.obj->objIndex) {
-            float t = objects[i]->FindIntersection(-normalized_ray_direction, hit.hitPoint);
+            float t = objects[i]->Intersect(-normalized_ray_direction, hit.hitPoint);
 
             if ((t > 0) && (t < min_t)) {
                 return 0.0;
@@ -406,114 +409,3 @@ float SceneData::calcShadowTerm(Hit hit, Light* light) {
     }
     return 1.0;
 }
-
-
-//float SceneData::Intersect(vec3 ray, vec4 object) {
-//    if (object.r > 0) {
-//        return FindIntersectionWithSphere(ray, object);
-//    }
-//    else {
-//        return FindIntersectionWithPlane(ray, object);
-//    }
-//}
-
-//float SceneData::FindIntersectionWithSphere(vec3 ray, vec4 sphere) {
-//    float mx = sphere.x;
-//    float my = sphere.y;
-//    float mz = sphere.z;
-//    float radius = sphere.w;
-//
-//    float x0 = eye.x;
-//    float y0 = eye.y;
-//    float z0 = eye.z;
-//
-//    float vecx = ray.x;
-//    float vecy = ray.y;
-//    float vecz = ray.z;
-//
-//    //quadratic = vec3(t^2, t, 1)
-//    vec3 quadratic = vec3(
-//        pow(vecx, 2) + pow(vecy, 2) + pow(vecz, 2),
-//        2 * (x0 - mx + y0 - my + z0 - mz),
-//        pow(x0 - mx, 2) + pow(y0 - my, 2) + pow(z0 - mz, 2) - pow(radius, 2)
-//    );
-//
-//    float delta = pow(quadratic.y, 2) - 4 * quadratic.x * quadratic.z; // b^2-4*a*c
-//
-//    if (delta < 0.)
-//        return -1;
-//
-//    float root = sqrt(delta);
-//    float ans1 = (-quadratic.y + root) / (2 * quadratic.x); // (-b + root) / 2*a
-//    float ans2 = (-quadratic.y - root) / (2 * quadratic.x); // (-b - root) / 2*a
-//
-//    return glm::min(ans1, ans2);
-//}
-
-//float SceneData::FindIntersectionWithPlane(vec3 ray, vec4 plane) {
-//    float a = plane.x;
-//    float b = plane.y;
-//    float c = plane.z;
-//    float d = - plane.w;
-//
-//    float x0 = eye.x;
-//    float y0 = eye.y;
-//    float z0 = eye.z;
-//
-//    float vecx = ray.x;
-//    float vecy = ray.y;
-//    float vecz = ray.z;
-//
-//    float ans = -(a * x0 + b * y0 + c * z0 + d) / (a * vecx + b * vecy + c * vecz);
-//
-//    return ans;
-//}
-
-//float SceneData::GetAngle(vec3 ray, Hit hit) {
-//    vec4 hitObj = hit.getObj();
-//    vec3 normalToThePlane = 
-//        hitObj.w < 0 ?
-//        normalizedVector(vec3(hitObj.x, hitObj.y, hitObj.z)) :
-//        normalizedVector(hit.hitPoint - vec3(hitObj.x, hitObj.y, hitObj.z));
-//    return (acos(dot(ray, normalToThePlane)) - acos(.0)) / (4 * acos(.0)) * 360;
-//}
-
-// Kd = diffuse constant for this type of object, normalizedN = normal orthogonal to the surface, normalizedL = direction from hit point to light, Il = intensity of light
-float SceneData::calcDiffuse(float Kd, vec3 normalizedN, vec3 normalizedL, float Il) {
-    return Kd * dot(normalizedN, normalizedL) * Il; //Id = Kd * (N^ dot N^) * Il
-}
-
-// Ks = specular constant for this type of object, normalizedV = direction from hit point to the viewer's eye, 
-// normalizedR = radiance vector representing the light direction after bouncing off the surface, Il = intensity of light
-// n = phong exponent (aparent smoothness of the surface)
-float SceneData::calcSpecular(float Ks, vec3 normalizedV, vec3 normalizedR, int n, float Il) {
-    return Ks * pow(dot(normalizedV, normalizedR), n) * Il; //Is = Ks * (V^ dot R^) ^ n * Il
-}
-
-//vec4 SceneData::calcPhongColor(vec3 ray, Hit hit, vector<Light> lights) {
-//    vec3 V = -ray;
-//    vec3 N = hit.obj->getNormal(hit.hitPoint);
-//
-//    vec4 Ie = vec4(0., 0., 0., 0.);
-//    vec4 Ia = vec4(0., 0., 0., 0.);
-//    float Ka = 0.;
-//    float Kd = 0.;
-//    float Ks = 0.7;
-//
-//    float sumDiffuseSpecular = 0.;
-//    for each (Light light in lights) {
-//        vec3 L = light.point - hit.hitPoint;
-//        vec3 R = 2.f * projection(L, N) - L;
-//
-//        for each (Model * someObj in objects) {
-//            vec3 lightRay = hit.hitPoint - light.point;
-//            float otherT = someObj->FindIntersection(lightRay, hit.hitPoint);
-//
-//            //if(light
-//        }
-//
-//        //sumDiffuseSpecular += calcDiffuse(Kd, N, L, lightIntensity) + calcSpecular(Ks, V, R, n, lightIntensity);
-//    }
-//
-//    return Ie + Ka * Ia + sumDiffuseSpecular;
-//}
