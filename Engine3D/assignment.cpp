@@ -185,7 +185,7 @@ Hit SceneData::FindIntersection(vec3 ray, vec3 ray_start, int from_object_index)
     // Looping over all the objects
     for (int i = 0; i < objects.size(); i++) {
         if (i != from_object_index) {
-            float t = objects[i]->FindIntersection(ray, ray_start, false);
+            float t = objects[i]->FindIntersection(ray, ray_start);
             //float t = Intersect(ray, objects[i]);
 
             if ((t > 0) && (t < min_t)) {
@@ -274,8 +274,6 @@ vec4 SceneData::GetColor(vec3 ray, Hit hit, vec3 ray_start, int depth) {
 
             // Second hit inside the sphere to other object
             if (transparency_hit.obj->objIndex != hit.obj->objIndex) {
-                Hit transparency_hit = FindIntersection(ray, hit.hitPoint, -1);
-
                 if (transparency_hit.obj->objType == Space) {
                     return vec4(0, 0, 0, 0);
                 }
@@ -283,7 +281,7 @@ vec4 SceneData::GetColor(vec3 ray, Hit hit, vec3 ray_start, int depth) {
             }
             // Second hit inside the sphere to outside
             else {
-                float t = hit.obj->FindIntersection(ray_in, hit.hitPoint, true);
+                float t = hit.obj->FindIntersection(ray_in, hit.hitPoint);
                 vec3 second_hit_point = hit.hitPoint + ray_in * t;
 
                 // Reverse calculations
@@ -396,7 +394,7 @@ float SceneData::calcShadowTerm(Hit hit, Light* light) {
     // Looping over all the objects
     for (int i = 0; i < objects.size(); i++) {
         if (i != hit.obj->objIndex) {
-            float t = objects[i]->FindIntersection(-normalized_ray_direction, hit.hitPoint, false);
+            float t = objects[i]->FindIntersection(-normalized_ray_direction, hit.hitPoint);
 
             if ((t > 0) && (t < min_t)) {
                 return 0.0;

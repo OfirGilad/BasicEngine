@@ -79,7 +79,7 @@ float Plane::d() {
 	return details.w;
 }
 
-float Plane::FindIntersection(vec3 ray, vec3 somePointOnRay, bool second_result) {
+float Plane::FindIntersection(vec3 ray, vec3 somePointOnRay) {
 	vec3 planeNormal = this->normal();
 	float a = planeNormal.x;
 	float b = planeNormal.y;
@@ -169,7 +169,7 @@ float Sphere::radius() {
 	return details.w;
 }
 
-float Sphere::FindIntersection(vec3 ray, vec3 somePointOnRay, bool second_result) {
+float Sphere::FindIntersection(vec3 ray, vec3 somePointOnRay) {
 	vec3 center = this->center();
 	float mx = center.x;
 	float my = center.y;
@@ -201,14 +201,13 @@ float Sphere::FindIntersection(vec3 ray, vec3 somePointOnRay, bool second_result
 	float root = sqrt(delta);
 	float ans1 = (-quadratic.y + root) / (2 * quadratic.x); // (-b + root) / 2*a
 	float ans2 = (-quadratic.y - root) / (2 * quadratic.x); // (-b - root) / 2*a
+	float result = glm::min(ans1, ans2);
 
-	if (second_result == false) {
-		return glm::min(ans1, ans2);
-	}
 	// In case of Transperant spheres
-	else {
-		return glm::max(ans1, ans2);
+	if (result < 0.0) {
+		result = glm::max(ans1, ans2);
 	}
+	return result;
 }
 
 vec3 Sphere::getColor(vec3 hitPoint) {
