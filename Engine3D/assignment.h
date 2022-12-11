@@ -3,7 +3,7 @@
 #include <vector>
 #include <string>
 #include "../res/includes/glm/glm.hpp"
-#include "utilities.h"
+#include "assignment_utilities.h"
 
 using namespace std;
 using namespace glm;
@@ -12,8 +12,7 @@ class SceneData
 {
 public:
 	// Methods
-	void read_scene(string file_name, int width, int height);
-
+	SceneData(string file_name, int width, int height);
     Image ImageRayCasting();
 	Ray ConstructRayThroughPixel(int i, int j, int position_on_pixel);
     Hit FindIntersection(Ray ray, int from_object_index);

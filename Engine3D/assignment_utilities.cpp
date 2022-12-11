@@ -1,4 +1,4 @@
-#include "utilities.h"
+#include "assignment_utilities.h"
 
 using namespace glm;
 
@@ -43,9 +43,9 @@ void SceneObject::setColor(vec4 color) {
 
 //---------------------------------  Plane  -------------------------------------------
 
-Plane::Plane(vec4 details, objectType objType) {
+Plane::Plane(vec4 details, ObjectType object_type) {
 	this->details = details;
-	this->objType = objType;
+	this->object_type = object_type;
 }
 
 vec3 Plane::normal() {
@@ -113,9 +113,9 @@ vec3 Plane::getNormal(vec3 hitPoint) {
 
 //---------------------------------  Sphere  ------------------------------------------
 
-Sphere::Sphere(vec4 details, objectType objType) {
+Sphere::Sphere(vec4 details, ObjectType object_type) {
 	this->details = details;
-	this->objType = objType;
+	this->object_type = object_type;
 }
 
 vec3 Sphere::center() {
@@ -183,9 +183,9 @@ vec3 Sphere::getNormal(vec3 hitPoint) {
 
 //---------------------------------  Hit  -------------------------------------------
 
-Hit::Hit(vec3 hitPoint, SceneObject* obj) {
-	this->hitPoint = hitPoint;
-	this->obj = obj;
+Hit::Hit(vec3 hit_point, SceneObject* scene_object) {
+	this->hit_point = hit_point;
+	this->scene_object = scene_object;
 }
 
 
@@ -197,14 +197,14 @@ void Light::setIntensity(vec4 intensity) {
 //---------------------------  DirectionalLight  --------------------------------------
 
 DirectionalLight::DirectionalLight(vec3 direction) {
-	this->liType = Directional;
+	this->light_type = Directional;
 	this->direction = direction;
 }
 
 //------------------------------  SpotLight  ------------------------------------------
 
 SpotLight::SpotLight(vec3 direction) {
-	this->liType = Spot;
+	this->light_type = Spot;
 	this->direction = direction;
 }
 

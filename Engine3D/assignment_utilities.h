@@ -8,14 +8,14 @@ using namespace std;
 float vectorSize(vec3 vec);
 vec3 normalizedVector(vec3 vec);
 
-//---------------------------------  Image  -------------------------------------------
+//---------------------------------  Image  ----------------------------------------
 
 class Image {
 
 public:
 	// Methods
 	Image(int width, int height);
-	void setColor(int pixelX, int pixelY, vec4 rgba);
+	void setColor(int pixel_x, int pixel_y, vec4 rgba);
 	unsigned char* getData();
 
 	// Variables
@@ -25,7 +25,7 @@ public:
 
 };
 
-//------------------------------  Ray  ------------------------------------------
+//---------------------------------  Ray  -----------------------------------------------
 
 class Ray {
 public:
@@ -37,9 +37,9 @@ public:
 	vec3 position;
 };
 
-//---------------------------------  SceneObject  -------------------------------------------
+//---------------------------------  SceneObject  ---------------------------------------
 
-enum objectType {
+enum ObjectType {
 	Regular,
 	Transparent,
 	Reflective,
@@ -51,61 +51,61 @@ public:
 	// Methods
 	virtual float Intersect(Ray ray) = 0;
 	virtual void setColor(vec4 color);
-	virtual vec3 getColor(vec3 hitPoint) = 0;
-	virtual vec3 getNormal(vec3 hitPoint) = 0;
+	virtual vec3 getColor(vec3 hit_point) = 0;
+	virtual vec3 getNormal(vec3 hit_point) = 0;
 
 	// Variables
-	objectType objType;
+	ObjectType object_type;
 	vec4 details;
 	vec3 rgb_color;
 	float shiness;
-	int objIndex;
+	int object_index;
 
 	
 };
 
-//---------------------------------  Plane  -------------------------------------------
+//---------------------------------  Plane  ---------------------------------------------
 
 class Plane : public SceneObject {
 
 public:
 	// Methods
-	Plane(vec4 details, objectType objType);
+	Plane(vec4 details, ObjectType object_type);
 	vec3 normal();
 	float d();
 	float Intersect(Ray ray);
-	vec3 getColor(vec3 hitPoint);
-	vec3 getNormal(vec3 hitPoint);
+	vec3 getColor(vec3 hit_point);
+	vec3 getNormal(vec3 hit_point);
 };
 
-//---------------------------------  Sphere  ------------------------------------------
+//---------------------------------  Sphere  --------------------------------------------
 
 class Sphere : public SceneObject {
 
 public:
 	// Methods
-	Sphere(vec4 details, objectType objType);
+	Sphere(vec4 details, ObjectType object_type);
 	vec3 center();
 	float radius();
 	float Intersect(Ray ray);
-	vec3 getColor(vec3 hitPoint);
-	vec3 getNormal(vec3 hitPoint);
+	vec3 getColor(vec3 hit_point);
+	vec3 getNormal(vec3 hit_point);
 };
 
-//----------------------------------  Hit  --------------------------------------------
+//---------------------------------  Hit  -----------------------------------------------
 
 class Hit {
 
 public:
 	// Methods
-	Hit(vec3 hitPoint, SceneObject* obj);
+	Hit(vec3 hit_point, SceneObject* scene_object);
 
 	// Variables
-	vec3 hitPoint;
-	SceneObject* obj;
+	vec3 hit_point;
+	SceneObject* scene_object;
 };
 
-//---------------------------------  Light  -------------------------------------------
+//---------------------------------  Light  ---------------------------------------------
 
 enum lightType {
 	Directional,
@@ -118,15 +118,15 @@ public:
 	virtual void setIntensity(vec4 intensity);
 
 	// Variables
-	lightType liType;
+	lightType light_type;
 	vec3 direction;
 	vec3 position;
-	float cosAngle;
+	float cos_angle;
 	vec3 rgb_intensity;
 	float shiness;
 };
 
-//---------------------------  DirectionalLight  --------------------------------------
+//---------------------------------  DirectionalLight  ----------------------------------
 
 class DirectionalLight : public Light{
 public:
@@ -134,7 +134,7 @@ public:
 	DirectionalLight(vec3 direction);
 };
 
-//------------------------------  SpotLight  ------------------------------------------
+//---------------------------------  SpotLight  -----------------------------------------
 
 class SpotLight : public Light {	
 public:

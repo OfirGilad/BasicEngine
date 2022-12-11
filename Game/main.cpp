@@ -26,17 +26,13 @@ int main(int argc,char *argv[])
 
 	display.SetScene(scn);
 
-	// New code start
-
+	// Loading the file
 	string file_name = "../scenes/scene.txt";
+	SceneData scene_data = SceneData(file_name, DISPLAY_WIDTH, DISPLAY_HEIGHT);
 
-	SceneData scene_data = SceneData();
-	scene_data.read_scene(file_name, DISPLAY_WIDTH, DISPLAY_HEIGHT);
-	
+	// Calculating the image ray casting 
 	Image img = scene_data.ImageRayCasting();
 	scn->AddTexture(img.width, img.height, img.data);
-
-	// New code end
 
 	while(!display.CloseWindow())
 	{
