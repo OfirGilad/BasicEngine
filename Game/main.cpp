@@ -1,7 +1,6 @@
 #include "InputManager.h"
 // #include "../DisplayGLFW/display.h"
 #include "game.h"
-#include "../res/includes/glm/glm.hpp"
 
 #include "assignment.h"
 #include <string>

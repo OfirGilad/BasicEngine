@@ -2,8 +2,8 @@
 
 using namespace glm;
 
-vec3 normalToPlain(vec3 vec1, vec3 vec2) {
-	return cross(vec1, vec2);
+float vectorSize(vec3 vec) {
+	return sqrt(powf(vec.x, 2.) + powf(vec.y, 2.) + powf(vec.z, 2.));
 }
 
 vec3 normalizedVector(vec3 vec) {
@@ -13,18 +13,6 @@ vec3 normalizedVector(vec3 vec) {
 	normalized.y /= vecSize;
 	normalized.z /= vecSize;
 	return normalized;
-}
-
-float vectorSize(vec3 vec) {
-	return sqrt(powf(vec.x, 2.) + powf(vec.y, 2.) + powf(vec.z, 2.));
-}
-
-float getT(vec3 normalizedVec, vec3 otherVec) {
-	return vectorSize(otherVec) / vectorSize(normalizedVec);
-}
-
-vec3 projection(vec3 u, vec3 v) {
-	return v * (dot(u, v) / pow(vectorSize(v), 2.f));
 }
 
 //---------------------------------  Image  -------------------------------------------
@@ -72,20 +60,20 @@ float Plane::d() {
 	return details.w;
 }
 
-float Plane::Intersect(vec3 ray, vec3 somePointOnRay) {
+float Plane::Intersect(Ray ray) {
 	vec3 planeNormal = this->normal();
 	float a = planeNormal.x;
 	float b = planeNormal.y;
 	float c = planeNormal.z;
 	float d = this->d();
 
-	float x0 = somePointOnRay.x;
-	float y0 = somePointOnRay.y;
-	float z0 = somePointOnRay.z;
+	float x0 = ray.position.x;
+	float y0 = ray.position.y;
+	float z0 = ray.position.z;
 
-	float vecx = ray.x;
-	float vecy = ray.y;
-	float vecz = ray.z;
+	float vecx = ray.direction.x;
+	float vecy = ray.direction.y;
+	float vecz = ray.direction.z;
 
 	float ans = -(a * x0 + b * y0 + c * z0 + d) / (a * vecx + b * vecy + c * vecz); 
 
@@ -142,27 +130,27 @@ float Sphere::radius() {
 	return details.w;
 }
 
-float Sphere::Intersect(vec3 ray, vec3 somePointOnRay) {
+float Sphere::Intersect(Ray ray) {
 	vec3 center = this->center();
 	float mx = center.x;
 	float my = center.y;
 	float mz = center.z;
 	float radius = this->radius();
 
-	float x0 = somePointOnRay.x;
-	float y0 = somePointOnRay.y;
-	float z0 = somePointOnRay.z;
+	float x0 = ray.position.x;
+	float y0 = ray.position.y;
+	float z0 = ray.position.z;
 
-	float vecx = ray.x;
-	float vecy = ray.y;
-	float vecz = ray.z;
+	float vecx = ray.direction.x;
+	float vecy = ray.direction.y;
+	float vecz = ray.direction.z;
 
-	vec3 pointMinusCenterVec = somePointOnRay - center;
+	vec3 pointMinusCenterVec = ray.position - center;
 
 	//quadratic = vec3(t^2, t, 1)
 	vec3 quadratic = vec3(
 		1, //pow(vecx, 2) + pow(vecy, 2) + pow(vecz, 2) == 1 (ray is normalized)
-		2 * dot(ray, pointMinusCenterVec),
+		2 * dot(ray.direction, pointMinusCenterVec),
 		dot(pointMinusCenterVec, pointMinusCenterVec) - pow(radius, 2)
 	);
 
@@ -177,9 +165,8 @@ float Sphere::Intersect(vec3 ray, vec3 somePointOnRay) {
 	float result = glm::min(ans1, ans2);
 
 	// In case of Transperant spheres
-	if (result <= 0.0001f) {
-		ans1 = abs(ans1);
-		ans2 = abs(ans2);
+	float threshold = 0.001f;
+	if (result <= threshold) {
 		result = glm::max(ans1, ans2);
 	}
 
@@ -219,4 +206,11 @@ DirectionalLight::DirectionalLight(vec3 direction) {
 SpotLight::SpotLight(vec3 direction) {
 	this->liType = Spot;
 	this->direction = direction;
+}
+
+//------------------------------  Ray  ------------------------------------------
+
+Ray::Ray(vec3 direction, vec3 position) {
+	this->direction = direction;
+	this->position = position;
 }
