@@ -11,6 +11,7 @@ using namespace std;
 using namespace glm;
 
 SceneData::SceneData(string file_name, int width, int height) {
+    bonus_mode_flag = 0.f;
     int index = -1;
     string text_line, text_argument;
     vector<string> scene_line;
@@ -113,10 +114,12 @@ SceneData::SceneData(string file_name, int width, int height) {
 Image SceneData::ImageRayCasting() {
     Image image = Image(image_width, image_height);
 
+    // Looping over all the pixels
     for (int j = 0; j < image_height; j++) {
         for (int i = 0; i < image_width; i++) {
             vec4 pixel_color;
 
+            // Single Sampling
             if (bonus_mode_flag < 0.5) {
                 Ray ray = ConstructRayThroughPixel(i, j, 0);
                 Hit hit = FindIntersection(ray, -1);
@@ -151,21 +154,27 @@ Ray SceneData::ConstructRayThroughPixel(int i, int j, int position_on_pixel) {
     // bottom-right ( 1, -1)
     vec3 top_left_point, hit_on_screen, ray_direction;
 
+    // Pixel center hit
     if (position_on_pixel == 0) {
         top_left_point = vec3(-1 + (pixel_width / 2), 1 - (pixel_height / 2), 0);
         hit_on_screen = top_left_point + vec3(i * pixel_width, -1 * (j * pixel_height), 0);
     }
     else {
         top_left_point = vec3(-1 + (pixel_width / 4), 1 - (pixel_height / 4), 0);
+
+        // Pixel center top left hit
         if (position_on_pixel == 1) {
             hit_on_screen = top_left_point + vec3(i * pixel_width, -1 * (j * pixel_height), 0);
         }
+        // Pixel center top right hit
         if (position_on_pixel == 2) {
             hit_on_screen = top_left_point + vec3((i * pixel_width) + (pixel_width / 2), -1 * (j * pixel_height), 0);
         }
+        // Pixel center bottom left hit
         if (position_on_pixel == 3) {
             hit_on_screen = top_left_point + vec3(i * pixel_width, -1 * ((j * pixel_height) + (pixel_height / 2)), 0);
         }
+        // Pixel center bottom right hit
         if (position_on_pixel == 4) {
             hit_on_screen = top_left_point + vec3((i * pixel_width) + (pixel_width / 2), -1 * ((j * pixel_height) + (pixel_height / 2)), 0);
         }
@@ -176,7 +185,7 @@ Ray SceneData::ConstructRayThroughPixel(int i, int j, int position_on_pixel) {
     return ray;
 }
 
-Hit SceneData::FindIntersection(Ray ray, int from_object_index) {
+Hit SceneData::FindIntersection(Ray ray, int ignore_object_index) {
     // Set Default Values
     float min_t = INFINITY;
     SceneObject* min_primitive = new Plane(vec4(1.0, 1.0, 1.0, 1.0), Space);
@@ -186,9 +195,10 @@ Hit SceneData::FindIntersection(Ray ray, int from_object_index) {
 
     // Looping over all the objects
     for (int i = 0; i < objects.size(); i++) {
-        if (i != from_object_index) {
+        if (i != ignore_object_index) {
             float t = objects[i]->Intersect(ray);
 
+            // Checking if there was intersection
             if ((t >= 0) && (t < min_t)) {
                 got_hit = true;
                 min_primitive = objects[i];
@@ -213,6 +223,7 @@ vec4 SceneData::GetColor(Ray ray, Hit hit, int depth) {
         vec3 color = hit.scene_object->getColor(hit.hit_point);
         phong_model_color = color * vec3(ambient.r, ambient.g, ambient.b); // Ambient
 
+        // Looping over all the light sources
         for (int i = 0; i < lights.size(); i++) {
             vec3 diffuse_color = max(calcDiffuseColor(hit, lights[i]), vec3(0, 0, 0)); // Diffuse
             vec3 specular_color = max(calcSpecularColor(ray, hit, lights[i]), vec3(0, 0, 0)); // Specular
@@ -229,6 +240,7 @@ vec4 SceneData::GetColor(Ray ray, Hit hit, int depth) {
         if (depth == 5) { // MAX_LEVEL=5
             return vec4(0.f, 0.f, 0.f, 0.f);
         }
+
         vec3 reflection_ray_direction = ray.direction - 2.0f * hit.scene_object->getNormal(hit.hit_point) * dot(ray.direction, hit.scene_object->getNormal(hit.hit_point));
         Ray reflection_ray = Ray(reflection_ray_direction, hit.hit_point);
 
@@ -252,6 +264,7 @@ vec4 SceneData::GetColor(Ray ray, Hit hit, int depth) {
         if (depth == 5) { // MAX_LEVEL=5
             return vec4(0.f, 0.f, 0.f, 0.f);
         }
+
         vec4 transparency_color = vec4(0.f, 0.f, 0.f, 0.f);
 
         // Transparent Plane
@@ -328,17 +341,22 @@ vec4 SceneData::GetColor(Ray ray, Hit hit, int depth) {
 }
 
 vec3 SceneData::calcDiffuseColor(Hit hit, Light* light) {
+    // Planes normals are in the opsite direction to the viewer than Spheres
     float object_factor = 1;
-    if (hit.scene_object->details.w < 0.0) object_factor = -1;
+    if (hit.scene_object->details.w < 0.0) {
+        object_factor = -1;
+    }
 
     vec3 normalized_ray_direction = object_factor * normalizedVector(light->direction);
 
+    // Spotlight special case
     if (light->light_type == Spot) {
         vec3 virtual_spotlight_ray = normalizedVector(hit.hit_point - light->position);
         float light_cos_value = dot(virtual_spotlight_ray, object_factor *normalized_ray_direction);
 
+        // Checking if the spotlight rays hit the object
         if (light_cos_value < light->cos_angle) {
-            return vec3(0.0, 0.0, 0.0);
+            return vec3(0.f, 0.f, 0.f);
         }
         else {
             normalized_ray_direction = object_factor * virtual_spotlight_ray;
@@ -357,10 +375,12 @@ vec3 SceneData::calcDiffuseColor(Hit hit, Light* light) {
 vec3 SceneData::calcSpecularColor(Ray ray, Hit hit, Light* light) {
     vec3 normalized_ray_direction = normalizedVector(light->direction);
 
+    // Spotlight special case
     if (light->light_type == Spot) {
         vec3 virtual_spotlight_ray = normalizedVector(hit.hit_point - light->position);
         float light_cos_value = dot(virtual_spotlight_ray, normalized_ray_direction);
 
+        // Checking if the spotlight rays hit the object
         if (light_cos_value < light->cos_angle) {
             return vec3(0.f, 0.f, 0.f);
         }
@@ -389,10 +409,12 @@ float SceneData::calcShadowTerm(Hit hit, Light* light) {
     vec3 normalized_ray_direction = normalizedVector(light->direction);
     float min_t = INFINITY;
 
+    // Spotlight special case
     if (light->light_type == Spot) {
         vec3 virtual_spotlight_ray = normalizedVector(hit.hit_point - light->position);
         float light_cos_value = dot(virtual_spotlight_ray, normalized_ray_direction);
 
+        // Checking if the spotlight rays hit the object
         if (light_cos_value < light->cos_angle) {
             return 0.0;
         }

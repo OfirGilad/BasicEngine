@@ -15,7 +15,7 @@ public:
 	SceneData(string file_name, int width, int height);
     Image ImageRayCasting();
 	Ray ConstructRayThroughPixel(int i, int j, int position_on_pixel);
-    Hit FindIntersection(Ray ray, int from_object_index);
+    Hit FindIntersection(Ray ray, int ignore_object_index);
     vec4 GetColor(Ray ray, Hit hit, int depth);
 	vec3 calcDiffuseColor(Hit hit, Light* light);
 	vec3 calcSpecularColor(Ray ray, Hit hit, Light* light);
