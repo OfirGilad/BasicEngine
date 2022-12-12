@@ -2,6 +2,7 @@
 // #include "../DisplayGLFW/display.h"
 #include "game.h"
 #include "../res/includes/glm/glm.hpp"
+#include "assignment.h"
 
 int main(int argc,char *argv[])
 {
@@ -18,6 +19,13 @@ int main(int argc,char *argv[])
 	Init(display);
 	
 	scn->Init();
+
+	// New code start
+
+	RubiksCube rubiks_cube = RubiksCube(scn, 3);
+
+	// New code end
+
 
 	display.SetScene(scn);
 

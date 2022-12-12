@@ -62,6 +62,9 @@ public:
 	
 	inline void SetShapeTex(int shpIndx,int texIndx){shapes[shpIndx]->SetTexture(texIndx);} 
 	inline void SetShapeShader(int shpIndx,int shdrIndx){shapes[shpIndx]->SetShader(shdrIndx);} 
+
+	// New methods
+	std::vector<Shape*>* getShapes() { return &shapes; }
 	
 private:	
 	
