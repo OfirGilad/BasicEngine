@@ -42,51 +42,68 @@
 				//		scn->Activate();
 				//break;
 
-				case GLFW_KEY_UP:
-					scn->MoveCamera(0,scn->zTranslate,0.4f);
-					break;
-				case GLFW_KEY_DOWN:
-					//scn->shapeTransformation(scn->xGlobalRotate,-5.f);
-					//cout<< "down: "<<endl;
-					scn->MoveCamera(0,scn->zTranslate,-0.4f);
-					break;
+				//case GLFW_KEY_UP:
+				//	scn->MoveCamera(0,scn->zTranslate,0.4f);
+				//	break;
+				//case GLFW_KEY_DOWN:
+				//	//scn->shapeTransformation(scn->xGlobalRotate,-5.f);
+				//	//cout<< "down: "<<endl;
+				//	scn->MoveCamera(0,scn->zTranslate,-0.4f);
+				//	break;
 
 				// New Keys
 				case GLFW_KEY_R:
-					scn->rubiks_cube.CASE_R(scn);
 					std::cout << "R Pressed" << std::endl;
+					scn->rubiks_cube.CASE_R();
 					break;
 				case GLFW_KEY_L:
-					scn->rubiks_cube.CASE_L(scn);
 					std::cout << "L Pressed" << std::endl;
+					scn->rubiks_cube.CASE_L();
 					break;
 				case GLFW_KEY_U:
-					scn->rubiks_cube.CASE_U(scn);
 					std::cout << "U Pressed" << std::endl;
+					scn->rubiks_cube.CASE_U();
 					break;
 				case GLFW_KEY_D:
-					scn->rubiks_cube.CASE_D(scn);
 					std::cout << "D Pressed" << std::endl;
+					scn->rubiks_cube.CASE_D();
 					break;
 				case GLFW_KEY_B:
-					scn->rubiks_cube.CASE_B(scn);
 					std::cout << "B Pressed" << std::endl;
+					scn->rubiks_cube.CASE_B();
 					break;
 				case GLFW_KEY_F:
-					scn->rubiks_cube.CASE_F(scn);
 					std::cout << "F Pressed" << std::endl;
+					scn->rubiks_cube.CASE_F();
 					break;
 				case GLFW_KEY_SPACE:
-					scn->rubiks_cube.CASE_SPACE();
 					std::cout << "Space Pressed" << std::endl;
+					scn->rubiks_cube.CASE_SPACE();
 					break;
 				case GLFW_KEY_Z:
-					scn->rubiks_cube.CASE_Z(scn);
 					std::cout << "Z Pressed" << std::endl;
+					scn->rubiks_cube.CASE_Z();
 					break;
 				case GLFW_KEY_A:
-					scn->rubiks_cube.CASE_A(scn);
 					std::cout << "A Pressed" << std::endl;
+					scn->rubiks_cube.CASE_A();
+					break;
+				case GLFW_KEY_UP:
+					std::cout << "UP Pressed" << std::endl;
+					scn->rubiks_cube.CASE_UP();
+					break;
+				case GLFW_KEY_DOWN:
+					std::cout << "DOWN Pressed" << std::endl;
+					scn->rubiks_cube.CASE_DOWN();
+					
+					break;
+				case GLFW_KEY_LEFT:
+					std::cout << "LEFT Pressed" << std::endl;
+					scn->rubiks_cube.CASE_LEFT();
+					break;
+				case GLFW_KEY_RIGHT:
+					std::cout << "RIGHT Pressed" << std::endl;
+					scn->rubiks_cube.CASE_RIGHT();
 					break;
 
 			default:

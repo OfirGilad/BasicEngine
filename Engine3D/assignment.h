@@ -15,15 +15,19 @@ public:
     RubiksCube();
     void CreateCube(Scene* scn, int size);
 
-    void CASE_R(Scene* scn);
-    void CASE_L(Scene* scn);
-    void CASE_U(Scene* scn);
-    void CASE_D(Scene* scn);
-    void CASE_B(Scene* scn);
-    void CASE_F(Scene* scn);
+    void CASE_R();
+    void CASE_L();
+    void CASE_U();
+    void CASE_D();
+    void CASE_B();
+    void CASE_F();
     void CASE_SPACE();
-    void CASE_Z(Scene* scn);
-    void CASE_A(Scene* scn);
+    void CASE_Z();
+    void CASE_A();
+    void CASE_UP();
+    void CASE_DOWN();
+    void CASE_LEFT();
+    void CASE_RIGHT();
 
     // Variables
     int size;

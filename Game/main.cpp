@@ -17,6 +17,9 @@ int main(int argc,char *argv[])
 	
 	Init(display);
 	
+	// Selecting cube size
+	scn->cube_size = 3;
+
 	scn->Init();
 
 	display.SetScene(scn);

@@ -62,8 +62,13 @@ void RubiksCube::CreateCube(Scene* scn, int size) {
 }
 
 // 'R' press state for right wall rotation (90 degrees clockwise).
-void RubiksCube::CASE_R(Scene* scn) {
+void RubiksCube::CASE_R() {
     int i = current_center.x + 1;
+
+    if (i == size) {
+        std::cout << "Invalid rotation" << std::endl;
+        return;
+    }
 
     for (int j = 0; j < size; j++)
     {
@@ -76,8 +81,13 @@ void RubiksCube::CASE_R(Scene* scn) {
 }
 
 // 'L' press state for left wall rotation (90 degrees clockwise).
-void RubiksCube::CASE_L(Scene* scn) {
+void RubiksCube::CASE_L() {
     int i = current_center.x - 1;
+
+    if (i == -1) {
+        std::cout << "Invalid rotation" << std::endl;
+        return;
+    }
 
     for (int j = 0; j < size; j++)
     {
@@ -90,7 +100,7 @@ void RubiksCube::CASE_L(Scene* scn) {
 }
 
 // 'U' press state for up wall rotation(90 degrees clockwise).
-void RubiksCube::CASE_U(Scene* scn) {
+void RubiksCube::CASE_U() {
     int j = current_center.y + 1;
 
     for (int i = 0; i < size; i++)
@@ -103,11 +113,14 @@ void RubiksCube::CASE_U(Scene* scn) {
     }
 }
 
-// In Progress
-
 // 'D' press state for down wall rotation (90 degrees clockwise).
-void RubiksCube::CASE_D(Scene* scn) {
+void RubiksCube::CASE_D() {
     int j = current_center.y - 1;
+
+    if (j == -1) {
+        std::cout << "Invalid rotation" << std::endl;
+        return;
+    }
 
     for (int i = 0; i < size; i++)
     {
@@ -120,8 +133,13 @@ void RubiksCube::CASE_D(Scene* scn) {
 }
 
 // 'B' press state for back wall rotation (90 degrees clockwise).
-void RubiksCube::CASE_B(Scene* scn) {
+void RubiksCube::CASE_B() {
     int k = current_center.z - 1;
+
+    if (k == -1) {
+        std::cout << "Invalid rotation" << std::endl;
+        return;
+    }
 
     for (int i = 0; i < size; i++)
     {
@@ -134,8 +152,13 @@ void RubiksCube::CASE_B(Scene* scn) {
 }
 
 // 'F' press state for front wall rotation (90 degrees clockwise).
-void RubiksCube::CASE_F(Scene* scn) {
+void RubiksCube::CASE_F() {
     int k = current_center.z + 1;
+
+    if (k == size) {
+        std::cout << "Invalid rotation" << std::endl;
+        return;
+    }
 
     for (int i = 0; i < size; i++)
     {
@@ -153,15 +176,57 @@ void RubiksCube::CASE_SPACE() {
 }
 
 // 'Z' press state: dividing rotation angle by 2;
-void RubiksCube::CASE_Z(Scene* scn) {
-    if (rotation_angle >= 180) {
+void RubiksCube::CASE_Z() {
+    if (rotation_angle > 90) {
         rotation_angle = rotation_angle / 2;
+    }
+    else {
+        std::cout << "Rotation is already at minimum of 90" << std::endl;
     }
 }
 
 // 'A' press state: multiply rotation angle by 2 (until maximum of 180);
-void RubiksCube::CASE_A(Scene* scn) {
+void RubiksCube::CASE_A() {
     if (rotation_angle < 180) {
         rotation_angle = rotation_angle * 2;
+    }
+    else {
+        std::cout << "Rotation is already at maximum of 180" << std::endl;
+    }
+}
+
+void RubiksCube::CASE_UP() {
+    if (current_center.y < size - 1) {
+        current_center += vec3(0, 1, 0);
+    }
+    else {
+        std::cout << "Moving center failed" << std::endl;
+    }
+}
+
+void RubiksCube::CASE_DOWN() {
+    if (current_center.y > 0) {
+        current_center -= vec3(0, 1, 0);
+    }
+    else {
+        std::cout << "Moving center failed" << std::endl;
+    }
+}
+
+void RubiksCube::CASE_LEFT() {
+    if (current_center.x > 0) {
+        current_center -= vec3(1, 0, 0);
+    }
+    else {
+        std::cout << "Moving center failed" << std::endl;
+    }
+}
+
+void RubiksCube::CASE_RIGHT() {
+    if (current_center.x < size - 1) {
+        current_center += vec3(1, 0, 0);
+    }
+    else {
+        std::cout << "Moving center failed" << std::endl;
     }
 }

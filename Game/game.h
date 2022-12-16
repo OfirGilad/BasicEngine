@@ -16,6 +16,7 @@ public:
 	void Motion();
 	~Game(void);
 
+	int cube_size;
 	RubiksCube rubiks_cube;
 };
 
