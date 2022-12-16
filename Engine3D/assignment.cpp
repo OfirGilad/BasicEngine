@@ -45,5 +45,5 @@ RubiksCube::RubiksCube(Game* scn, int size) {
         }
         cube_structure.push_back(sub_struct1);
     }
-    std::cout << "Check Stucture" << std::endl;
+    std::cout << "Check Structure" << std::endl;
 }
