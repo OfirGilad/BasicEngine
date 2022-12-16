@@ -1,6 +1,8 @@
 #pragma once   //maybe should be static class
 #include "display.h"
 #include "game.h"
+#include <iostream>
+#include <fstream>
 
 
 	void mouse_callback(GLFWwindow* window,int button, int action, int mods)
@@ -17,8 +19,8 @@
 	void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 	{
 		Game *scn = (Game*)glfwGetWindowUserPointer(window);
-		scn->MyTranslate(glm::vec3(0,0,xoffset),0);
-		
+		//scn->MyTranslate(glm::vec3(0,0,xoffset),0);
+		scn->MyTranslate(glm::vec3(0, 0, yoffset), 0);
 	}
 	
 	void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
@@ -32,12 +34,12 @@
 				case GLFW_KEY_ESCAPE:			
 					glfwSetWindowShouldClose(window,GLFW_TRUE);
 				break;
-				case GLFW_KEY_SPACE:
-					if(scn->IsActive())
-						scn->Deactivate();
-					else
-						scn->Activate();
-				break;
+				//case GLFW_KEY_SPACE:
+				//	if(scn->IsActive())
+				//		scn->Deactivate();
+				//	else
+				//		scn->Activate();
+				//break;
 
 				case GLFW_KEY_UP:
 					scn->MoveCamera(0,scn->zTranslate,0.4f);
@@ -46,6 +48,35 @@
 					//scn->shapeTransformation(scn->xGlobalRotate,-5.f);
 					//cout<< "down: "<<endl;
 					scn->MoveCamera(0,scn->zTranslate,-0.4f);
+					break;
+
+				// New Keys
+				case GLFW_KEY_R:
+					std::cout << "R Pressed" << std::endl;
+					break;
+				case GLFW_KEY_L:
+					std::cout << "L Pressed" << std::endl;
+					break;
+				case GLFW_KEY_U:
+					std::cout << "U Pressed" << std::endl;
+					break;
+				case GLFW_KEY_D:
+					std::cout << "D Pressed" << std::endl;
+					break;
+				case GLFW_KEY_B:
+					std::cout << "B Pressed" << std::endl;
+					break;
+				case GLFW_KEY_F:
+					std::cout << "F Pressed" << std::endl;
+					break;
+				case GLFW_KEY_SPACE:
+					std::cout << "Space Pressed" << std::endl;
+					break;
+				case GLFW_KEY_Z:
+					std::cout << "Z Pressed" << std::endl;
+					break;
+				case GLFW_KEY_A:
+					std::cout << "A Pressed" << std::endl;
 					break;
 
 			default:

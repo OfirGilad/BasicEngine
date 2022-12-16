@@ -25,15 +25,25 @@ RubiksCube::RubiksCube(Game* scn, int size) {
 
     for (float i = -distance; i <= distance; i+=2)
     {
+        std::vector<std::vector<std::pair<int, vec3>>> sub_struct1;
+
         for (float j = -distance; j <= distance; j+=2)
         {
+            std::vector<std::pair<int, vec3>> sub_struct2;
+
             for (float k = -distance; k <= distance; k+=2)
             {
                 scn->AddShape(Scene::Cube, -1, Scene::TRIANGLES);
                 scn->SetShapeTex(index, 0);
                 (*scn_shapes)[index]->MyTranslate(glm::vec3(i, j, k), 0);
+
+                sub_struct2.push_back(std::make_pair(index, vec3(0, 0, 0)));
+
                 index++;
             }
+            sub_struct1.push_back(sub_struct2);
         }
+        cube_structure.push_back(sub_struct1);
     }
+    std::cout << "Check Stucture" << std::endl;
 }

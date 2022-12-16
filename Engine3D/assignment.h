@@ -17,4 +17,5 @@ public:
     // Variables
     int size;
     std::vector<Shape*>* scn_shapes;
+    std::vector < std::vector<std::vector<std::pair<int, vec3>>>> cube_structure;
 };
