@@ -14,6 +14,7 @@ public:
     // Methods
     RubiksCube();
     void Create_Cube(Scene* scn, int size);
+    vec3 Calc_New_Rotation(vec3 current_rotation, vec3 rotation);
 
     void CASE_R();
     void CASE_L();

@@ -61,6 +61,30 @@ void RubiksCube::Create_Cube(Scene* scn, int size) {
     std::cout << "Check Structure" << std::endl;
 }
 
+vec3 RubiksCube::Calc_New_Rotation(vec3 current_rotation, vec3 rotation) {
+    vec3 new_rotation = current_rotation + rotation;
+
+    if (new_rotation.x >= 360) {
+        new_rotation.x = 360 - new_rotation.x;
+    }
+    if (new_rotation.x < 0) {
+        new_rotation.x = 360 + new_rotation.x;
+    }
+    if (new_rotation.y >= 360) {
+        new_rotation.y = 360 - new_rotation.y;
+    }
+    if (new_rotation.y < 0) {
+        new_rotation.y = 360 + new_rotation.y;
+    }
+    if (new_rotation.z >= 360) {
+        new_rotation.z = 360 - new_rotation.z;
+    }
+    if (new_rotation.z < 0) {
+        new_rotation.z = 360 + new_rotation.z;
+    }
+    return new_rotation;
+}
+
 // 'R' press state for right wall rotation (90 degrees clockwise).
 void RubiksCube::CASE_R() {
     int i = current_center.x + 1;
@@ -76,6 +100,9 @@ void RubiksCube::CASE_R() {
         {
             int get_index = cube_rotation[i][j][k].first;
             (*scn_shapes)[get_index]->MyRotate(rotation_angle, glm::vec3(clock_direction, 0, 0), 0);
+
+            // Update structure
+            cube_rotation[i][j][k].second = Calc_New_Rotation(cube_rotation[i][j][k].second, glm::vec3(rotation_angle * clock_direction, 0, 0));
         }
     }
 }
@@ -95,6 +122,9 @@ void RubiksCube::CASE_L() {
         {
             int get_index = cube_rotation[i][j][k].first;
             (*scn_shapes)[get_index]->MyRotate(rotation_angle, glm::vec3(clock_direction, 0, 0), 0);
+
+            // Update structure
+            cube_rotation[i][j][k].second = Calc_New_Rotation(cube_rotation[i][j][k].second, glm::vec3(rotation_angle * clock_direction, 0, 0));
         }
     }
 }
@@ -114,6 +144,9 @@ void RubiksCube::CASE_U() {
         {
             int get_index = cube_rotation[i][j][k].first;
             (*scn_shapes)[get_index]->MyRotate(rotation_angle, glm::vec3(0, clock_direction, 0), 0);
+
+            // Update structure
+            cube_rotation[i][j][k].second = Calc_New_Rotation(cube_rotation[i][j][k].second, glm::vec3(0, rotation_angle * clock_direction, 0));
         }
     }
 }
@@ -133,6 +166,9 @@ void RubiksCube::CASE_D() {
         {
             int get_index = cube_rotation[i][j][k].first;
             (*scn_shapes)[get_index]->MyRotate(rotation_angle, glm::vec3(0, clock_direction, 0), 0);
+
+            // Update structure
+            cube_rotation[i][j][k].second = Calc_New_Rotation(cube_rotation[i][j][k].second, glm::vec3(0, rotation_angle * clock_direction, 0));
         }
     }
 }
@@ -152,6 +188,9 @@ void RubiksCube::CASE_B() {
         {
             int get_index = cube_rotation[i][j][k].first;
             (*scn_shapes)[get_index]->MyRotate(rotation_angle, glm::vec3(0, 0, clock_direction), 0);
+
+            // Update structure
+            cube_rotation[i][j][k].second = Calc_New_Rotation(cube_rotation[i][j][k].second, glm::vec3(0, 0, rotation_angle * clock_direction));
         }
     }
 }
@@ -171,6 +210,9 @@ void RubiksCube::CASE_F() {
         {
             int get_index = cube_rotation[i][j][k].first;
             (*scn_shapes)[get_index]->MyRotate(rotation_angle, glm::vec3(0, 0, clock_direction), 0);
+
+            // Update structure
+            cube_rotation[i][j][k].second = Calc_New_Rotation(cube_rotation[i][j][k].second, glm::vec3(0, 0, rotation_angle * clock_direction));
         }
     }
 }
