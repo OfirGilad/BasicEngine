@@ -96,7 +96,7 @@ void RubiksCube::CASE_R() {
 
     for (int j = 0; j < size; j++)
     {
-        for (float k = 0; k < size; k++)
+        for (int k = 0; k < size; k++)
         {
             int get_index = cube_rotation[i][j][k].first;
             (*scn_shapes)[get_index]->MyRotate(rotation_angle, glm::vec3(clock_direction, 0, 0), 0);
@@ -118,7 +118,7 @@ void RubiksCube::CASE_L() {
 
     for (int j = 0; j < size; j++)
     {
-        for (float k = 0; k < size; k++)
+        for (int k = 0; k < size; k++)
         {
             int get_index = cube_rotation[i][j][k].first;
             (*scn_shapes)[get_index]->MyRotate(rotation_angle, glm::vec3(clock_direction, 0, 0), 0);
@@ -140,7 +140,7 @@ void RubiksCube::CASE_U() {
 
     for (int i = 0; i < size; i++)
     {
-        for (float k = 0; k < size; k++)
+        for (int k = 0; k < size; k++)
         {
             int get_index = cube_rotation[i][j][k].first;
             (*scn_shapes)[get_index]->MyRotate(rotation_angle, glm::vec3(0, clock_direction, 0), 0);
@@ -162,7 +162,7 @@ void RubiksCube::CASE_D() {
 
     for (int i = 0; i < size; i++)
     {
-        for (float k = 0; k < size; k++)
+        for (int k = 0; k < size; k++)
         {
             int get_index = cube_rotation[i][j][k].first;
             (*scn_shapes)[get_index]->MyRotate(rotation_angle, glm::vec3(0, clock_direction, 0), 0);
@@ -184,7 +184,7 @@ void RubiksCube::CASE_B() {
 
     for (int i = 0; i < size; i++)
     {
-        for (float j = 0; j < size; j++)
+        for (int j = 0; j < size; j++)
         {
             int get_index = cube_rotation[i][j][k].first;
             (*scn_shapes)[get_index]->MyRotate(rotation_angle, glm::vec3(0, 0, clock_direction), 0);
@@ -206,7 +206,7 @@ void RubiksCube::CASE_F() {
 
     for (int i = 0; i < size; i++)
     {
-        for (float j = 0; j < size; j++)
+        for (int j = 0; j < size; j++)
         {
             int get_index = cube_rotation[i][j][k].first;
             (*scn_shapes)[get_index]->MyRotate(rotation_angle, glm::vec3(0, 0, clock_direction), 0);
