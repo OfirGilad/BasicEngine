@@ -38,6 +38,10 @@ void Game::Init()
 	pickedShape = -1;
 	
 	//ReadPixel(); //uncomment when you are reading from the z-buffer
+
+	// Creating Rubik's Cube
+	rubiks_cube = RubiksCube();
+	rubiks_cube.CreateCube(this, 3);
 }
 
 void Game::Update(const glm::mat4 &MVP,const glm::mat4 &Model,const int  shaderIndx)

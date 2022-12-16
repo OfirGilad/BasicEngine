@@ -20,6 +20,7 @@
 	{
 		Game *scn = (Game*)glfwGetWindowUserPointer(window);
 		//scn->MyTranslate(glm::vec3(0,0,xoffset),0);
+
 		scn->MyTranslate(glm::vec3(0, 0, yoffset), 0);
 	}
 	
@@ -52,30 +53,39 @@
 
 				// New Keys
 				case GLFW_KEY_R:
+					scn->rubiks_cube.CASE_R(scn);
 					std::cout << "R Pressed" << std::endl;
 					break;
 				case GLFW_KEY_L:
+					scn->rubiks_cube.CASE_L(scn);
 					std::cout << "L Pressed" << std::endl;
 					break;
 				case GLFW_KEY_U:
+					scn->rubiks_cube.CASE_U(scn);
 					std::cout << "U Pressed" << std::endl;
 					break;
 				case GLFW_KEY_D:
+					scn->rubiks_cube.CASE_D(scn);
 					std::cout << "D Pressed" << std::endl;
 					break;
 				case GLFW_KEY_B:
+					scn->rubiks_cube.CASE_B(scn);
 					std::cout << "B Pressed" << std::endl;
 					break;
 				case GLFW_KEY_F:
+					scn->rubiks_cube.CASE_F(scn);
 					std::cout << "F Pressed" << std::endl;
 					break;
 				case GLFW_KEY_SPACE:
+					scn->rubiks_cube.CASE_SPACE();
 					std::cout << "Space Pressed" << std::endl;
 					break;
 				case GLFW_KEY_Z:
+					scn->rubiks_cube.CASE_Z(scn);
 					std::cout << "Z Pressed" << std::endl;
 					break;
 				case GLFW_KEY_A:
+					scn->rubiks_cube.CASE_A(scn);
 					std::cout << "A Pressed" << std::endl;
 					break;
 

@@ -1,5 +1,6 @@
 #pragma once
 #include "scene.h"
+#include "assignment.h"
 
 class Game : public Scene
 {
@@ -14,5 +15,7 @@ public:
 	void WhenTranslate();
 	void Motion();
 	~Game(void);
+
+	RubiksCube rubiks_cube;
 };
 
