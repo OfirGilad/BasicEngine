@@ -13,7 +13,7 @@ class RubiksCube
 public:
     // Methods
     RubiksCube();
-    void CreateCube(Scene* scn, int size);
+    void Create_Cube(Scene* scn, int size);
 
     void CASE_R();
     void CASE_L();
@@ -28,6 +28,7 @@ public:
     void CASE_DOWN();
     void CASE_LEFT();
     void CASE_RIGHT();
+    void CASE_M(); 
 
     // Variables
     int size;

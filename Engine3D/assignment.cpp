@@ -14,7 +14,7 @@ RubiksCube::RubiksCube()
 {
 }
 
-void RubiksCube::CreateCube(Scene* scn, int size) {
+void RubiksCube::Create_Cube(Scene* scn, int size) {
     this->size = size;
 
     scn->AddTexture("../res/textures/plane.png", false);
@@ -102,6 +102,11 @@ void RubiksCube::CASE_L() {
 // 'U' press state for up wall rotation(90 degrees clockwise).
 void RubiksCube::CASE_U() {
     int j = current_center.y + 1;
+
+    if (j == size) {
+        std::cout << "Invalid rotation" << std::endl;
+        return;
+    }
 
     for (int i = 0; i < size; i++)
     {
@@ -195,6 +200,7 @@ void RubiksCube::CASE_A() {
     }
 }
 
+// Moving center of rotation up
 void RubiksCube::CASE_UP() {
     if (current_center.y < size - 1) {
         current_center += vec3(0, 1, 0);
@@ -204,6 +210,7 @@ void RubiksCube::CASE_UP() {
     }
 }
 
+// Moving center of rotation down
 void RubiksCube::CASE_DOWN() {
     if (current_center.y > 0) {
         current_center -= vec3(0, 1, 0);
@@ -213,6 +220,7 @@ void RubiksCube::CASE_DOWN() {
     }
 }
 
+// Moving center of rotation left
 void RubiksCube::CASE_LEFT() {
     if (current_center.x > 0) {
         current_center -= vec3(1, 0, 0);
@@ -222,6 +230,7 @@ void RubiksCube::CASE_LEFT() {
     }
 }
 
+// Moving center of rotation right
 void RubiksCube::CASE_RIGHT() {
     if (current_center.x < size - 1) {
         current_center += vec3(1, 0, 0);
@@ -229,4 +238,71 @@ void RubiksCube::CASE_RIGHT() {
     else {
         std::cout << "Moving center failed" << std::endl;
     }
+}
+
+// Mixer
+void RubiksCube::CASE_M() {
+    std::cout.setstate(std::ios_base::failbit);
+    ofstream mixer_file;
+    mixer_file.open("../mixer.txt");
+
+    for (int i = 0; i < 15; i++) {
+        int random_integer;
+        int lowest = 0, highest = 10;
+        int range = (highest - lowest) + 1;
+        random_integer = lowest + rand() % range;
+
+        mixer_file << random_integer;
+
+        if (random_integer == 0) {
+            CASE_R();
+            mixer_file << " - CASE_R()";
+        }
+        if (random_integer == 1) {
+            CASE_L();
+            mixer_file << " - CASE_L()";
+        }
+        if (random_integer == 2) {
+            CASE_U();
+            mixer_file << " - CASE_U()";
+        }
+        if (random_integer == 3) {
+            CASE_D();
+            mixer_file << " - CASE_D()";
+        }
+        if (random_integer == 4) {
+            CASE_B();
+            mixer_file << " - CASE_B()";
+        }
+        if (random_integer == 5) {
+            CASE_F();
+            mixer_file << " - CASE_F()";
+        }
+        if (random_integer == 6) {
+            CASE_SPACE();
+            mixer_file << " - CASE_SPACE()";
+        }
+        if (random_integer == 7) {
+            CASE_UP();
+            mixer_file << " - CASE_UP()";
+        }
+        if (random_integer == 8) {
+            CASE_DOWN();
+            mixer_file << " - CASE_DOWN()";
+        }
+        if (random_integer == 9) {
+            CASE_LEFT();
+            mixer_file << " - CASE_LEFT()";
+        }
+        if (random_integer == 10) {
+            CASE_RIGHT();
+            mixer_file << " - CASE_RIGHT()";
+        }
+        mixer_file << endl;
+    }
+    std::cout.clear();
+    mixer_file.close();
+
+    // Reset center
+    current_center = vec3(1, 1, 1);
 }

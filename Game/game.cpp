@@ -41,7 +41,7 @@ void Game::Init()
 
 	// Creating Rubik's Cube
 	rubiks_cube = RubiksCube();
-	rubiks_cube.CreateCube(this, cube_size);
+	rubiks_cube.Create_Cube(this, cube_size);
 }
 
 void Game::Update(const glm::mat4 &MVP,const glm::mat4 &Model,const int  shaderIndx)

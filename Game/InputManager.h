@@ -105,6 +105,10 @@
 					std::cout << "RIGHT Pressed" << std::endl;
 					scn->rubiks_cube.CASE_RIGHT();
 					break;
+				case GLFW_KEY_M:
+					std::cout << "M Pressed" << std::endl;
+					scn->rubiks_cube.CASE_M();
+					break;
 
 			default:
 				break;
