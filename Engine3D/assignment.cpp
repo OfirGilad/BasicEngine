@@ -65,22 +65,22 @@ vec3 RubiksCube::Calc_New_Rotation(vec3 current_rotation, vec3 rotation) {
     vec3 new_rotation = current_rotation + rotation;
 
     if (new_rotation.x >= 360) {
-        new_rotation.x = 360 - new_rotation.x;
+        new_rotation = vec3(360, 0, 0) - new_rotation;
     }
     if (new_rotation.x < 0) {
-        new_rotation.x = 360 + new_rotation.x;
+        new_rotation = vec3(360, 0, 0) + new_rotation;
     }
     if (new_rotation.y >= 360) {
-        new_rotation.y = 360 - new_rotation.y;
+        new_rotation = vec3(0, 360, 0) - new_rotation;
     }
     if (new_rotation.y < 0) {
-        new_rotation.y = 360 + new_rotation.y;
+        new_rotation = vec3(0, 360, 0) + new_rotation;
     }
     if (new_rotation.z >= 360) {
-        new_rotation.z = 360 - new_rotation.z;
+        new_rotation = vec3(0, 0, 360) - new_rotation;
     }
     if (new_rotation.z < 0) {
-        new_rotation.z = 360 + new_rotation.z;
+        new_rotation = vec3(0, 0, 360) + new_rotation;
     }
     return new_rotation;
 }
