@@ -24,24 +24,25 @@ void RubiksCube::Create_Cube(Scene* scn, int size) {
     //(*scn_shapes)[0]->MyTranslate(glm::vec3(1, 0, 0), 0);
     //(*scn_shapes)[0]->MyRotate(60, glm::vec3(0, 1, 0), 0);
 
-    float distance = float(size) - 0.5f;
+    float distance = float(size) - ((float(size) + 1.f) * 0.5f);
     int index = 0;
 
-    for (float i = -distance; i <= distance; i+=2)
+    for (float i = -distance; i <= distance; i+=1)
     {
         std::vector<std::vector<std::pair<int, vec3>>> sub_rotation1;
         std::vector<std::vector<std::pair<int, vec3>>> sub_translation1;
 
-        for (float j = -distance; j <= distance; j+=2)
+        for (float j = -distance; j <= distance; j+=1)
         {
             std::vector<std::pair<int, vec3>> sub_rotation2;
             std::vector<std::pair<int, vec3>> sub_translation2;
 
-            for (float k = -distance; k <= distance; k+=2)
+            for (float k = -distance; k <= distance; k+=1)
             {
                 scn->AddShape(Scene::Cube, -1, Scene::TRIANGLES);
                 scn->SetShapeTex(index, 0);
                 (*scn_shapes)[index]->MyTranslate(glm::vec3(i, j, k), 0);
+                (*scn_shapes)[index]->MyScale(glm::vec3(0.5, 0.5, 0.5));
 
                 sub_rotation2.push_back(std::make_pair(index, vec3(0, 0, 0)));
                 sub_translation2.push_back(std::make_pair(index, vec3(i, j, k)));
@@ -54,11 +55,12 @@ void RubiksCube::Create_Cube(Scene* scn, int size) {
         cube_rotation.push_back(sub_rotation1);
         cube_translation.push_back(sub_translation1);
     }
+    scn->MoveCamera(0, Scene::zTranslate, 15);
 
     current_center = vec3(1, 1, 1);
     clock_direction = 1;
     rotation_angle = 90;
-    std::cout << "Check Structure" << std::endl;
+    std::cout << "Check Structure Completed" << std::endl;
 }
 
 vec3 RubiksCube::Calc_New_Rotation(vec3 current_rotation, vec3 rotation) {
