@@ -13,8 +13,10 @@ class RubiksCube
 public:
     // Methods
     RubiksCube();
-    void Create_Cube(Scene* scn, int size);
-    vec3 Calc_New_Rotation(vec3 current_rotation, vec3 rotation);
+    void Create_Cube(Scene* scn, int cube_size);
+    vec3 Calc_New_Angles(vec3 current_angles, vec3 angles);
+    void Update_Structure(int value, char ijk);
+    float Absolute_Difference(mat4 mat1, mat4 mat2);
 
     void CASE_R();
     void CASE_L();
@@ -34,8 +36,10 @@ public:
     // Variables
     int size;
     std::vector<Shape*>* scn_shapes;
-    std::vector < std::vector<std::vector<std::pair<int, vec3>>>> cube_translation;
-    std::vector < std::vector<std::vector<std::pair<int, vec3>>>> cube_rotation;
+    std::vector<std::vector<std::vector<std::pair<int, mat4>>>> cube_translation;
+    std::vector<std::vector<std::vector<std::pair<int, mat4>>>> cube_rotation;
+    std::vector<std::vector<std::vector<std::pair<int, mat4>>>> cube_scale;
+    std::vector<std::vector<std::vector<std::pair<int, vec3>>>> cube_angles;
 
     vec3 current_center;
     int clock_direction;
