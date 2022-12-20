@@ -98,6 +98,18 @@ vec3 RubiksCube::Calc_New_Angles(vec3 current_angles, vec3 angles) {
 }
 
 
+// Note to self:
+// To find the cube new position:
+// new_center = rotation_matrix_3x3 * original_center
+// Example: 
+// original_center = (1, -1, 1)
+// rotation_matrix_after_90_angle = (1, 0, 0)
+//                                  (0, 0, 1)
+//                                  (0, -1, 0)
+// new_center = (1, 1, -1)
+// 
+
+
 //// From here the problematic part
 
 void RubiksCube::Update_Structure(int value, char ijk) {
@@ -167,6 +179,7 @@ void RubiksCube::CASE_R() {
         for (int k = 0; k < size; k++)
         {
             int get_index = cube_angles[i][j][k].first;
+
             (*scn_shapes)[get_index]->MyRotate(rotation_angle, glm::vec3(clock_direction, 0, 0), 0);
 
             // Update structure
