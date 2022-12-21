@@ -36,10 +36,12 @@ public:
     // Variables
     int size;
     std::vector<Shape*>* scn_shapes;
-    std::vector<std::vector<std::vector<std::pair<int, mat4>>>> cube_translation;
-    std::vector<std::vector<std::vector<std::pair<int, mat4>>>> cube_rotation;
-    std::vector<std::vector<std::vector<std::pair<int, mat4>>>> cube_scale;
     std::vector<std::vector<std::vector<std::pair<int, vec3>>>> cube_angles;
+    std::vector<std::vector<std::vector<std::pair<int, vec3>>>> cube_centers;
+    
+    //std::vector<std::vector<std::vector<std::pair<int, mat4>>>> cube_translation;
+    //std::vector<std::vector<std::vector<std::pair<int, mat4>>>> cube_rotation;
+    //std::vector<std::vector<std::vector<std::pair<int, mat4>>>> cube_scale;
 
     vec3 current_center;
     int clock_direction;

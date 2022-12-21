@@ -24,19 +24,21 @@ void RubiksCube::Create_Cube(Scene* scn, int cube_size) {
 
     for (float i = -distance; i <= distance; i+=1)
     {
-        std::vector<std::vector<std::pair<int, mat4>>> sub_translation1;
-        std::vector<std::vector<std::pair<int, mat4>>> sub_rotation1;
-        std::vector<std::vector<std::pair<int, mat4>>> sub_scale1;
+        //std::vector<std::vector<std::pair<int, mat4>>> sub_translation1;
+        //std::vector<std::vector<std::pair<int, mat4>>> sub_rotation1;
+        //std::vector<std::vector<std::pair<int, mat4>>> sub_scale1;
 
         std::vector<std::vector<std::pair<int, vec3>>> sub_angles1;
+        std::vector<std::vector<std::pair<int, vec3>>> sub_centers1;
 
         for (float j = -distance; j <= distance; j+=1)
         {
-            std::vector<std::pair<int, mat4>> sub_translation2;
-            std::vector<std::pair<int, mat4>> sub_rotation2;
-            std::vector<std::pair<int, mat4>> sub_scale2;
+            //std::vector<std::pair<int, mat4>> sub_translation2;
+            //std::vector<std::pair<int, mat4>> sub_rotation2;
+            //std::vector<std::pair<int, mat4>> sub_scale2;
 
             std::vector<std::pair<int, vec3>> sub_angles2;
+            std::vector<std::pair<int, vec3>> sub_centers2;
 
             for (float k = -distance; k <= distance; k+=1)
             {
@@ -45,25 +47,28 @@ void RubiksCube::Create_Cube(Scene* scn, int cube_size) {
                 (*scn_shapes)[index]->MyTranslate(glm::vec3(i, j, k), 0);
                 (*scn_shapes)[index]->MyScale(glm::vec3(0.5, 0.5, 0.5));
 
-                sub_translation2.push_back(std::make_pair(index, (*scn_shapes)[index]->GetTranslate()));
-                sub_rotation2.push_back(std::make_pair(index, (*scn_shapes)[index]->GetRotate()));
-                sub_scale2.push_back(std::make_pair(index, (*scn_shapes)[index]->GetScale()));
+                //sub_translation2.push_back(std::make_pair(index, (*scn_shapes)[index]->GetTranslate()));
+                //sub_rotation2.push_back(std::make_pair(index, (*scn_shapes)[index]->GetRotate()));
+                //sub_scale2.push_back(std::make_pair(index, (*scn_shapes)[index]->GetScale()));
 
                 sub_angles2.push_back(std::make_pair(index, vec3(0, 0, 0)));
+                sub_centers2.push_back(std::make_pair(index, vec3(i, j, k)));
 
                 index++;
             }
-            sub_translation1.push_back(sub_translation2);
-            sub_rotation1.push_back(sub_rotation2);
-            sub_scale1.push_back(sub_scale2);
+            //sub_translation1.push_back(sub_translation2);
+            //sub_rotation1.push_back(sub_rotation2);
+            //sub_scale1.push_back(sub_scale2);
 
             sub_angles1.push_back(sub_angles2);
+            sub_centers1.push_back(sub_centers2);
         }
-        cube_translation.push_back(sub_translation1);
-        cube_rotation.push_back(sub_rotation1);
-        cube_scale.push_back(sub_scale1);
+        //cube_translation.push_back(sub_translation1);
+        //cube_rotation.push_back(sub_rotation1);
+        //cube_scale.push_back(sub_scale1);
 
         cube_angles.push_back(sub_angles1);
+        cube_centers.push_back(sub_centers1);
     }
     scn->MoveCamera(0, Scene::zTranslate, 15);
 
@@ -71,6 +76,14 @@ void RubiksCube::Create_Cube(Scene* scn, int cube_size) {
     clock_direction = 1;
     rotation_angle = 90;
     std::cout << "Check Structure Completed" << std::endl;
+
+    for (int j = 0; j < size; j++) {
+        for (int k = 0; k < size; k++) {
+            cout << cube_angles[2][j][k].first;
+            cout << " ";
+        }
+        cout << endl;
+    }
 }
 
 vec3 RubiksCube::Calc_New_Angles(vec3 current_angles, vec3 angles) {
@@ -102,11 +115,11 @@ vec3 RubiksCube::Calc_New_Angles(vec3 current_angles, vec3 angles) {
 // To find the cube new position:
 // new_center = rotation_matrix_3x3 * original_center
 // Example: 
-// original_center = (1, -1, 1)
+// original_center = (1, -1, -1)
 // rotation_matrix_after_90_angle = (1, 0, 0)
 //                                  (0, 0, 1)
 //                                  (0, -1, 0)
-// new_center = (1, 1, -1)
+// new_center = (1, -1, 1)
 // 
 
 
@@ -116,31 +129,39 @@ void RubiksCube::Update_Structure(int value, char ijk) {
     std::vector<std::vector<std::vector<std::pair<int, vec3>>>> cube_angles_copy = cube_angles;
     
     if (ijk == 'i') {
-        // First loop
         for (int j = 0; j < size; j++)
         {
             for (int k = 0; k < size; k++)
             {
                 int get_index = cube_angles_copy[value][j][k].first;
-                glm::mat4 get_transform = (*scn_shapes)[get_index]->MakeTrans();
 
-                // Second loop
-                for (int b = 0; b < size; b++)
-                {
-                    for (int c = 0; c < size; c++)
-                    {
-                        glm::mat4 structure_transform = cube_rotation[value][b][c].second * cube_translation[value][b][c].second * cube_scale[value][b][c].second;
-                        float abs_differce = Absolute_Difference(get_transform, structure_transform);
+                glm::mat4 get_rotation = (*scn_shapes)[get_index]->GetRotate();
+                glm::mat3 cube_rotation = glm::mat3(
+                    vec3(get_rotation[0].x, get_rotation[0].y, get_rotation[0].z),
+                    vec3(get_rotation[1].x, get_rotation[1].y, get_rotation[1].z),
+                    vec3(get_rotation[2].x, get_rotation[2].y, get_rotation[2].z)
+                );
 
-                        if (abs_differce < 0.01f) {
-                            //cube_translation[value][j][k].first = get_index;
-                            //cube_rotation[value][j][k].first = get_index;
-                            cube_angles[value][j][k].first = get_index;
-                        }
-                    }
-                }
-                
+                //glm::mat4 get_translation = (*scn_shapes)[get_index]->GetTranslate();
+                //glm::vec3 cube_position = glm::vec3(get_translation[3].x, get_translation[3].y, get_translation[3].z);
+
+                glm::vec3 cube_position = cube_centers[value][j][k].second;
+
+                glm::vec3 new_cube_position = cube_position * cube_rotation;
+                glm::vec3 movement = new_cube_position - cube_position;
+                glm::vec3 final_movement = glm::vec3(round(movement.x), round(movement.y), round(movement.z));
+
+                cube_angles[value][j + final_movement.y][k + final_movement.z].first = get_index;
             }
+        }
+
+        // Debug for R
+        for (int j = 0; j < size; j++) {
+            for (int k = 0; k < size; k++) {
+                cout << cube_angles[value][j][k].first;
+                cout << " ";
+            }
+            cout << endl;
         }
     }
 }
@@ -186,6 +207,7 @@ void RubiksCube::CASE_R() {
             cube_angles[i][j][k].second = Calc_New_Angles(cube_angles[i][j][k].second, glm::vec3(rotation_angle * clock_direction, 0, 0));
         }
     }
+    Update_Structure(i, 'i');
 }
 
 // 'L' press state for left wall rotation (90 degrees clockwise).
