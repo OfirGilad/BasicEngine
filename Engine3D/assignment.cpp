@@ -6,6 +6,8 @@
 #include <sstream>
 #include "scene.h"
 
+#include <chrono>
+
 using namespace std;
 using namespace glm;
 
@@ -14,6 +16,7 @@ RubiksCube::RubiksCube()
 {
 }
 
+// Building a new Rubiks cube
 void RubiksCube::Create_Cube(Scene* scn, int cube_size) {
     scn->AddTexture("../res/textures/plane.png", false);
 
@@ -24,19 +27,11 @@ void RubiksCube::Create_Cube(Scene* scn, int cube_size) {
 
     for (float i = -distance; i <= distance; i+=1)
     {
-        std::vector<std::vector<std::pair<int, mat4>>> sub_translation1;
-        std::vector<std::vector<std::pair<int, mat4>>> sub_rotation1;
-        std::vector<std::vector<std::pair<int, mat4>>> sub_scale1;
-
         std::vector<std::vector<std::pair<int, vec3>>> sub_angles1;
         std::vector<std::vector<std::pair<int, vec3>>> sub_centers1;
 
         for (float j = -distance; j <= distance; j+=1)
         {
-            std::vector<std::pair<int, mat4>> sub_translation2;
-            std::vector<std::pair<int, mat4>> sub_rotation2;
-            std::vector<std::pair<int, mat4>> sub_scale2;
-
             std::vector<std::pair<int, vec3>> sub_angles2;
             std::vector<std::pair<int, vec3>> sub_centers2;
 
@@ -47,45 +42,33 @@ void RubiksCube::Create_Cube(Scene* scn, int cube_size) {
                 (*scn_shapes)[index]->MyTranslate(glm::vec3(i, j, k), 0);
                 (*scn_shapes)[index]->MyScale(glm::vec3(0.5, 0.5, 0.5));
 
-                sub_translation2.push_back(std::make_pair(index, (*scn_shapes)[index]->GetTranslate()));
-                sub_rotation2.push_back(std::make_pair(index, (*scn_shapes)[index]->GetRotate()));
-                sub_scale2.push_back(std::make_pair(index, (*scn_shapes)[index]->GetScale()));
-
                 sub_angles2.push_back(std::make_pair(index, vec3(0, 0, 0)));
                 sub_centers2.push_back(std::make_pair(index, vec3(i, j, k)));
 
                 index++;
             }
-            sub_translation1.push_back(sub_translation2);
-            sub_rotation1.push_back(sub_rotation2);
-            sub_scale1.push_back(sub_scale2);
-
             sub_angles1.push_back(sub_angles2);
             sub_centers1.push_back(sub_centers2);
         }
-        cube_translation.push_back(sub_translation1);
-        cube_rotation.push_back(sub_rotation1);
-        cube_scale.push_back(sub_scale1);
-
-        cube_angles.push_back(sub_angles1);
-        cube_centers.push_back(sub_centers1);
+        cubes_angles.push_back(sub_angles1);
+        cubes_centers.push_back(sub_centers1);
     }
     scn->MoveCamera(0, Scene::zTranslate, 10);
 
+    // Default global parameters
     current_center = vec3(1, 1, 1);
     clock_direction = 1;
     rotation_angle = 90;
-    std::cout << "Check Structure Completed" << std::endl;
+    
+    // Animation parameters
+    rotation_per_frame = 1;
+    activate_animation = true;
+    animating = false;
 
-   /* for (int j = 0; j < size; j++) {
-        for (int k = 0; k < size; k++) {
-            cout << cube_angles[2][j][k].first;
-            cout << " ";
-        }
-        cout << endl;
-    }*/
+    std::cout << "Cube Structure Completed" << std::endl;
 }
 
+// Calculating the new angles of a cube
 vec3 RubiksCube::Calc_New_Angles(vec3 current_angles, vec3 angles) {
     vec3 new_angles = current_angles + angles;
 
@@ -110,37 +93,37 @@ vec3 RubiksCube::Calc_New_Angles(vec3 current_angles, vec3 angles) {
     return new_angles;
 }
 
+// Rotate a cube according to the given direction
+void RubiksCube::Rotate_Cube(int i, int j, int k, vec3 rotation_direction) {
+    int get_index = cubes_angles[i][j][k].first;
 
-// Note to self:
-// To find the cube new position:
-// new_center = rotation_matrix_3x3 * original_center
-// Example: 
-// original_center = (1, -1, -1)
-// rotation_matrix_after_90_angle = (1, 0, 0)
-//                                  (0, 0, 1)
-//                                  (0, -1, 0)
-// new_center = (1, -1, 1)
-// 
+    // Getting the transposed rotation matrix
+    glm::mat4 get_rotation = (*scn_shapes)[get_index]->GetRotate();
+    glm::mat3 cube_rotation = glm::mat3(
+        vec3(get_rotation[0].x, get_rotation[0].y, get_rotation[0].z),
+        vec3(get_rotation[1].x, get_rotation[1].y, get_rotation[1].z),
+        vec3(get_rotation[2].x, get_rotation[2].y, get_rotation[2].z)
+    );
 
+    // Rotating the cube
+    glm::vec3 final_direction = rotation_direction * cube_rotation;
+    (*scn_shapes)[get_index]->MyRotate(rotation_per_frame, final_direction, 0);
 
-//// From here the problematic part
+    // Updating cubes angles structure
+    glm::vec3 new_angle = glm::vec3(rotation_direction.x * rotation_per_frame, rotation_direction.y * rotation_per_frame, rotation_direction.z * rotation_per_frame);
+    cubes_angles[i][j][k].second = Calc_New_Angles(cubes_angles[i][j][k].second, new_angle);
+}
 
-void RubiksCube::Update_Structure(int value, char ijk) {
+void RubiksCube::Update_Structure() {
     for (int i = 0; i < size; i++)
     {
         for (int j = 0; j < size; j++)
         {
             for (int k = 0; k < size; k++)
             {
-                int get_index = cube_centers[i][j][k].first;
+                int get_index = cubes_centers[i][j][k].first;
 
                 glm::mat4 get_rotation = (*scn_shapes)[get_index]->GetRotate();
-                /*glm::mat3 cube_rotation = glm::mat3(
-                    vec3(get_rotation[0].x, get_rotation[0].y, get_rotation[0].z),
-                    vec3(get_rotation[1].x, get_rotation[1].y, get_rotation[1].z),
-                    vec3(get_rotation[2].x, get_rotation[2].y, get_rotation[2].z)
-                );*/
-
                 glm::mat3 cube_rotation = glm::mat3(
                     vec3(get_rotation[0].x, get_rotation[1].x, get_rotation[2].x),
                     vec3(get_rotation[0].y, get_rotation[1].y, get_rotation[2].y),
@@ -150,91 +133,56 @@ void RubiksCube::Update_Structure(int value, char ijk) {
                 glm::mat4 get_translation = (*scn_shapes)[get_index]->GetTranslate();
                 glm::vec3 cube_position = glm::vec3(get_translation[3].x, get_translation[3].y, get_translation[3].z);
 
-                //glm::vec3 cube_position = cube_centers[value][j][k].second;
-
                 glm::vec3 new_cube_position = cube_position * cube_rotation;
                 glm::vec3 movement = new_cube_position - cube_position;
                 glm::vec3 final_movement = glm::vec3(round(movement.x), round(movement.y), round(movement.z));
 
-                cube_angles[i + final_movement.x][j + final_movement.y][k + final_movement.z].first = get_index;
+                cubes_angles[i + final_movement.x][j + final_movement.y][k + final_movement.z].first = get_index;
             }
         }
     }
 }
 
-float RubiksCube::Absolute_Difference(glm::mat4 mat1, glm::mat4 mat2) {
-    glm::mat4 mat_sub = mat1 - mat2;
-    float abs_diff = 0;
-
-    //for (int i = 0; i < 4; i++) {
-        for (int j = 0; j < 4; j++) {
-            abs_diff += abs(mat_sub[3][j]);
-            //std::cout << mat_sub[j][i];
-            std::cout << " ";
-        }
-        std::cout << std::endl;
-    //}
-    std::cout << "DONE" << std::endl;
-    return abs_diff;
-}
-
-//// Until here the problematic part
-
-
-
 // 'R' press state for right wall rotation (90 degrees clockwise).
 void RubiksCube::CASE_R() {
-    int i = current_center.x + 1;
-
-    for (int j = 0; j < size; j++) {
-        for (int k = 0; k < size; k++) {
-            cout << cube_angles[i][j][k].first;
-            cout << " ";
-        }
-        cout << endl;
+    if (animating) {
+        std::cout << "Please wait! Animation is in progress" << std::endl;
+        return;
     }
-    cout << endl;
 
+    int i = current_center.x + 1;
 
     if (i == size) {
         std::cout << "Invalid rotation" << std::endl;
         return;
     }
 
-    for (int j = 0; j < size; j++)
-    {
-        for (int k = 0; k < size; k++)
+    if (activate_animation) {
+        action = 'R';
+        num_of_actions = rotation_angle;
+        animating = true;
+    }
+    else {
+        int i = current_center.x + 1;
+        for (int j = 0; j < size; j++)
         {
-            int get_index = cube_angles[i][j][k].first;
-
-            vec3 rotation_direction = glm::vec3(clock_direction, 0, 0);
-            glm::mat4 get_rotation = (*scn_shapes)[get_index]->GetRotate();
-            glm::mat3 cube_rotation = glm::mat3(
-                vec3(get_rotation[0].x, get_rotation[0].y, get_rotation[0].z),
-                vec3(get_rotation[1].x, get_rotation[1].y, get_rotation[1].z),
-                vec3(get_rotation[2].x, get_rotation[2].y, get_rotation[2].z)
-            );
-            glm::vec3 final_direction = rotation_direction * cube_rotation;
-            (*scn_shapes)[get_index]->MyRotate(rotation_angle, final_direction, 0);
-
-            // Update structure
-            cube_angles[i][j][k].second = Calc_New_Angles(cube_angles[i][j][k].second, glm::vec3(rotation_angle * clock_direction, 0, 0));
+            for (int k = 0; k < size; k++)
+            {
+                vec3 rotation_direction = glm::vec3(clock_direction, 0, 0);
+                Rotate_Cube(i, j, k, rotation_direction);
+            }
         }
+        Update_Structure();
     }
-    Update_Structure(i, 'i');
-
-    for (int j = 0; j < size; j++) {
-        for (int k = 0; k < size; k++) {
-            cout << cube_angles[i][j][k].first;
-            cout << " ";
-        }
-        cout << endl;
-    }
-    cout << endl;
 }
 
 // 'L' press state for left wall rotation (90 degrees clockwise).
 void RubiksCube::CASE_L() {
+    if (animating) {
+        std::cout << "Please wait! Animation is in progress" << std::endl;
+        return;
+    }
+
     int i = current_center.x - 1;
 
     if (i == -1) {
@@ -242,236 +190,171 @@ void RubiksCube::CASE_L() {
         return;
     }
 
-    for (int j = 0; j < size; j++)
-    {
-        for (int k = 0; k < size; k++)
-        {
-            int get_index = cube_angles[i][j][k].first;
-
-            vec3 rotation_direction = glm::vec3(clock_direction, 0, 0);
-            glm::mat4 get_rotation = (*scn_shapes)[get_index]->GetRotate();
-            glm::mat3 cube_rotation = glm::mat3(
-                vec3(get_rotation[0].x, get_rotation[0].y, get_rotation[0].z),
-                vec3(get_rotation[1].x, get_rotation[1].y, get_rotation[1].z),
-                vec3(get_rotation[2].x, get_rotation[2].y, get_rotation[2].z)
-            );
-            glm::vec3 final_direction = rotation_direction * cube_rotation;
-            (*scn_shapes)[get_index]->MyRotate(rotation_angle, final_direction, 0);
-
-            // Update structure
-            cube_angles[i][j][k].second = Calc_New_Angles(cube_angles[i][j][k].second, glm::vec3(rotation_angle * clock_direction, 0, 0));
-        }
+    if (activate_animation) {
+        action = 'L';
+        num_of_actions = rotation_angle;
+        animating = true;
     }
-    Update_Structure(i, 'i');
+    else {
+        for (int j = 0; j < size; j++)
+        {
+            for (int k = 0; k < size; k++)
+            {
+                vec3 rotation_direction = glm::vec3(clock_direction, 0, 0);
+                Rotate_Cube(i, j, k, rotation_direction);
+            }
+        }
+        Update_Structure();
+    }
 }
 
 // 'U' press state for up wall rotation(90 degrees clockwise).
 void RubiksCube::CASE_U() {
-    int j = current_center.y + 1;
-
-    for (int i = 0; i < size; i++) {
-        for (int k = 0; k < size; k++) {
-            cout << cube_angles[i][j][k].first;
-            cout << " ";
-        }
-        cout << endl;
+    if (animating) {
+        std::cout << "Please wait! Animation is in progress" << std::endl;
+        return;
     }
-    cout << endl;
+
+    int j = current_center.y + 1;
 
     if (j == size) {
         std::cout << "Invalid rotation" << std::endl;
         return;
     }
 
-    for (int i = 0; i < size; i++)
-    {
-        for (int k = 0; k < size; k++)
+    if (activate_animation) {
+        action = 'U';
+        num_of_actions = rotation_angle;
+        animating = true;
+    }
+    else {
+        for (int i = 0; i < size; i++)
         {
-            int get_index = cube_angles[i][j][k].first;
-
-            vec3 rotation_direction = glm::vec3(0, clock_direction, 0);
-            glm::mat4 get_rotation = (*scn_shapes)[get_index]->GetRotate();
-            glm::mat3 cube_rotation = glm::mat3(
-                vec3(get_rotation[0].x, get_rotation[0].y, get_rotation[0].z),
-                vec3(get_rotation[1].x, get_rotation[1].y, get_rotation[1].z),
-                vec3(get_rotation[2].x, get_rotation[2].y, get_rotation[2].z)
-            );
-            glm::vec3 final_direction = rotation_direction * cube_rotation;
-            (*scn_shapes)[get_index]->MyRotate(rotation_angle, final_direction, 0);
-
-            // Update structure
-            cube_angles[i][j][k].second = Calc_New_Angles(cube_angles[i][j][k].second, glm::vec3(0, rotation_angle * clock_direction, 0));
+            for (int k = 0; k < size; k++)
+            {
+                vec3 rotation_direction = glm::vec3(0, clock_direction, 0);
+                Rotate_Cube(i, j, k, rotation_direction);
+            }
         }
+        Update_Structure();
     }
-    Update_Structure(j, 'j');
-
-    for (int i = 0; i < size; i++) {
-        for (int k = 0; k < size; k++) {
-            cout << cube_angles[i][j][k].first;
-            cout << " ";
-        }
-        cout << endl;
-    }
-    cout << endl;
 }
 
 // 'D' press state for down wall rotation (90 degrees clockwise).
 void RubiksCube::CASE_D() {
-    int j = current_center.y - 1;
-
-    for (int i = 0; i < size; i++) {
-        for (int k = 0; k < size; k++) {
-            cout << cube_angles[i][j][k].first;
-            cout << " ";
-        }
-        cout << endl;
+    if (animating) {
+        std::cout << "Please wait! Animation is in progress" << std::endl;
+        return;
     }
-    cout << endl;
+
+    int j = current_center.y - 1;
 
     if (j == -1) {
         std::cout << "Invalid rotation" << std::endl;
         return;
     }
 
-    for (int i = 0; i < size; i++)
-    {
-        for (int k = 0; k < size; k++)
+    if (activate_animation) {
+        action = 'D';
+        num_of_actions = rotation_angle;
+        animating = true;
+    }
+    else {
+        int j = current_center.y - 1;
+        for (int i = 0; i < size; i++)
         {
-            int get_index = cube_angles[i][j][k].first;
-            
-            vec3 rotation_direction = glm::vec3(0, clock_direction, 0);
-            glm::mat4 get_rotation = (*scn_shapes)[get_index]->GetRotate();
-            glm::mat3 cube_rotation = glm::mat3(
-                vec3(get_rotation[0].x, get_rotation[0].y, get_rotation[0].z),
-                vec3(get_rotation[1].x, get_rotation[1].y, get_rotation[1].z),
-                vec3(get_rotation[2].x, get_rotation[2].y, get_rotation[2].z)
-            );
-            glm::vec3 final_direction = rotation_direction * cube_rotation;
-            (*scn_shapes)[get_index]->MyRotate(rotation_angle, final_direction, 0);
-
-            // Update structure
-            cube_angles[i][j][k].second = Calc_New_Angles(cube_angles[i][j][k].second, glm::vec3(0, rotation_angle * clock_direction, 0));
+            for (int k = 0; k < size; k++)
+            {
+                vec3 rotation_direction = glm::vec3(0, clock_direction, 0);
+                Rotate_Cube(i, j, k, rotation_direction);
+            }
         }
-    }
-    Update_Structure(j, 'j');
-
-    for (int i = 0; i < size; i++) {
-        for (int k = 0; k < size; k++) {
-            cout << cube_angles[i][j][k].first;
-            cout << " ";
-        }
-        cout << endl;
-    }
-    cout << endl;
+        Update_Structure();
+    }    
 }
 
 // 'B' press state for back wall rotation (90 degrees clockwise).
 void RubiksCube::CASE_B() {
-    int k = current_center.z - 1;
-
-    for (int i = 0; i < size; i++) {
-        for (int j = 0; j < size; j++) {
-            cout << cube_angles[i][j][k].first;
-            cout << " ";
-        }
-        cout << endl;
+    if (animating) {
+        std::cout << "Please wait! Animation is in progress" << std::endl;
+        return;
     }
-    cout << endl;
+
+    int k = current_center.z - 1;
 
     if (k == -1) {
         std::cout << "Invalid rotation" << std::endl;
         return;
     }
 
-    for (int i = 0; i < size; i++)
-    {
-        for (int j = 0; j < size; j++)
+    if (activate_animation) {
+        action = 'B';
+        num_of_actions = rotation_angle;
+        animating = true;
+    }
+    else {
+        for (int i = 0; i < size; i++)
         {
-            int get_index = cube_angles[i][j][k].first;
-            
-            vec3 rotation_direction = glm::vec3(0, 0, clock_direction);
-            glm::mat4 get_rotation = (*scn_shapes)[get_index]->GetRotate();
-            glm::mat3 cube_rotation = glm::mat3(
-                vec3(get_rotation[0].x, get_rotation[0].y, get_rotation[0].z),
-                vec3(get_rotation[1].x, get_rotation[1].y, get_rotation[1].z),
-                vec3(get_rotation[2].x, get_rotation[2].y, get_rotation[2].z)
-            );
-            glm::vec3 final_direction = rotation_direction * cube_rotation;
-            (*scn_shapes)[get_index]->MyRotate(rotation_angle, final_direction, 0);
-
-            // Update structure
-            cube_angles[i][j][k].second = Calc_New_Angles(cube_angles[i][j][k].second, glm::vec3(0, 0, rotation_angle * clock_direction));
+            for (int j = 0; j < size; j++)
+            {
+                vec3 rotation_direction = glm::vec3(0, 0, clock_direction);
+                Rotate_Cube(i, j, k, rotation_direction);
+            }
         }
+        Update_Structure();
     }
-    Update_Structure(k, 'k');
-
-    for (int i = 0; i < size; i++) {
-        for (int j = 0; j < size; j++) {
-            cout << cube_angles[i][j][k].first;
-            cout << " ";
-        }
-        cout << endl;
-    }
-    cout << endl;
 }
 
 // 'F' press state for front wall rotation (90 degrees clockwise).
 void RubiksCube::CASE_F() {
-    int k = current_center.z + 1;
-
-    for (int i = 0; i < size; i++) {
-        for (int j = 0; j < size; j++) {
-            cout << cube_angles[i][j][k].first;
-            cout << " ";
-        }
-        cout << endl;
+    if (animating) {
+        std::cout << "Please wait! Animation is in progress" << std::endl;
+        return;
     }
-    cout << endl;
+
+    int k = current_center.z + 1;
 
     if (k == size) {
         std::cout << "Invalid rotation" << std::endl;
         return;
     }
 
-    for (int i = 0; i < size; i++)
-    {
-        for (int j = 0; j < size; j++)
+    if (activate_animation) {
+        action = 'F';
+        num_of_actions = rotation_angle;
+        animating = true;
+    }
+    else {
+        int k = current_center.z + 1;
+        for (int i = 0; i < size; i++)
         {
-            int get_index = cube_angles[i][j][k].first;
-            
-            vec3 rotation_direction = glm::vec3(0, 0, clock_direction);
-            glm::mat4 get_rotation = (*scn_shapes)[get_index]->GetRotate();
-            glm::mat3 cube_rotation = glm::mat3(
-                vec3(get_rotation[0].x, get_rotation[0].y, get_rotation[0].z),
-                vec3(get_rotation[1].x, get_rotation[1].y, get_rotation[1].z),
-                vec3(get_rotation[2].x, get_rotation[2].y, get_rotation[2].z)
-            );
-            glm::vec3 final_direction = rotation_direction * cube_rotation;
-            (*scn_shapes)[get_index]->MyRotate(rotation_angle, final_direction, 0);
-
-            // Update structure
-            cube_angles[i][j][k].second = Calc_New_Angles(cube_angles[i][j][k].second, glm::vec3(0, 0, rotation_angle * clock_direction));
+            for (int j = 0; j < size; j++)
+            {
+                vec3 rotation_direction = glm::vec3(0, 0, clock_direction);
+                Rotate_Cube(i, j, k, rotation_direction);
+            }
         }
+        Update_Structure();
     }
-    Update_Structure(k, 'k');
-
-    for (int i = 0; i < size; i++) {
-        for (int j = 0; j < size; j++) {
-            cout << cube_angles[i][j][k].first;
-            cout << " ";
-        }
-        cout << endl;
-    }
-    cout << endl;
 }
 
 // ' ' press state for flipping rotation direction (from clockwise to counter clockwise or vise versa).
 void RubiksCube::CASE_SPACE() {
+    if (animating) {
+        std::cout << "Please wait! Animation is in progress" << std::endl;
+        return;
+    }
+
     clock_direction *= -1;
 }
 
 // 'Z' press state: dividing rotation angle by 2;
 void RubiksCube::CASE_Z() {
+    if (animating) {
+        std::cout << "Please wait! Animation is in progress" << std::endl;
+        return;
+    }
+
     if (rotation_angle > 90) {
         rotation_angle = rotation_angle / 2;
     }
@@ -482,6 +365,11 @@ void RubiksCube::CASE_Z() {
 
 // 'A' press state: multiply rotation angle by 2 (until maximum of 180);
 void RubiksCube::CASE_A() {
+    if (animating) {
+        std::cout << "Please wait! Animation is in progress" << std::endl;
+        return;
+    }
+
     if (rotation_angle < 180) {
         rotation_angle = rotation_angle * 2;
     }
@@ -492,50 +380,91 @@ void RubiksCube::CASE_A() {
 
 // Moving center of rotation up
 void RubiksCube::CASE_UP() {
+    if (animating) {
+        std::cout << "Please wait! Animation is in progress" << std::endl;
+        return;
+    }
+
     if (current_center.y < size - 1) {
         current_center += vec3(0, 1, 0);
     }
     else {
-        std::cout << "Moving center failed" << std::endl;
+        std::cout << "Invalid center reposition" << std::endl;
     }
 }
 
 // Moving center of rotation down
 void RubiksCube::CASE_DOWN() {
+    if (animating) {
+        std::cout << "Please wait! Animation is in progress" << std::endl;
+        return;
+    }
+
     if (current_center.y > 0) {
         current_center -= vec3(0, 1, 0);
     }
     else {
-        std::cout << "Moving center failed" << std::endl;
+        std::cout << "Invalid center reposition" << std::endl;
     }
 }
 
 // Moving center of rotation left
 void RubiksCube::CASE_LEFT() {
+    if (animating) {
+        std::cout << "Please wait! Animation is in progress" << std::endl;
+        return;
+    }
+
     if (current_center.x > 0) {
         current_center -= vec3(1, 0, 0);
     }
     else {
-        std::cout << "Moving center failed" << std::endl;
+        std::cout << "Invalid center reposition" << std::endl;
     }
 }
 
 // Moving center of rotation right
 void RubiksCube::CASE_RIGHT() {
+    if (animating) {
+        std::cout << "Please wait! Animation is in progress" << std::endl;
+        return;
+    }
+
     if (current_center.x < size - 1) {
         current_center += vec3(1, 0, 0);
     }
     else {
-        std::cout << "Moving center failed" << std::endl;
+        std::cout << "Invalid center reposition" << std::endl;
+    }
+}
+
+// Toggle Animation
+void RubiksCube::CASE_P() {
+    // Disable Animation
+    if (activate_animation) {
+        activate_animation = false;
+        rotation_per_frame = rotation_angle;
+    }
+    // Enable Animation
+    else {
+        activate_animation = true;
+        rotation_per_frame = 1;
     }
 }
 
 // Mixer
 void RubiksCube::CASE_M() {
+    // Opening mixer.txt file
     std::cout.setstate(std::ios_base::failbit);
     ofstream mixer_file;
     mixer_file.open("../mixer.txt");
 
+    // Disable animation
+    bool previous_animation_status = activate_animation;
+    activate_animation = false;
+    rotation_per_frame = rotation_angle;
+
+    // Selecting random 15 actions
     for (int i = 0; i < 15; i++) {
         int random_integer;
         int lowest = 0, highest = 10;
@@ -590,9 +519,99 @@ void RubiksCube::CASE_M() {
         }
         mixer_file << endl;
     }
+
+    // Closing mixer.txt file
     std::cout.clear();
     mixer_file.close();
 
+    // Return animation if it was active before
+    if (previous_animation_status) {
+        activate_animation = true;
+        rotation_per_frame = 1;
+    }
+
     // Reset center
     current_center = vec3(1, 1, 1);
+}
+
+// Handle Animation
+void RubiksCube::Animate() {
+    // Animation is in progress
+    if (animating) {
+        if (action == 'R') {
+            int i = current_center.x + 1;
+            for (int j = 0; j < size; j++)
+            {
+                for (int k = 0; k < size; k++)
+                {
+                    vec3 rotation_direction = glm::vec3(clock_direction, 0, 0);
+                    Rotate_Cube(i, j, k, rotation_direction);
+                }
+            }
+        }
+        if (action == 'L') {
+            int i = current_center.x - 1;
+            for (int j = 0; j < size; j++)
+            {
+                for (int k = 0; k < size; k++)
+                {
+                    vec3 rotation_direction = glm::vec3(clock_direction, 0, 0);
+                    Rotate_Cube(i, j, k, rotation_direction);
+                }
+            }
+        }
+        if (action == 'U') {
+            int j = current_center.y + 1;
+            for (int i = 0; i < size; i++)
+            {
+                for (int k = 0; k < size; k++)
+                {
+                    vec3 rotation_direction = glm::vec3(0, clock_direction, 0);
+                    Rotate_Cube(i, j, k, rotation_direction);
+                }
+            }
+        }
+        if (action == 'D') {
+            int j = current_center.y - 1;
+            for (int i = 0; i < size; i++)
+            {
+                for (int k = 0; k < size; k++)
+                {
+                    vec3 rotation_direction = glm::vec3(0, clock_direction, 0);
+                    Rotate_Cube(i, j, k, rotation_direction);
+                }
+            }
+        }
+        if (action == 'B') {
+            int k = current_center.z - 1;
+            for (int i = 0; i < size; i++)
+            {
+                for (int j = 0; j < size; j++)
+                {
+                    vec3 rotation_direction = glm::vec3(0, 0, clock_direction);
+                    Rotate_Cube(i, j, k, rotation_direction);
+                }
+            }
+        }
+        if (action == 'F') {
+            int k = current_center.z + 1;
+            for (int i = 0; i < size; i++)
+            {
+                for (int j = 0; j < size; j++)
+                {
+                    vec3 rotation_direction = glm::vec3(0, 0, clock_direction);
+                    Rotate_Cube(i, j, k, rotation_direction);
+                }
+            }
+        }
+
+        num_of_actions--;
+        _sleep(1);
+
+        // Animation completed
+        if (num_of_actions == 0) {
+            Update_Structure();
+            animating = false;
+        }
+    }
 }
