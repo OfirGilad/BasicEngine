@@ -62,6 +62,7 @@ void RubiksCube::Create_Cube(Scene* scn, int cube_size) {
     
     // Animation parameters
     rotation_per_frame = 1;
+    unlocked = true;
     activate_animation = true;
     animating = false;
 
@@ -438,6 +439,36 @@ void RubiksCube::CASE_RIGHT() {
     }
 }
 
+// Moving center of rotation inside
+void RubiksCube::CASE_I() {
+    if (animating) {
+        std::cout << "Please wait! Animation is in progress" << std::endl;
+        return;
+    }
+
+    if (current_center.z > 0) {
+        current_center -= vec3(0, 0, 1);
+    }
+    else {
+        std::cout << "Invalid center reposition" << std::endl;
+    }
+}
+
+// Moving center of rotation outsize
+void RubiksCube::CASE_O() {
+    if (animating) {
+        std::cout << "Please wait! Animation is in progress" << std::endl;
+        return;
+    }
+
+    if (current_center.z < size - 1) {
+        current_center += vec3(0, 0, 1);
+    }
+    else {
+        std::cout << "Invalid center reposition" << std::endl;
+    }
+}
+
 // Toggle Animation
 void RubiksCube::CASE_P() {
     // Disable Animation
@@ -537,7 +568,8 @@ void RubiksCube::CASE_M() {
 // Handle Animation
 void RubiksCube::Animate() {
     // Animation is in progress
-    if (animating) {
+    if (animating && unlocked) {
+        unlocked = false;
         if (action == 'R') {
             int i = current_center.x + 1;
             for (int j = 0; j < size; j++)
@@ -606,12 +638,13 @@ void RubiksCube::Animate() {
         }
 
         num_of_actions--;
-        _sleep(1);
+        _sleep(2);
 
         // Animation completed
         if (num_of_actions == 0) {
             Update_Structure();
             animating = false;
         }
+        unlocked = true;
     }
 }

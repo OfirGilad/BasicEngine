@@ -95,7 +95,6 @@
 				case GLFW_KEY_DOWN:
 					std::cout << "DOWN Pressed" << std::endl;
 					scn->rubiks_cube.CASE_DOWN();
-					
 					break;
 				case GLFW_KEY_LEFT:
 					std::cout << "LEFT Pressed" << std::endl;
@@ -104,6 +103,14 @@
 				case GLFW_KEY_RIGHT:
 					std::cout << "RIGHT Pressed" << std::endl;
 					scn->rubiks_cube.CASE_RIGHT();
+					break;
+				case GLFW_KEY_I:
+					std::cout << "I Pressed" << std::endl;
+					scn->rubiks_cube.CASE_I();
+					break;
+				case GLFW_KEY_O:
+					std::cout << "O Pressed" << std::endl;
+					scn->rubiks_cube.CASE_O();
 					break;
 				case GLFW_KEY_P:
 					std::cout << "P Pressed" << std::endl;

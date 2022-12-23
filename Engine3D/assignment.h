@@ -31,6 +31,8 @@ public:
     void CASE_DOWN();
     void CASE_LEFT();
     void CASE_RIGHT();
+    void CASE_I();
+    void CASE_O();
     void CASE_P();
     void CASE_M();
 
@@ -47,6 +49,7 @@ public:
     int rotation_angle;
     int rotation_per_frame;
 
+    bool unlocked;
     bool activate_animation;
     bool animating;
     char action;
