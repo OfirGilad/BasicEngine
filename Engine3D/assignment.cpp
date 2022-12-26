@@ -116,6 +116,7 @@ void RubiksCube::Rotate_Cube(int i, int j, int k, vec3 rotation_direction) {
     cubes_angles[i][j][k].second = Calc_New_Angles(cubes_angles[i][j][k].second, new_angle);
 }
 
+// Updating the structure holding all the current cubes locations
 void RubiksCube::Update_Structure() {
     for (int i = 0; i < size; i++)
     {
@@ -125,20 +126,24 @@ void RubiksCube::Update_Structure() {
             {
                 int get_index = cubes_centers[i][j][k].first;
 
-                glm::mat4 get_rotation = (*scn_shapes)[get_index]->GetRotate();
-                glm::mat3 cube_rotation = glm::mat3(
-                    vec3(get_rotation[0].x, get_rotation[1].x, get_rotation[2].x),
-                    vec3(get_rotation[0].y, get_rotation[1].y, get_rotation[2].y),
-                    vec3(get_rotation[0].z, get_rotation[1].z, get_rotation[2].z)
-                );
-
+                // Getting the original center of the cube
                 glm::mat4 get_translation = (*scn_shapes)[get_index]->GetTranslate();
                 glm::vec3 cube_position = glm::vec3(get_translation[3].x, get_translation[3].y, get_translation[3].z);
 
+                // Getting the current rotation of the cube
+                glm::mat4 get_rotation = (*scn_shapes)[get_index]->GetRotate();
+                glm::mat3 cube_rotation = glm::mat3(
+                        vec3(get_rotation[0].x, get_rotation[1].x, get_rotation[2].x),
+                        vec3(get_rotation[0].y, get_rotation[1].y, get_rotation[2].y),
+                        vec3(get_rotation[0].z, get_rotation[1].z, get_rotation[2].z)
+                );
+
+                // Calculating the new cube center
                 glm::vec3 new_cube_position = cube_position * cube_rotation;
+
+                // Updating the new cube location on the structure
                 glm::vec3 movement = new_cube_position - cube_position;
                 glm::vec3 final_movement = glm::vec3(round(movement.x), round(movement.y), round(movement.z));
-
                 cubes_angles[i + final_movement.x][j + final_movement.y][k + final_movement.z].first = get_index;
             }
         }
@@ -491,6 +496,9 @@ void RubiksCube::CASE_M() {
     ofstream mixer_file;
     mixer_file.open("../mixer.txt");
 
+    // Reset center
+    current_center = vec3(1, 1, 1);
+
     // Disable animation
     bool previous_animation_status = activate_animation;
     activate_animation = false;
@@ -499,7 +507,7 @@ void RubiksCube::CASE_M() {
     // Selecting random 15 actions
     for (int i = 0; i < 15; i++) {
         int random_integer;
-        int lowest = 0, highest = 10;
+        int lowest = 0, highest = 12;
         int range = (highest - lowest) + 1;
         random_integer = lowest + rand() % range;
 
@@ -549,6 +557,15 @@ void RubiksCube::CASE_M() {
             CASE_RIGHT();
             mixer_file << " - CASE_RIGHT()";
         }
+        if (random_integer == 11) {
+            CASE_I();
+            mixer_file << " - CASE_I()";
+        }
+        if (random_integer == 12) {
+            CASE_O();
+            mixer_file << " - CASE_O()";
+        }
+
         mixer_file << endl;
     }
 
@@ -570,7 +587,9 @@ void RubiksCube::CASE_M() {
 void RubiksCube::Animate() {
     // Animation is in progress
     if (animating && unlocked) {
+        // Lock code area
         unlocked = false;
+
         if (action == 'R') {
             int i = current_center.x + 1;
             for (int j = 0; j < size; j++)
@@ -645,6 +664,8 @@ void RubiksCube::Animate() {
             Update_Structure();
             animating = false;
         }
+
+        // Unlock code area
         unlocked = true;
     }
 }
