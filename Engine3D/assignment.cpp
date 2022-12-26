@@ -6,8 +6,6 @@
 #include <sstream>
 #include "scene.h"
 
-#include <chrono>
-
 using namespace std;
 using namespace glm;
 
