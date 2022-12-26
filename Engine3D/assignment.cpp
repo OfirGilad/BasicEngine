@@ -61,7 +61,8 @@ void RubiksCube::Create_Cube(Scene* scn, int cube_size) {
     rotation_angle = 90;
     
     // Animation parameters
-    rotation_per_frame = 1;
+    multiply_factor = 8;
+    rotation_per_frame = 0.125;
     unlocked = true;
     activate_animation = true;
     animating = false;
@@ -160,7 +161,7 @@ void RubiksCube::CASE_R() {
 
     if (activate_animation) {
         action = 'R';
-        num_of_actions = rotation_angle;
+        num_of_actions = rotation_angle * multiply_factor;
         animating = true;
     }
     else {
@@ -193,7 +194,7 @@ void RubiksCube::CASE_L() {
 
     if (activate_animation) {
         action = 'L';
-        num_of_actions = rotation_angle;
+        num_of_actions = rotation_angle * multiply_factor;
         animating = true;
     }
     else {
@@ -225,7 +226,7 @@ void RubiksCube::CASE_U() {
 
     if (activate_animation) {
         action = 'U';
-        num_of_actions = rotation_angle;
+        num_of_actions = rotation_angle * multiply_factor;
         animating = true;
     }
     else {
@@ -257,7 +258,7 @@ void RubiksCube::CASE_D() {
 
     if (activate_animation) {
         action = 'D';
-        num_of_actions = rotation_angle;
+        num_of_actions = rotation_angle * multiply_factor;
         animating = true;
     }
     else {
@@ -290,7 +291,7 @@ void RubiksCube::CASE_B() {
 
     if (activate_animation) {
         action = 'B';
-        num_of_actions = rotation_angle;
+        num_of_actions = rotation_angle * multiply_factor;
         animating = true;
     }
     else {
@@ -322,7 +323,7 @@ void RubiksCube::CASE_F() {
 
     if (activate_animation) {
         action = 'F';
-        num_of_actions = rotation_angle;
+        num_of_actions = rotation_angle * multiply_factor;
         animating = true;
     }
     else {
@@ -479,7 +480,7 @@ void RubiksCube::CASE_P() {
     // Enable Animation
     else {
         activate_animation = true;
-        rotation_per_frame = 1;
+        rotation_per_frame = 0.125;
     }
 }
 
@@ -558,7 +559,7 @@ void RubiksCube::CASE_M() {
     // Return animation if it was active before
     if (previous_animation_status) {
         activate_animation = true;
-        rotation_per_frame = 1;
+        rotation_per_frame = 0.125;
     }
 
     // Reset center
@@ -638,7 +639,6 @@ void RubiksCube::Animate() {
         }
 
         num_of_actions--;
-        _sleep(2);
 
         // Animation completed
         if (num_of_actions == 0) {

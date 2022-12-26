@@ -36,6 +36,7 @@ public:
     void CASE_P();
     void CASE_M();
 
+    // Animation Methods
     void Animate();
 
     // Variables
@@ -47,11 +48,13 @@ public:
     vec3 current_center;
     int clock_direction;
     int rotation_angle;
-    int rotation_per_frame;
-
+    
+    // Animation Variables
+    float rotation_per_frame;
+    int multiply_factor;
+    int num_of_actions;
+    char action;
     bool unlocked;
     bool activate_animation;
     bool animating;
-    char action;
-    int num_of_actions;
 };
