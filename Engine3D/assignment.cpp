@@ -146,15 +146,6 @@ void RubiksCube::Update_Structure() {
             }
         }
     }
-    int x = 0;
-    for (int s = 0; s < cubes_angles.size(); s++) {
-        std::cout << cubes_angles[s].x << "," << cubes_angles[s].y << "," << cubes_angles[s].z << " ";
-        x++;
-        if (x == 3) {
-            x = 0;
-            std::cout << std::endl;
-        }
-    }
 }
 
 // 'R' press state for right wall rotation (90 degrees clockwise).
