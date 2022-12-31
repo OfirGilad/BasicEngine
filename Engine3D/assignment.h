@@ -42,8 +42,9 @@ public:
     // Variables
     int size;
     std::vector<Shape*>* scn_shapes;
-    std::vector<std::vector<std::vector<std::pair<int, vec3>>>> cubes_angles;
+    std::vector<vec3> cubes_angles;
     std::vector<std::vector<std::vector<std::pair<int, vec3>>>> cubes_centers;
+    std::vector<std::vector<std::vector<int>>> cubes_structure;
 
     vec3 current_center;
     int clock_direction;
