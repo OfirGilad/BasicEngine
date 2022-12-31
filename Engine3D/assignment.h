@@ -1,7 +1,7 @@
 #pragma once
 #include <iostream>
-#include <vector>
 #include <string>
+#include <vector>
 #include "../res/includes/glm/glm.hpp"
 #include "../Engine3D/scene.h"
 
@@ -41,10 +41,10 @@ public:
 
     // Variables
     int size;
-    std::vector<Shape*>* scn_shapes;
-    std::vector<vec3> cubes_angles;
-    std::vector<std::vector<std::vector<std::pair<int, vec3>>>> cubes_centers;
-    std::vector<std::vector<std::vector<int>>> cubes_structure;
+    vector<Shape*>* scn_shapes;
+    vector<vec3> cubes_angles;
+    vector<vector<vector<pair<int, vec3>>>> cubes_centers;
+    vector<vector<vector<int>>> cubes_structure;
 
     vec3 current_center;
     int clock_direction;
