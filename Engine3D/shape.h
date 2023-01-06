@@ -18,6 +18,8 @@ private:
 	bool toRender;
 
 public:
+	// New Default Constructor
+	Shape();
 
 	Shape(const Shape& shape,unsigned int mode);
 

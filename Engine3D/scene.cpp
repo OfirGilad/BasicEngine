@@ -88,7 +88,7 @@
 		if(toClear)
 		{
 			if(shaderIndx>0)
-				Clear(1,0,1,1);
+				Clear(1,1,1,1);
 			else
 				Clear(0,0,0,0);
 		}
@@ -200,8 +200,12 @@
 			}
 			else
 			{
-				MyRotate(xrel/2.0f,glm::vec3(1,0,0),0);
-				MyRotate(yrel/2.0f,glm::vec3(0,0,1),0);
+				//MyRotate(xrel/2.0f,glm::vec3(1,0,0),0);
+				//MyRotate(yrel/2.0f,glm::vec3(0,0,1),0);
+
+				MyRotate(xrel / 2.0f, glm::vec3(0, 1, 0), 0);
+				MyRotate(yrel / 2.0f, glm::vec3(1, 0, 0), 0);
+
 				WhenRotate();
 			}
 		}

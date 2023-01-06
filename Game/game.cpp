@@ -29,7 +29,7 @@ void Game::Init()
 	
 	AddTexture("../res/textures/box0.bmp",false);
 
-	AddShape(Plane,-1,TRIANGLES);
+	AddShape(Cube,-1,TRIANGLES);
 	
 	pickedShape = 0;
 	
