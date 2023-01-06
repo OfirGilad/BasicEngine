@@ -33,22 +33,59 @@
 				case GLFW_KEY_ESCAPE:			
 					glfwSetWindowShouldClose(window,GLFW_TRUE);
 				break;
+				//case GLFW_KEY_SPACE:
+				//	if(scn->IsActive())
+				//		scn->Deactivate();
+				//	else
+				//		scn->Activate();
+				//break;
+				//
+				//case GLFW_KEY_UP:
+				//	scn->MoveCamera(0,scn->zTranslate,0.4f);
+				//	break;
+				//case GLFW_KEY_DOWN:
+				//	//scn->shapeTransformation(scn->xGlobalRotate,-5.f);
+				//	//cout<< "down: "<<endl;
+				//	scn->MoveCamera(0,scn->zTranslate,-0.4f);
+				//	break;
+				
+				// New Callbacks
 				case GLFW_KEY_SPACE:
 					if(scn->IsActive())
 						scn->Deactivate();
 					else
 						scn->Activate();
-				break;
-
+					break;
+				case GLFW_KEY_LEFT:
+					scn->MyRotate(2.f, glm::vec3(0, 1, 0), 0);
+					break;
+				case GLFW_KEY_RIGHT:
+					scn->MyRotate(-2.f, glm::vec3(0, 1, 0), 0);
+					break;
 				case GLFW_KEY_UP:
-					scn->MoveCamera(0,scn->zTranslate,0.4f);
+					scn->MyRotate(2.f, glm::vec3(1, 0, 0), 0);
 					break;
 				case GLFW_KEY_DOWN:
-					//scn->shapeTransformation(scn->xGlobalRotate,-5.f);
-					//cout<< "down: "<<endl;
-					scn->MoveCamera(0,scn->zTranslate,-0.4f);
+					scn->MyRotate(-2.f, glm::vec3(1, 0, 0), 0);
 					break;
-
+				case GLFW_KEY_R:
+					scn->MoveCamera(0, scn->xTranslate, 0.4f);
+					break;
+				case GLFW_KEY_L:
+					scn->MoveCamera(0, scn->xTranslate, -0.4f);
+					break;
+				case GLFW_KEY_U:
+					scn->MoveCamera(0, scn->yTranslate, 0.4f);
+					break;
+				case GLFW_KEY_D:
+					scn->MoveCamera(0, scn->yTranslate, -0.4f);
+					break;
+				case GLFW_KEY_B:
+					scn->MoveCamera(0, scn->zTranslate, 0.4f);
+					break;
+				case GLFW_KEY_F:
+					scn->MoveCamera(0, scn->zTranslate, -0.4f);
+					break;
 			default:
 				break;
 			}
