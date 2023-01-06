@@ -1,5 +1,6 @@
 #pragma once
 #include "scene.h"
+#include "assignment.h"
 
 class Game : public Scene
 {
@@ -14,5 +15,11 @@ public:
 	void WhenTranslate();
 	void Motion();
 	~Game(void);
+
+    int segNum;
+    int res;
+    int mode;
+    int viewport;
+    Route3DBezier1D route_3D_bezier_1D;
 };
 

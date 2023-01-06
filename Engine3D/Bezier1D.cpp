@@ -1,7 +1,9 @@
 #include "../Engine3D/Bezier1D.h"
 
-Bezier1D::Bezier1D(int segNum,int res,int mode, int viewport) 
-{  
+Bezier1D::Bezier1D(int segNum, int res, int mode, int viewport) 
+{
+    segmentsNum = segNum;
+    resT = res;
 }
 
 IndexedModel Bezier1D::GetLine() const
@@ -20,7 +22,21 @@ glm::vec4 Bezier1D::GetControlPoint(int segment, int indx) const
 
 glm::vec4 Bezier1D::GetPointOnCurve(int segment, int t)
 {
-    return glm::vec4();
+    glm::vec4 b_0_0 = segments[segment][0]; //p0
+    glm::vec4 b_0_1 = segments[segment][1]; //p1
+    glm::vec4 b_0_2 = segments[segment][2]; //p2
+    glm::vec4 b_0_3 = segments[segment][3]; //p3
+
+    glm::vec4 b_1_0 = glm::vec4(t) * b_0_1 + glm::vec4(1 - t) * b_0_0;
+    glm::vec4 b_1_1 = glm::vec4(t) * b_0_2 + glm::vec4(1 - t) * b_0_1;
+    glm::vec4 b_1_2 = glm::vec4(t) * b_0_3 + glm::vec4(1 - t) * b_0_2;
+
+    glm::vec4 b_2_0 = glm::vec4(t) * b_1_1 + glm::vec4(1 - t) * b_1_0;
+    glm::vec4 b_2_1 = glm::vec4(t) * b_1_2 + glm::vec4(1 - t) * b_1_1;
+
+    glm::vec4 b_3_0 = glm::vec4(t) * b_2_1 + glm::vec4(1 - t) * b_2_0;
+    
+    return b_3_0;
 }
 
 glm::vec3 Bezier1D::GetVelosity(int segment, int t)
@@ -30,6 +46,7 @@ glm::vec3 Bezier1D::GetVelosity(int segment, int t)
 
 void Bezier1D::SplitSegment(int segment, int t)
 {
+
 }
 
 void Bezier1D::AddSegment(glm::vec4 p1, glm::vec4 p2, glm::vec4 p3)
@@ -51,6 +68,7 @@ float Bezier1D::MoveControlPoint(int segment, int indx, float dx,float dy,bool p
 
 void Bezier1D::CurveUpdate(int pointIndx, float dx, float dy, bool preserveC1)
 {
+
 }
 
 void Bezier1D::ResetCurve(int segNum)

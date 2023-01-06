@@ -16,7 +16,13 @@ int main(int argc,char *argv[])
 	Display display(DISPLAY_WIDTH, DISPLAY_HEIGHT, "OpenGL");
 	
 	Init(display);
-	
+
+    // Setting parameters
+    scn->segNum = 3;
+    scn->res = 0;
+    scn->mode = 0;
+    scn->viewport = 0;
+
 	scn->Init();
 
 	display.SetScene(scn);

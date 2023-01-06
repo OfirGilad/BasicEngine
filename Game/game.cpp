@@ -27,17 +27,21 @@ void Game::Init()
 	AddShader("../res/shaders/pickingShader");	
 	AddShader("../res/shaders/basicShader");
 	
-	AddTexture("../res/textures/box0.bmp",false);
+	//AddTexture("../res/textures/box0.bmp",false);
 
-	AddShape(Cube,-1,TRIANGLES);
+	//AddShape(Plane,-1,TRIANGLES);
 	
 	pickedShape = 0;
 	
-	SetShapeTex(0,0);
-	MoveCamera(0,zTranslate,10);
+	//SetShapeTex(0,0);
+	//MoveCamera(0,zTranslate,10);
 	pickedShape = -1;
 	
 	//ReadPixel(); //uncomment when you are reading from the z-buffer
+
+    // Creating a 3D route with by manipulating 1D Bezier curve
+    route_3D_bezier_1D = Route3DBezier1D();
+    route_3D_bezier_1D.Create_Route3DBezier1D(this, segNum, res, mode, viewport);
 }
 
 void Game::Update(const glm::mat4 &MVP,const glm::mat4 &Model,const int  shaderIndx)
