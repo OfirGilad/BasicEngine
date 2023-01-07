@@ -101,12 +101,6 @@ void Route3DBezier1D::Create_Route3DBezier1D(Scene* scn, int segNum, int res, in
     shape_index++;
 
 
-    //scn->AddShape(Scene::Octahedron, -1, Scene::LINE_STRIP);
-    //scn->SetShapeTex(shape_index, 0);
-    //(*scn_shapes)[shape_index]->MyTranslate(vec3(0, 3, 0), 0);
-    //shape_index++;
-
-
     bezier_1D = new Bezier1D(segNum, res, Scene::LINE_STRIP);
 
     bezier_1D->AddFirstSegment(
