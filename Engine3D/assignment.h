@@ -17,4 +17,5 @@ public:
 
     // Variables
     vector<Shape*>* scn_shapes;
+    bool C_state = false;
 };

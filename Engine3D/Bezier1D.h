@@ -8,6 +8,7 @@ class Bezier1D : public Shape
 	int segmentsNum;
 	std::vector<glm::mat4> segments;
 	int resT;
+	int segments_mode;
 	glm::mat4 M;
 	float MoveControlPoint(int segment, int indx, float dx, float dy, bool preserveC1); //change the position of one control point. when preserveC1 is true it may affect other  control points 
 
@@ -19,6 +20,7 @@ public:
 	glm::vec4 GetPointOnCurve(int segment, int t); //returns point on curve in the requested segment for the value of t
 	glm::vec3 GetVelosity(int segment, int t); //returns the derivative of the curve in the requested segment for the value of t
 	void SplitSegment(int segment, int t); //split a segment
+	void AddFirstSegment(glm::vec4 p0, glm::vec4 p1, glm::vec4 p2, glm::vec4 p3);
 	void AddSegment(glm::vec4 p1, glm::vec4 p2, glm::vec4 p3); //adds a segment at the end of the curve
 	void CurveUpdate(int pointIndx, float dx, float dy, bool preserveC1 = false); //changes the line in by using ChangeLine function of MeshConstructor and MoveControlPoint 
 	void ChangeSegment(int segIndx, glm::vec4 p1, glm::vec4 p2, glm::vec4 p3); //changes three control point of a segment
