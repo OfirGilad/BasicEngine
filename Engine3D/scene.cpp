@@ -180,16 +180,25 @@
 
 	void Scene::Resize(int width,int height)
 	{
-	
+		
 		cameras[0]->SetProjection(cameras[0]->GetAngle(),(float)width/height);
 		glViewport(0,0,width,height);
 		std::cout<<cameras[0]->GetRelationWH()<<std::endl;
+
+		// Updating width and height
+		this->width = width;
+		this->height = height;
 	}
 
 	float Scene::Picking(int x,int y)
 	{
-		
-		
+		float depth;
+		unsigned char data[]{ 0, 0, 0, 0 };
+		//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		//glGetIntegerv(GL_VIEWPORT, 0);
+		glReadPixels(x, this->height - y, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &depth);
+		glReadPixels(x, y, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, data);
+
 		return 0;
 	}
 	//return coordinates in global system for a tip of arm position is local system 

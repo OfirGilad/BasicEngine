@@ -76,6 +76,10 @@ private:
 	int cameraIndx;
 	void Clear(float r, float g, float b, float a);
 
+	// New Variables
+	int width = 800;
+	int height = 800;
+
 protected:
 	std::vector<Shape*> shapes;
 	std::vector<Shader*> shaders;
