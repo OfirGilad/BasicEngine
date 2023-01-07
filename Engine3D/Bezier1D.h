@@ -9,7 +9,7 @@ class Bezier1D : public Shape
 	std::vector<glm::mat4> segments;
 	int resT;
 	glm::mat4 M;
-	float MoveControlPoint(int segment, int indx, float dx, float dy, bool preserveC1); //change the position of one control point. when preserveC1 is true it may affect other  control points 
+	float MoveControlPoint(int segment, int indx, float dx, float dy, bool preserveC1); //change the position of one control point. when preserveC1 is true it may affect other control points 
 
 public:
 	Bezier1D();

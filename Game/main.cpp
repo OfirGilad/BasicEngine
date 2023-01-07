@@ -19,7 +19,7 @@ int main(int argc,char *argv[])
 
     // Setting parameters
     scn->segNum = 3;
-    scn->res = 19;
+    scn->res = 31;
     scn->mode = 0;
 
 	scn->Init();

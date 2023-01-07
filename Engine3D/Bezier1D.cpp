@@ -1,4 +1,6 @@
 #include "../Engine3D/Bezier1D.h"
+#include <iostream>
+#include <stdexcept>
 
 Bezier1D::Bezier1D()
 {
@@ -15,6 +17,12 @@ IndexedModel Bezier1D::GetLine() const
 {
     IndexedModel model;
     int num_of_dots_on_line = (resT - 1) / segmentsNum;
+
+    // Verifying that resT value is valid
+    if ((resT - 1) % segmentsNum != 0) {
+        std::cout << "Error: 'resT' isn't divisible by 'segmentsNum' with a remainder of '1'!" << std::endl;
+        throw std::invalid_argument("");
+    }
 
     for (int i = 0; i < resT; i++) {
         model.indices.push_back(i);
