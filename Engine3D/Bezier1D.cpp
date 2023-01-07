@@ -4,11 +4,11 @@ Bezier1D::Bezier1D()
 {
 }
 
-Bezier1D::Bezier1D(int segNum, int res, int mode, int viewport) 
+Bezier1D::Bezier1D(int segNum, int res, int mode, int viewport)
 {
     segmentsNum = segNum;
     resT = res;
-    segments_mode = mode;
+    this->SetMode(mode);
 }
 
 IndexedModel Bezier1D::GetLine() const
@@ -29,7 +29,7 @@ IndexedModel Bezier1D::GetLine() const
 
             glm::vec4 p_t = GetPointOnCurve(i, t);
             model.positions.push_back(glm::vec3(p_t.x, p_t.y, p_t.z));
-            model.colors.push_back(glm::vec3(0, 0, 0));
+            model.colors.push_back(glm::vec3(1.f, 1.f, 1.f));
             model.normals.push_back(GetVelosity(i, t));
         }
     }
@@ -45,38 +45,42 @@ glm::vec4 Bezier1D::GetControlPoint(int segment, int indx) const
 }
 
 // b(t) = (1-t)^3*b_0 + 3t(1-t)^2*b_1 + 3t^2(1-t)*b_2 + t^3*b_3
-glm::vec4 Bezier1D::GetPointOnCurve(int segment, int t) const
+glm::vec4 Bezier1D::GetPointOnCurve(int segment, float t) const
 {
     glm::vec4 b_0 = segments[segment][0]; //p0
     glm::vec4 b_1 = segments[segment][1]; //p1
     glm::vec4 b_2 = segments[segment][2]; //p2
     glm::vec4 b_3 = segments[segment][3]; //p3
 
-    glm::vec4 b_t = glm::vec4((1 - t) ^ 3) * b_0 
-        + glm::vec4(3 * (1 - t) ^ 2 * t) * b_1 
-        + glm::vec4(3 * (1 - t) * t ^ 2) * b_2 
-        + glm::vec4(t ^ 3) * b_3;
+    float a_0 = pow(1 - t, 3);
+    float a_1 = 3 * pow(1 - t, 2) * t;
+    float a_2 = 3 * (1 - t) * pow(t, 2);
+    float a_3 = pow(t, 3);
+
+    glm::vec4 b_t = a_0 * b_0 + a_1 * b_1 + a_2 * b_2 + a_3 * b_3;
     
     return b_t;
 }
 
 // b'(t) = -3(1-t)^2*b_0 + (3-12t+9t^2)*b_1 + (6t-9t^2)*b_2 + 3t^2*b_3
-glm::vec3 Bezier1D::GetVelosity(int segment, int t) const
+glm::vec3 Bezier1D::GetVelosity(int segment, float t) const
 {
     glm::vec4 b_0 = segments[segment][0]; //p0
     glm::vec4 b_1 = segments[segment][1]; //p1
     glm::vec4 b_2 = segments[segment][2]; //p2
     glm::vec4 b_3 = segments[segment][3]; //p3
 
-    glm::vec4 db_t = glm::vec4(-3 * (1 - t) ^ 2) * b_0
-        + glm::vec4(3 - 12 * t + 9 * t ^ 2) * b_1
-        + glm::vec4(6 * t - 9 * t ^ 2) * b_2
-        + glm::vec4(3 * t ^ 2) * b_3;
+    float a_0 = -3 * pow(1 - t, 2);
+    float a_1 = 3 - 12 * t + 9 * pow(t, 2);
+    float a_2 = 6 * t - 9 * pow(t, 2);
+    float a_3 = 3 * pow(t, 2);
+
+    glm::vec4 db_t = a_0 * b_0 + a_1 * b_1 + a_2 * b_2 + a_3 * b_3;
 
     return glm::vec3(db_t.x, db_t.y, db_t.z);
 }
 
-void Bezier1D::SplitSegment(int segment, int t)
+void Bezier1D::SplitSegment(int segment, float t)
 {
 
 }

@@ -15,9 +15,13 @@ Route3DBezier1D::Route3DBezier1D()
 // Building 3D route with by manipulating 1D Bezier curve
 void Route3DBezier1D::Create_Route3DBezier1D(Scene* scn, int segNum, int res, int mode) {
     vector<Shape*>* scn_shapes = scn->getShapes();
+    int shape_index = 0;
+
+    // Cube + Octahedrons texture
     scn->AddTexture("../res/textures/box0.bmp", false);
 
-    int shape_index = 0;
+    // Bezier 1D texture
+    scn->AddTexture("../res/textures/grass.bmp", false);
 
     // Octahedrons
     // p0
@@ -102,7 +106,7 @@ void Route3DBezier1D::Create_Route3DBezier1D(Scene* scn, int segNum, int res, in
     //(*scn_shapes)[shape_index]->MyTranslate(vec3(0, 3, 0), 0);
     //shape_index++;
 
-    bezier_1D = Bezier1D(segNum, res, mode);
+    bezier_1D = Bezier1D(segNum, res, Scene::LINE_STRIP);
 
     bezier_1D.AddFirstSegment(
         (*scn_shapes)[0]->GetTranslate()[3],
@@ -122,6 +126,14 @@ void Route3DBezier1D::Create_Route3DBezier1D(Scene* scn, int segNum, int res, in
         (*scn_shapes)[8]->GetTranslate()[3],
         (*scn_shapes)[9]->GetTranslate()[3]
     );
+
+    bezier_1D.SetBezier1DMesh(bezier_1D.GetLine());
+
+    // Those 3 lines cause the error at the end
+    scn->AddBezier1DShape(&bezier_1D, -1);
+    scn->SetShapeTex(shape_index, 1);
+    shape_index++;
+
 
     scn->MoveCamera(0, Scene::zTranslate, 50);
 }

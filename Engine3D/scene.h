@@ -22,7 +22,8 @@ public:
 	void AddShapeFromFile(const std::string& fileName,int parent,unsigned int mode);
 	virtual void AddShape(int type,int parent,unsigned int mode);
 	void AddShapeCopy(int indx,int parent,unsigned int mode);
-	
+	void AddBezier1DShape(Shape *bezier_1D_line, int parent);
+
 	void AddShader(const std::string& fileName);
 	void AddTexture(const std::string& textureFileName, bool for2D);
 	void AddTexture(int width,int height, unsigned char *data);

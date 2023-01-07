@@ -46,5 +46,10 @@ public:
 	inline int GetTexture(){return texID;}
 
 	virtual ~Shape(void);
+
+	// New Functions
+	inline void SetMode(int mode) { this->mode = mode; }
+
+	inline void SetBezier1DMesh(const IndexedModel bezier_1D_line) { this->mesh = new MeshConstructor(bezier_1D_line, false); }
 };
 

@@ -57,6 +57,12 @@
 		shapes.push_back(new Shape(*shapes[indx],mode));
 	}
 
+	void Scene::AddBezier1DShape(Shape *bezier_1D_line, int parent)
+	{
+		chainParents.push_back(parent);
+		shapes.push_back(bezier_1D_line);
+	}
+
 	void Scene::AddShader(const std::string& fileName)
 	{
 		shaders.push_back(new Shader(fileName));
