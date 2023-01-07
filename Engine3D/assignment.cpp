@@ -141,15 +141,33 @@ void Route3DBezier1D::Create_Route3DBezier1D(Scene* scn, int segNum, int res, in
 
 void Route3DBezier1D::AnimateCubeMovement(bool animate) {
     if (animate) {
-        if (cube_t > 0.99f) {
-            cube_segment++;
-            cube_t = 0;
+        if (foward_direction) {
+            if (cube_t > 0.99f) {
+                cube_segment++;
+                cube_t = 0;
+            }
+            else {
+                cube_t += cube_step_size;
+            }
+            if (cube_segment == bezier_1D->GetSegmentsNum()) {
+                cube_t = 1;
+                cube_segment--;
+                foward_direction = false;
+            }
         }
         else {
-            cube_t += cube_step_size;
-        }
-        if (cube_segment == bezier_1D->GetSegmentsNum()) {
-            cube_segment = 0;
+            if (cube_t < 0.01f) {
+                cube_segment--;
+                cube_t = 1;
+            }
+            else {
+                cube_t -= cube_step_size;
+            }
+            if (cube_segment == -1) {
+                cube_t = 0;
+                cube_segment++;
+                foward_direction = true;
+            }
         }
 
         glm::vec4 cube_center = (*scn_shapes)[0]->GetTranslate()[3];
