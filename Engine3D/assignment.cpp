@@ -13,7 +13,7 @@ Route3DBezier1D::Route3DBezier1D()
 }
 
 // Building 3D route with by manipulating 1D Bezier curve
-void Route3DBezier1D::Create_Route3DBezier1D(Scene* scn, int segNum, int res, int mode, int viewport) {
+void Route3DBezier1D::Create_Route3DBezier1D(Scene* scn, int segNum, int res, int mode) {
     vector<Shape*>* scn_shapes = scn->getShapes();
     scn->AddTexture("../res/textures/box0.bmp", false);
 
@@ -24,60 +24,70 @@ void Route3DBezier1D::Create_Route3DBezier1D(Scene* scn, int segNum, int res, in
     scn->AddShape(Scene::Octahedron, -1, Scene::TRIANGLES);
     scn->SetShapeTex(shape_index, 0);
     (*scn_shapes)[shape_index]->MyTranslate(vec3(-15, -9, 0), 0);
+    (*scn_shapes)[shape_index]->MyScale(vec3(0.5, 0.5, 0.5));
     shape_index++;
 
     // p1
     scn->AddShape(Scene::Octahedron, -1, Scene::TRIANGLES);
     scn->SetShapeTex(shape_index, 0);
-    (*scn_shapes)[shape_index]->MyTranslate(vec3(-18, -3, 0), 0);
+    (*scn_shapes)[shape_index]->MyTranslate(vec3(-17, -3, 0), 0);
+    (*scn_shapes)[shape_index]->MyScale(vec3(0.5, 0.5, 0.5));
     shape_index++;
 
     // p2
     scn->AddShape(Scene::Octahedron, -1, Scene::TRIANGLES);
     scn->SetShapeTex(shape_index, 0);
     (*scn_shapes)[shape_index]->MyTranslate(vec3(-12, 1, 0), 0);
+    (*scn_shapes)[shape_index]->MyScale(vec3(0.5, 0.5, 0.5));
     shape_index++;
 
     // p3
     scn->AddShape(Scene::Octahedron, -1, Scene::TRIANGLES);
     scn->SetShapeTex(shape_index, 0);
     (*scn_shapes)[shape_index]->MyTranslate(vec3(-6, 0, 0), 0);
+    (*scn_shapes)[shape_index]->MyScale(vec3(0.5, 0.5, 0.5));
     shape_index++;
 
     // p4
     scn->AddShape(Scene::Octahedron, -1, Scene::TRIANGLES);
     scn->SetShapeTex(shape_index, 0);
     (*scn_shapes)[shape_index]->MyTranslate(vec3(-3, 0, 0), 0);
+    (*scn_shapes)[shape_index]->MyScale(vec3(0.5, 0.5, 0.5));
     shape_index++;
 
     // p5
     scn->AddShape(Scene::Octahedron, -1, Scene::TRIANGLES);
     scn->SetShapeTex(shape_index, 0);
     (*scn_shapes)[shape_index]->MyTranslate(vec3(3, 0, 0), 0);
+    (*scn_shapes)[shape_index]->MyScale(vec3(0.5, 0.5, 0.5));
     shape_index++;
 
     // p6
     scn->AddShape(Scene::Octahedron, -1, Scene::TRIANGLES);
     scn->SetShapeTex(shape_index, 0);
     (*scn_shapes)[shape_index]->MyTranslate(vec3(6, 0, 0), 0);
+    (*scn_shapes)[shape_index]->MyScale(vec3(0.5, 0.5, 0.5));
     shape_index++;
 
     // p7
     scn->AddShape(Scene::Octahedron, -1, Scene::TRIANGLES);
     scn->SetShapeTex(shape_index, 0);
     (*scn_shapes)[shape_index]->MyTranslate(vec3(12, 1, 0), 0);
+    (*scn_shapes)[shape_index]->MyScale(vec3(0.5, 0.5, 0.5));
     shape_index++;
 
     // p8
     scn->AddShape(Scene::Octahedron, -1, Scene::TRIANGLES);
     scn->SetShapeTex(shape_index, 0);
-    (*scn_shapes)[shape_index]->MyTranslate(vec3(18, -3, 0), 0);
+    (*scn_shapes)[shape_index]->MyTranslate(vec3(17, -3, 0), 0);
+    (*scn_shapes)[shape_index]->MyScale(vec3(0.5, 0.5, 0.5));
     shape_index++;
 
     // p9
     scn->AddShape(Scene::Octahedron, -1, Scene::TRIANGLES);
     scn->SetShapeTex(shape_index, 0);
     (*scn_shapes)[shape_index]->MyTranslate(vec3(15, -9, 0), 0);
+    (*scn_shapes)[shape_index]->MyScale(vec3(0.5, 0.5, 0.5));
     shape_index++;
 
     // Cube
@@ -91,6 +101,27 @@ void Route3DBezier1D::Create_Route3DBezier1D(Scene* scn, int segNum, int res, in
     //scn->SetShapeTex(shape_index, 0);
     //(*scn_shapes)[shape_index]->MyTranslate(vec3(0, 3, 0), 0);
     //shape_index++;
+
+    bezier_1D = Bezier1D(segNum, res, mode);
+
+    bezier_1D.AddFirstSegment(
+        (*scn_shapes)[0]->GetTranslate()[3],
+        (*scn_shapes)[1]->GetTranslate()[3],
+        (*scn_shapes)[2]->GetTranslate()[3],
+        (*scn_shapes)[3]->GetTranslate()[3]
+    );
+
+    bezier_1D.AddSegment(
+        (*scn_shapes)[4]->GetTranslate()[3],
+        (*scn_shapes)[5]->GetTranslate()[3],
+        (*scn_shapes)[6]->GetTranslate()[3]
+    );
+
+    bezier_1D.AddSegment(
+        (*scn_shapes)[7]->GetTranslate()[3],
+        (*scn_shapes)[8]->GetTranslate()[3],
+        (*scn_shapes)[9]->GetTranslate()[3]
+    );
 
     scn->MoveCamera(0, Scene::zTranslate, 50);
 }

@@ -5,7 +5,6 @@
 #include "Mesh.h"
 //#include "build/Curves/Bezier1D.h"
 //#include "build/Curves/Bezier2D.h"
-//#include "Bezier1D.h"
 
 
 class MeshConstructor
@@ -37,11 +36,11 @@ public:
 		Tethrahedron,
 	};
 	//MeshConstructor::MeshConstructor(Bezier1D* c);
+	//MeshConstructor::MeshConstructor(Bezier2D* surf);
 	MeshConstructor(const int type);
 	MeshConstructor(const MeshConstructor &mesh);
 	MeshConstructor(const std::string& fileName);
 	MeshConstructor(const IndexedModel& model, bool isMesh);
-	//MeshConstructor::MeshConstructor(Bezier2D* surf);
 
 	void Bind() {vao.Bind();}
 	void Unbind() {vao.Unbind();}

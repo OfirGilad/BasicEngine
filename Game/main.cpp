@@ -19,9 +19,8 @@ int main(int argc,char *argv[])
 
     // Setting parameters
     scn->segNum = 3;
-    scn->res = 0;
+    scn->res = 13;
     scn->mode = 0;
-    scn->viewport = 0;
 
 	scn->Init();
 
