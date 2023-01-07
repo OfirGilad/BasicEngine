@@ -23,6 +23,12 @@ void Route3DBezier1D::Create_Route3DBezier1D(Scene* scn, int segNum, int res, in
     // Bezier 1D texture
     scn->AddTexture("../res/textures/grass.bmp", false);
 
+    // Cube
+    scn->AddShape(Scene::Cube, -1, Scene::TRIANGLES);
+    scn->SetShapeTex(shape_index, 0);
+    (*scn_shapes)[shape_index]->MyTranslate(vec3(0, 0, 0), 0);
+    shape_index++;
+
     // Octahedrons
     // p0
     scn->AddShape(Scene::Octahedron, -1, Scene::TRIANGLES);
@@ -94,37 +100,32 @@ void Route3DBezier1D::Create_Route3DBezier1D(Scene* scn, int segNum, int res, in
     (*scn_shapes)[shape_index]->MyScale(vec3(0.5, 0.5, 0.5));
     shape_index++;
 
-    // Cube
-    scn->AddShape(Scene::Cube, -1, Scene::TRIANGLES);
-    scn->SetShapeTex(shape_index, 0);
-    (*scn_shapes)[shape_index]->MyTranslate(vec3(0, 0, 0), 0);
-    shape_index++;
-
 
     //scn->AddShape(Scene::Octahedron, -1, Scene::LINE_STRIP);
     //scn->SetShapeTex(shape_index, 0);
     //(*scn_shapes)[shape_index]->MyTranslate(vec3(0, 3, 0), 0);
     //shape_index++;
 
+
     bezier_1D = new Bezier1D(segNum, res, Scene::LINE_STRIP);
 
     bezier_1D->AddFirstSegment(
-        (*scn_shapes)[0]->GetTranslate()[3],
         (*scn_shapes)[1]->GetTranslate()[3],
         (*scn_shapes)[2]->GetTranslate()[3],
-        (*scn_shapes)[3]->GetTranslate()[3]
+        (*scn_shapes)[3]->GetTranslate()[3],
+        (*scn_shapes)[4]->GetTranslate()[3]
     );
 
     bezier_1D->AddSegment(
-        (*scn_shapes)[4]->GetTranslate()[3],
         (*scn_shapes)[5]->GetTranslate()[3],
-        (*scn_shapes)[6]->GetTranslate()[3]
+        (*scn_shapes)[6]->GetTranslate()[3],
+        (*scn_shapes)[7]->GetTranslate()[3]
     );
 
     bezier_1D->AddSegment(
-        (*scn_shapes)[7]->GetTranslate()[3],
         (*scn_shapes)[8]->GetTranslate()[3],
-        (*scn_shapes)[9]->GetTranslate()[3]
+        (*scn_shapes)[9]->GetTranslate()[3],
+        (*scn_shapes)[10]->GetTranslate()[3]
     );
 
     bezier_1D->SetBezier1DMesh(bezier_1D->GetLine());
@@ -136,4 +137,25 @@ void Route3DBezier1D::Create_Route3DBezier1D(Scene* scn, int segNum, int res, in
 
 
     scn->MoveCamera(0, Scene::zTranslate, 50);
+}
+
+void Route3DBezier1D::AnimateCubeMovement(bool animate) {
+    if (animate) {
+        if (cube_t > 0.95f) {
+            cube_segment++;
+            cube_t = 0;
+        }
+        else {
+            cube_t += cube_step_size;
+        }
+        if (cube_segment == bezier_1D->GetSegmentsNum()) {
+            cube_segment = 0;
+        }
+
+        glm::vec4 cube_center = (*scn_shapes)[0]->GetTranslate()[3];
+        glm::vec4 next_position = bezier_1D->GetPointOnCurve(cube_segment, cube_t);
+        glm::vec4 move_vector = next_position - next_position;
+
+        (*scn_shapes)[0]->MyTranslate(vec3(move_vector.x, move_vector.y, move_vector.z), 0);
+    }
 }
