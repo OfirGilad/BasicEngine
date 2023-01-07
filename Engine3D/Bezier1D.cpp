@@ -10,6 +10,23 @@ Bezier1D::Bezier1D(int segNum, int res, int mode, int viewport)
 IndexedModel Bezier1D::GetLine() const
 {
     IndexedModel model;
+    int num_of_dots_on_line = 10;
+    int num_of_indices = segmentsNum * num_of_dots_on_line;
+
+    for (int i = 0; i <= num_of_indices; i++) {
+        model.indices.push_back(i);
+    }
+
+    glm::vec4 p_0 = GetControlPoint(0, 0);
+    model.positions.push_back(glm::vec3(p_0.x, p_0.y, p_0.z));
+
+    for (int i = 0; i < segmentsNum; i++) {
+        for (int j = 0; j < num_of_dots_on_line; j++) {
+            float t = (1.f / (float)num_of_dots_on_line) * (j + 1);
+            glm::vec4 p_t = GetPointOnCurve(j, t);
+            model.positions.push_back(glm::vec3(p_t.x, p_t.y, p_t.z));
+        }
+    }
 
     return model;
 }
@@ -22,7 +39,7 @@ glm::vec4 Bezier1D::GetControlPoint(int segment, int indx) const
 }
 
 // b(t) = (1-t)^3*b_0 + 3t(1-t)^2*b_1 + 3t^2(1-t)*b_2 + t^3*b_3
-glm::vec4 Bezier1D::GetPointOnCurve(int segment, int t)
+glm::vec4 Bezier1D::GetPointOnCurve(int segment, int t) const
 {
     glm::vec4 b_0 = segments[segment][0]; //p0
     glm::vec4 b_1 = segments[segment][1]; //p1

@@ -5,6 +5,7 @@
 #include "Mesh.h"
 //#include "build/Curves/Bezier1D.h"
 //#include "build/Curves/Bezier2D.h"
+//#include "Bezier1D.h"
 
 
 class MeshConstructor
@@ -35,6 +36,7 @@ public:
 		Octahedron,
 		Tethrahedron,
 	};
+	//MeshConstructor::MeshConstructor(Bezier1D* c);
 	MeshConstructor(const int type);
 	MeshConstructor(const MeshConstructor &mesh);
 	MeshConstructor(const std::string& fileName);

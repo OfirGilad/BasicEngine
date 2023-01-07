@@ -4,6 +4,7 @@
 #include <vector>
 #include "../res/includes/glm/glm.hpp"
 #include "../Engine3D/scene.h"
+#include "Bezier1D.h"
 
 using namespace std;
 using namespace glm;
