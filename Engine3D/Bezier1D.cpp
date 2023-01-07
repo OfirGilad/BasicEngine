@@ -20,6 +20,7 @@ glm::vec4 Bezier1D::GetControlPoint(int segment, int indx) const
     return segments[segmentsNum - 1][3];
 }
 
+// b(t) = (1-t)^3*b_0 + 3t(1-t)^2*b_1 + 3t^2(1-t)*b_2 + t^3*b_3
 glm::vec4 Bezier1D::GetPointOnCurve(int segment, int t)
 {
     glm::vec4 b_0 = segments[segment][0]; //p0
@@ -35,9 +36,20 @@ glm::vec4 Bezier1D::GetPointOnCurve(int segment, int t)
     return b_t;
 }
 
+// b'(t) = -3(1-t)^2*b_0 + (3-12t+9t^2)*b_1 + (6t-9t^2)*b_2 + 3t^2*b_3
 glm::vec3 Bezier1D::GetVelosity(int segment, int t)
 {
-    return glm::vec3();
+    glm::vec4 b_0 = segments[segment][0]; //p0
+    glm::vec4 b_1 = segments[segment][1]; //p1
+    glm::vec4 b_2 = segments[segment][2]; //p2
+    glm::vec4 b_3 = segments[segment][3]; //p3
+
+    glm::vec4 db_t = glm::vec4(-3 * (1 - t) ^ 2) * b_0
+        + glm::vec4(3 - 12 * t + 9 * t ^ 2) * b_1
+        + glm::vec4(6 * t - 9 * t ^ 2) * b_2
+        + glm::vec4(3 * t ^ 2) * b_3;
+
+    return glm::vec3(db_t.x, db_t.y, db_t.z);
 }
 
 void Bezier1D::SplitSegment(int segment, int t)
