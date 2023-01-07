@@ -14,7 +14,7 @@ Route3DBezier1D::Route3DBezier1D()
 
 // Building 3D route with by manipulating 1D Bezier curve
 void Route3DBezier1D::Create_Route3DBezier1D(Scene* scn, int segNum, int res, int mode) {
-    vector<Shape*>* scn_shapes = scn->getShapes();
+    scn_shapes = scn->getShapes();
     int shape_index = 0;
 
     // Cube + Octahedrons texture
@@ -26,7 +26,7 @@ void Route3DBezier1D::Create_Route3DBezier1D(Scene* scn, int segNum, int res, in
     // Cube
     scn->AddShape(Scene::Cube, -1, Scene::TRIANGLES);
     scn->SetShapeTex(shape_index, 0);
-    (*scn_shapes)[shape_index]->MyTranslate(vec3(0, 0, 0), 0);
+    (*scn_shapes)[shape_index]->MyTranslate(vec3(-15, -9, 0), 0);
     shape_index++;
 
     // Octahedrons
@@ -141,7 +141,7 @@ void Route3DBezier1D::Create_Route3DBezier1D(Scene* scn, int segNum, int res, in
 
 void Route3DBezier1D::AnimateCubeMovement(bool animate) {
     if (animate) {
-        if (cube_t > 0.95f) {
+        if (cube_t > 0.99f) {
             cube_segment++;
             cube_t = 0;
         }
@@ -154,7 +154,7 @@ void Route3DBezier1D::AnimateCubeMovement(bool animate) {
 
         glm::vec4 cube_center = (*scn_shapes)[0]->GetTranslate()[3];
         glm::vec4 next_position = bezier_1D->GetPointOnCurve(cube_segment, cube_t);
-        glm::vec4 move_vector = next_position - next_position;
+        glm::vec4 move_vector = next_position - cube_center;
 
         (*scn_shapes)[0]->MyTranslate(vec3(move_vector.x, move_vector.y, move_vector.z), 0);
     }

@@ -46,6 +46,8 @@ void Game::Init()
 
 void Game::Update(const glm::mat4 &MVP,const glm::mat4 &Model,const int  shaderIndx)
 {
+    route_3D_bezier_1D.AnimateCubeMovement(isActive);
+
 	Shader *s = shaders[shaderIndx];
 	int r = ((pickedShape+1) & 0x000000FF) >>  0;
 	int g = ((pickedShape+1) & 0x0000FF00) >>  8;
@@ -59,8 +61,6 @@ void Game::Update(const glm::mat4 &MVP,const glm::mat4 &Model,const int  shaderI
 	else 
 		s->SetUniform4f("lightColor",0.7f,0.8f,0.1f,1.0f);
 	s->Unbind();
-	route_3D_bezier_1D.AnimateCubeMovement(isActive);
-	isActive = false;
 }
 
 void Game::WhenRotate()
