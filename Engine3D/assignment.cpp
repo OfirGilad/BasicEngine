@@ -106,31 +106,31 @@ void Route3DBezier1D::Create_Route3DBezier1D(Scene* scn, int segNum, int res, in
     //(*scn_shapes)[shape_index]->MyTranslate(vec3(0, 3, 0), 0);
     //shape_index++;
 
-    bezier_1D = Bezier1D(segNum, res, Scene::LINE_STRIP);
+    bezier_1D = new Bezier1D(segNum, res, Scene::LINE_STRIP);
 
-    bezier_1D.AddFirstSegment(
+    bezier_1D->AddFirstSegment(
         (*scn_shapes)[0]->GetTranslate()[3],
         (*scn_shapes)[1]->GetTranslate()[3],
         (*scn_shapes)[2]->GetTranslate()[3],
         (*scn_shapes)[3]->GetTranslate()[3]
     );
 
-    bezier_1D.AddSegment(
+    bezier_1D->AddSegment(
         (*scn_shapes)[4]->GetTranslate()[3],
         (*scn_shapes)[5]->GetTranslate()[3],
         (*scn_shapes)[6]->GetTranslate()[3]
     );
 
-    bezier_1D.AddSegment(
+    bezier_1D->AddSegment(
         (*scn_shapes)[7]->GetTranslate()[3],
         (*scn_shapes)[8]->GetTranslate()[3],
         (*scn_shapes)[9]->GetTranslate()[3]
     );
 
-    bezier_1D.SetBezier1DMesh(bezier_1D.GetLine());
+    bezier_1D->SetBezier1DMesh(bezier_1D->GetLine());
 
     // Those 3 lines cause the error at the end
-    scn->AddBezier1DShape(&bezier_1D, -1);
+    scn->AddBezier1DShape(bezier_1D, -1);
     scn->SetShapeTex(shape_index, 1);
     shape_index++;
 

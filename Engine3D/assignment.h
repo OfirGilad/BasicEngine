@@ -19,5 +19,5 @@ public:
     // Variables
     vector<Shape*>* scn_shapes;
     bool C_state = false;
-    Bezier1D bezier_1D;
+    Bezier1D *bezier_1D;
 };
