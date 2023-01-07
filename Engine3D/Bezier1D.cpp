@@ -22,21 +22,17 @@ glm::vec4 Bezier1D::GetControlPoint(int segment, int indx) const
 
 glm::vec4 Bezier1D::GetPointOnCurve(int segment, int t)
 {
-    glm::vec4 b_0_0 = segments[segment][0]; //p0
-    glm::vec4 b_0_1 = segments[segment][1]; //p1
-    glm::vec4 b_0_2 = segments[segment][2]; //p2
-    glm::vec4 b_0_3 = segments[segment][3]; //p3
+    glm::vec4 b_0 = segments[segment][0]; //p0
+    glm::vec4 b_1 = segments[segment][1]; //p1
+    glm::vec4 b_2 = segments[segment][2]; //p2
+    glm::vec4 b_3 = segments[segment][3]; //p3
 
-    glm::vec4 b_1_0 = glm::vec4(t) * b_0_1 + glm::vec4(1 - t) * b_0_0;
-    glm::vec4 b_1_1 = glm::vec4(t) * b_0_2 + glm::vec4(1 - t) * b_0_1;
-    glm::vec4 b_1_2 = glm::vec4(t) * b_0_3 + glm::vec4(1 - t) * b_0_2;
-
-    glm::vec4 b_2_0 = glm::vec4(t) * b_1_1 + glm::vec4(1 - t) * b_1_0;
-    glm::vec4 b_2_1 = glm::vec4(t) * b_1_2 + glm::vec4(1 - t) * b_1_1;
-
-    glm::vec4 b_3_0 = glm::vec4(t) * b_2_1 + glm::vec4(1 - t) * b_2_0;
+    glm::vec4 b_t = glm::vec4((1 - t) ^ 3) * b_0 
+        + glm::vec4(3 * (1 - t) ^ 2 * t) * b_1 
+        + glm::vec4(3 * (1 - t) * t ^ 2) * b_2 
+        + glm::vec4(t ^ 3) * b_3;
     
-    return b_3_0;
+    return b_t;
 }
 
 glm::vec3 Bezier1D::GetVelosity(int segment, int t)
