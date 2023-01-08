@@ -17,6 +17,7 @@ public:
     void Create_Route3DBezier1D(Scene* scn, int segNum,int res,int mode);
     void AnimateCubeMovement(bool animate);
     void NumberOfSegmentsToDisplay(int segNum);
+    void UpdateCurveByShapes();
 
     // Variables
     vector<Shape*>* scn_shapes;

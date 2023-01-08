@@ -94,6 +94,16 @@ void Bezier1D::SplitSegment(int segment, float t)
 
 }
 
+void Bezier1D::CurveUpdate(int pointIndx, float dx, float dy, bool preserveC1)
+{
+
+}
+
+void Bezier1D::ResetCurve(int segNum)
+{
+
+}
+
 void Bezier1D::AddFirstSegment(glm::vec4 p0, glm::vec4 p1, glm::vec4 p2, glm::vec4 p3) {
     segments.clear();
     segments.push_back(glm::mat4(p0, p1, p2, p3));
@@ -105,6 +115,11 @@ void Bezier1D::AddSegment(glm::vec4 p1, glm::vec4 p2, glm::vec4 p3)
     segments.push_back(glm::mat4(p0, p1, p2, p3));
 }
 
+void Bezier1D::ChangeFirstSegment(glm::vec4 p0, glm::vec4 p1, glm::vec4 p2, glm::vec4 p3)
+{
+    segments[0] = glm::mat4(p0, p1, p2, p3);
+}
+
 void Bezier1D::ChangeSegment(int segIndx,glm::vec4 p1, glm::vec4 p2, glm::vec4 p3)
 {
     glm::vec4 p0 = segments[segIndx-1][3];
@@ -113,22 +128,7 @@ void Bezier1D::ChangeSegment(int segIndx,glm::vec4 p1, glm::vec4 p2, glm::vec4 p
 
 float Bezier1D::MoveControlPoint(int segment, int indx, float dx,float dy,bool preserveC1)
 {
-    if (preserveC1) {
-
-    }
     return 0; //not suppose to reach here
-}
-
-void Bezier1D::CurveUpdate(int pointIndx, float dx, float dy, bool preserveC1)
-{
-    if (preserveC1) {
-
-    }
-}
-
-void Bezier1D::ResetCurve(int segNum)
-{
-
 }
 
 Bezier1D::~Bezier1D(void)

@@ -179,3 +179,22 @@ void Route3DBezier1D::NumberOfSegmentsToDisplay(int segNum) {
 
     bezier_1D->SetBezier1DMesh(bezier_1D->GetLine());
 }
+
+void Route3DBezier1D::UpdateCurveByShapes() {
+    glm::vec4 p0 = (*scn_shapes)[0]->GetTranslate()[3];
+    glm::vec4 p1 = (*scn_shapes)[1]->GetTranslate()[3];
+    glm::vec4 p2 = (*scn_shapes)[2]->GetTranslate()[3];
+    glm::vec4 p3 = (*scn_shapes)[3]->GetTranslate()[3];
+    bezier_1D->ChangeFirstSegment(p0, p1, p2, p3);
+
+    int segIndx = 1;
+    for (int i = 4; i < scn_shapes->size() - 2; i += 3) {
+        glm::vec4 p1 = (*scn_shapes)[i]->GetTranslate()[3];
+        glm::vec4 p2 = (*scn_shapes)[i + 1]->GetTranslate()[3];
+        glm::vec4 p3 = (*scn_shapes)[i + 2]->GetTranslate()[3];
+
+        bezier_1D->ChangeSegment(segIndx, p1, p2, p3);
+        segIndx++;
+    }
+    bezier_1D->SetBezier1DMesh(bezier_1D->GetLine());
+}

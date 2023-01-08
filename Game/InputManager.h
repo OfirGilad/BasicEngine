@@ -132,9 +132,6 @@
 		{
 			scn->MouseProccessing(GLFW_MOUSE_BUTTON_LEFT);
 		}
-
-		// Update curve
-
 	}
 
 	void window_size_callback(GLFWwindow* window, int width, int height)

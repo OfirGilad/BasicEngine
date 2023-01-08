@@ -57,12 +57,6 @@
 		shapes.push_back(new Shape(*shapes[indx],mode));
 	}
 
-	void Scene::AddBezier1DShape(Shape *bezier_1D_line, int parent)
-	{
-		chainParents.push_back(parent);
-		shapes.push_back(bezier_1D_line);
-	}
-
 	void Scene::AddShader(const std::string& fileName)
 	{
 		shaders.push_back(new Shader(fileName));
@@ -259,20 +253,7 @@
 				WhenRotate();
 			}
 		}
-		else {
-			if (button == 1)
-			{
-				shapes[pickedShape]->MyTranslate(glm::vec3(-xrel / 20.0f, 0, 0), 0);
-				shapes[pickedShape]->MyTranslate(glm::vec3(0, yrel / 20.0f, 0), 0);
-				WhenTranslate();
-			}
-			else
-			{
-				shapes[pickedShape]->MyRotate(xrel / 2.0f, glm::vec3(0, 1, 0), 0);
-				shapes[pickedShape]->MyRotate(yrel / 2.0f, glm::vec3(1, 0, 0), 0);
-				WhenRotate();
-			}
-		}
+
 	}
 
 	void Scene::ZeroShapesTrans()
@@ -332,20 +313,5 @@
 			delete tex;
 		}
 
-}
-
-	// New Functions
-	void Scene::MouseScrolling(glm::vec3 delta, int mode)
-	{
-		if (pickedShape == -1) {
-			MyTranslate(delta, mode);
-		}
-		else {
-			glm::vec4 trans = glm::transpose(GetRotate()) * glm::vec4(delta.x, delta.y, delta.z, 1);
-			shapes[pickedShape]->MyTranslate(glm::vec3(trans.x, trans.y, trans.z), mode);
-		}
-	}
-
-
-	 
+} 
 	

@@ -22,7 +22,6 @@ public:
 	void AddShapeFromFile(const std::string& fileName,int parent,unsigned int mode);
 	virtual void AddShape(int type,int parent,unsigned int mode);
 	void AddShapeCopy(int indx,int parent,unsigned int mode);
-	void AddBezier1DShape(Shape *bezier_1D_line, int parent);
 
 	void AddShader(const std::string& fileName);
 	void AddTexture(const std::string& textureFileName, bool for2D);
@@ -58,15 +57,19 @@ public:
 	void UnhideShape(int shpIndx);
 
 	void UpdatePosition(float xpos, float ypos);
-	void MouseProccessing(int button);
+	virtual void MouseProccessing(int button);
 	bool inline IsActive() const { return isActive;} 
 	
 	inline void SetShapeTex(int shpIndx,int texIndx){shapes[shpIndx]->SetTexture(texIndx);} 
 	inline void SetShapeShader(int shpIndx,int shdrIndx){shapes[shpIndx]->SetShader(shdrIndx);} 
 
 	// New Functions
-	std::vector<Shape*>* getShapes() { return &shapes; }
-	void MouseScrolling(glm::vec3 delta, int mode);
+	virtual std::vector<Shape*>* getShapes() = 0;
+	virtual void AddBezier1DShape(Shape* bezier_1D_line, int parent) = 0;
+	virtual void MouseScrolling(glm::vec3 delta, int mode) = 0;
+
+	inline int GetXrel() { return xrel; }
+	inline int GetYrel() { return yrel; }
 
 private:	
 	

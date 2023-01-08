@@ -81,3 +81,57 @@ void Game::Motion()
 Game::~Game(void)
 {
 }
+
+// New Functions
+void Game::AddBezier1DShape(Shape* bezier_1D_line, int parent)
+{
+	chainParents.push_back(parent);
+	shapes.push_back(bezier_1D_line);
+}
+
+void Game::MouseScrolling(glm::vec3 delta, int mode)
+{
+	if (pickedShape == -1) {
+		MyTranslate(delta, mode);
+	}
+	else {
+		glm::vec4 trans = glm::transpose(GetRotate()) * glm::vec4(delta.x, delta.y, delta.z, 1);
+		shapes[pickedShape]->MyTranslate(glm::vec3(trans.x, trans.y, trans.z), mode);
+	}
+}
+
+void Game::MouseProccessing(int button)
+{
+	if (pickedShape == -1)
+	{
+		if (button == 1)
+		{
+			MyTranslate(glm::vec3(-GetXrel() / 20.0f, 0, 0), 0);
+			MyTranslate(glm::vec3(0, GetYrel() / 20.0f, 0), 0);
+			WhenTranslate();
+		}
+		else
+		{
+			MyRotate(GetXrel() / 2.0f, glm::vec3(0, 1, 0), 0);
+			MyRotate(GetYrel() / 2.0f, glm::vec3(1, 0, 0), 0);
+
+			WhenRotate();
+		}
+	}
+	else {
+		if (button == 1)
+		{
+			shapes[pickedShape]->MyTranslate(glm::vec3(-GetXrel() / 20.0f, 0, 0), 0);
+			shapes[pickedShape]->MyTranslate(glm::vec3(0, GetYrel() / 20.0f, 0), 0);
+			WhenTranslate();
+
+			route_3D_bezier_1D.UpdateCurveByShapes();
+		}
+		else
+		{
+			shapes[pickedShape]->MyRotate(GetXrel() / 2.0f, glm::vec3(0, 1, 0), 0);
+			shapes[pickedShape]->MyRotate(GetYrel() / 2.0f, glm::vec3(1, 0, 0), 0);
+			WhenRotate();
+		}
+	}
+}
