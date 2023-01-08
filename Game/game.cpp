@@ -104,6 +104,7 @@ void Game::MouseScrolling(glm::vec3 delta, int mode)
 
 void Game::MouseProccessing(int button)
 {
+	pickedShape = 3;
 	if (pickedShape == -1)
 	{
 		if (button == 1)
@@ -137,6 +138,35 @@ void Game::MouseProccessing(int button)
 				}
 			}
 			else {
+				shapes[pickedShape]->MyTranslate(glm::vec3(-GetXrel() / 20.0f, 0, 0), 0);
+				shapes[pickedShape]->MyTranslate(glm::vec3(0, GetYrel() / 20.0f, 0), 0);
+			}
+			
+			route_3D_bezier_1D.UpdateCurveByShapes();
+		}
+		else
+		{
+			if (route_3D_bezier_1D.OnCurvePoint(pickedShape)) {
+				glm::vec4 center = shapes[pickedShape]->GetTranslate()[3];
+				glm::vec4 left = shapes[pickedShape - 1]->GetTranslate()[3];
+				glm::vec4 right = shapes[pickedShape + 1]->GetTranslate()[3];
+
+				glm::vec4 move_to_center = center - left;
+				glm::vec4 return_from_center = center - right;
+
+				// Calculate the proportion between center-left and center-right
+				float distance_control_left = sqrt(pow(move_to_center.x, 2) + pow(move_to_center.y, 2) + pow(move_to_center.z, 2));
+				float distance_control_right = sqrt(pow(return_from_center.x, 2) + pow(return_from_center.y, 2) + pow(return_from_center.z, 2));
+				float multiply_factor = distance_control_left / distance_control_right;
+
+				// Move the left point to the control point to the center
+				shapes[pickedShape - 1]->MyTranslate(glm::vec3(move_to_center.x, move_to_center.y, move_to_center.z), 0);
+
+				// Move the left point to the new position (on the same line with the right point)
+				shapes[pickedShape - 1]->MyTranslate(multiply_factor * glm::vec3(return_from_center.x, return_from_center.y, return_from_center.z), 0);
+
+			}
+			else {
 				glm::vec4 control_point = shapes[pickedShape]->GetTranslate()[3];
 				glm::vec4 center;
 
@@ -159,14 +189,8 @@ void Game::MouseProccessing(int button)
 				vec4 return_from_center = shapes[pickedShape]->GetRotate() * -move_to_center;
 				shapes[pickedShape]->MyTranslate(glm::vec3(return_from_center.x, return_from_center.y, return_from_center.z), 0);
 			}
-			
+
 			route_3D_bezier_1D.UpdateCurveByShapes();
-		}
-		else
-		{
-			shapes[pickedShape]->MyRotate(GetXrel() / 2.0f, glm::vec3(0, 1, 0), 0);
-			shapes[pickedShape]->MyRotate(GetYrel() / 2.0f, glm::vec3(1, 0, 0), 0);
-			WhenRotate();
 		}
 	}
 }
