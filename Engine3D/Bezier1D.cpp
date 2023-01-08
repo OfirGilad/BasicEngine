@@ -9,6 +9,7 @@ Bezier1D::Bezier1D()
 Bezier1D::Bezier1D(int segNum, int res, int mode, int viewport)
 {
     segmentsNum = segNum;
+    segmentsToDisplay = segNum;
     resT = res;
     this->SetMode(mode);
 }
@@ -16,10 +17,10 @@ Bezier1D::Bezier1D(int segNum, int res, int mode, int viewport)
 IndexedModel Bezier1D::GetLine() const
 {
     IndexedModel model;
-    int num_of_dots_on_line = (resT - 1) / segmentsNum;
+    int num_of_dots_on_line = (resT - 1) / segmentsToDisplay;
 
     // Verifying that resT value is valid
-    if ((resT - 1) % segmentsNum != 0) {
+    if ((resT - 1) % segmentsToDisplay != 0) {
         std::cout << "Error: 'resT' isn't divisible by 'segmentsNum' with a remainder of '1'!" << std::endl;
         throw std::invalid_argument("");
     }
@@ -31,7 +32,7 @@ IndexedModel Bezier1D::GetLine() const
     glm::vec4 p_0 = GetControlPoint(0, 0);
     model.positions.push_back(glm::vec3(p_0.x, p_0.y, p_0.z));
 
-    for (int i = 0; i < segmentsNum; i++) {
+    for (int i = 0; i < segmentsToDisplay; i++) {
         for (int j = 0; j < num_of_dots_on_line; j++) {
             float t = (1.f / (float)num_of_dots_on_line) * (j + 1);
 

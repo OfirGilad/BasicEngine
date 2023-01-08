@@ -6,6 +6,7 @@
 class Bezier1D : public Shape
 {
 	int segmentsNum;
+	int segmentsToDisplay;
 	std::vector<glm::mat4> segments;
 	int resT;
 	glm::mat4 M;
@@ -26,9 +27,14 @@ public:
 	void ChangeSegment(int segIndx, glm::vec4 p1, glm::vec4 p2, glm::vec4 p3); //changes three control point of a segment
 	void ResetCurve(int segNum); // to the init state
 
+	// Getters
 	inline int GetSegmentsNum() const { return segmentsNum; }
+	inline int GetSegmentsToDisplay() const { return segmentsToDisplay; }
 	inline int GetResT() const { return resT; }
+
+	// Setters
 	void SetSegmentsNum(int segNum) { this->segmentsNum = segNum; }
+	void SetSegmentsToDisplay(int segToDisplay) { this->segmentsToDisplay = segToDisplay; }
 	void SetResT(int res) { this->resT = res; }
 
 	~Bezier1D(void);

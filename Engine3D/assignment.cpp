@@ -172,9 +172,9 @@ void Route3DBezier1D::AnimateCubeMovement(bool animate) {
 }
 
 void Route3DBezier1D::NumberOfSegmentsToDisplay(int segNum) {
-    int res = ((bezier_1D->GetResT() - 1) / bezier_1D->GetSegmentsNum() * segNum) + 1;
+    int res = ((bezier_1D->GetResT() - 1) / bezier_1D->GetSegmentsToDisplay() * segNum) + 1;
     
-    bezier_1D->SetSegmentsNum(segNum);
+    bezier_1D->SetSegmentsToDisplay(segNum);
     bezier_1D->SetResT(res);
 
     bezier_1D->SetBezier1DMesh(bezier_1D->GetLine());
