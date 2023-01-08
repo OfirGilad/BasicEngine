@@ -104,7 +104,6 @@ void Game::MouseScrolling(glm::vec3 delta, int mode)
 
 void Game::MouseProccessing(int button)
 {
-	pickedShape = 3;
 	if (pickedShape == -1)
 	{
 		if (button == 1)
