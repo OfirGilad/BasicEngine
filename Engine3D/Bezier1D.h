@@ -25,7 +25,12 @@ public:
 	void CurveUpdate(int pointIndx, float dx, float dy, bool preserveC1 = false); //changes the line in by using ChangeLine function of MeshConstructor and MoveControlPoint 
 	void ChangeSegment(int segIndx, glm::vec4 p1, glm::vec4 p2, glm::vec4 p3); //changes three control point of a segment
 	void ResetCurve(int segNum); // to the init state
+
 	inline int GetSegmentsNum() const { return segmentsNum; }
+	inline int GetResT() const { return resT; }
+	void SetSegmentsNum(int segNum) { this->segmentsNum = segNum; }
+	void SetResT(int res) { this->resT = res; }
+
 	~Bezier1D(void);
 };
 

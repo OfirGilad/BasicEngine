@@ -16,6 +16,7 @@ public:
     Route3DBezier1D();
     void Create_Route3DBezier1D(Scene* scn, int segNum,int res,int mode);
     void AnimateCubeMovement(bool animate);
+    void NumberOfSegmentsToDisplay(int segNum);
 
     // Variables
     vector<Shape*>* scn_shapes;
@@ -23,6 +24,7 @@ public:
     Bezier1D *bezier_1D;
 
     // Animation
+    int cube_shape_index;
     bool foward_direction = true;
     int cube_segment = 0;
     float cube_t = 0;
