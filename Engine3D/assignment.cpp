@@ -40,14 +40,14 @@ void Route3DBezier1D::Create_Route3DBezier1D(Scene* scn, int segNum, int res, in
     // p1
     scn->AddShape(Scene::Octahedron, -1, Scene::TRIANGLES);
     scn->SetShapeTex(shape_index, 0);
-    (*scn_shapes)[shape_index]->MyTranslate(vec3(-17, -3, 0), 0);
+    (*scn_shapes)[shape_index]->MyTranslate(vec3(-15, -3, 0), 0);
     (*scn_shapes)[shape_index]->MyScale(vec3(0.5, 0.5, 0.5));
     shape_index++;
 
     // p2
     scn->AddShape(Scene::Octahedron, -1, Scene::TRIANGLES);
     scn->SetShapeTex(shape_index, 0);
-    (*scn_shapes)[shape_index]->MyTranslate(vec3(-12, 1, 0), 0);
+    (*scn_shapes)[shape_index]->MyTranslate(vec3(-12, 0, 0), 0);
     (*scn_shapes)[shape_index]->MyScale(vec3(0.5, 0.5, 0.5));
     shape_index++;
 
@@ -82,14 +82,14 @@ void Route3DBezier1D::Create_Route3DBezier1D(Scene* scn, int segNum, int res, in
     // p7
     scn->AddShape(Scene::Octahedron, -1, Scene::TRIANGLES);
     scn->SetShapeTex(shape_index, 0);
-    (*scn_shapes)[shape_index]->MyTranslate(vec3(12, 1, 0), 0);
+    (*scn_shapes)[shape_index]->MyTranslate(vec3(12, 0, 0), 0);
     (*scn_shapes)[shape_index]->MyScale(vec3(0.5, 0.5, 0.5));
     shape_index++;
 
     // p8
     scn->AddShape(Scene::Octahedron, -1, Scene::TRIANGLES);
     scn->SetShapeTex(shape_index, 0);
-    (*scn_shapes)[shape_index]->MyTranslate(vec3(17, -3, 0), 0);
+    (*scn_shapes)[shape_index]->MyTranslate(vec3(15, -3, 0), 0);
     (*scn_shapes)[shape_index]->MyScale(vec3(0.5, 0.5, 0.5));
     shape_index++;
 
