@@ -26,7 +26,7 @@ public:
 
     // Animation
     int cube_shape_index;
-    bool foward_direction = true;
+    bool forward_direction = true;
     int cube_segment = 0;
     float cube_t = 0;
     float cube_step_size = 0.00001;

@@ -134,7 +134,7 @@ void Route3DBezier1D::Create_Route3DBezier1D(Scene* scn, int segNum, int res, in
 
 void Route3DBezier1D::AnimateCubeMovement(bool animate) {
     if (animate) {
-        if (foward_direction) {
+        if (forward_direction) {
             if (cube_t > 0.99f) {
                 cube_segment++;
                 cube_t = 0;
@@ -145,7 +145,7 @@ void Route3DBezier1D::AnimateCubeMovement(bool animate) {
             if (cube_segment == bezier_1D->GetSegmentsNum()) {
                 cube_t = 1;
                 cube_segment--;
-                foward_direction = false;
+                forward_direction = false;
             }
         }
         else {
@@ -159,7 +159,7 @@ void Route3DBezier1D::AnimateCubeMovement(bool animate) {
             if (cube_segment == -1) {
                 cube_t = 0;
                 cube_segment++;
-                foward_direction = true;
+                forward_direction = true;
             }
         }
 
