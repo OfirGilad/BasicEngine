@@ -25,6 +25,7 @@ void Route3DBezier1D::Create_Route3DBezier1D(Scene* scn, int segNum, int res, in
 
     // Octahedrons
     // p0
+    first_point_index = shape_index;
     scn->AddShape(Scene::Octahedron, -1, Scene::TRIANGLES);
     scn->SetShapeTex(shape_index, 0);
     (*scn_shapes)[shape_index]->MyTranslate(vec3(-15, -9, 0), 0);
@@ -88,6 +89,7 @@ void Route3DBezier1D::Create_Route3DBezier1D(Scene* scn, int segNum, int res, in
     shape_index++;
 
     // p9
+    last_point_index = shape_index;
     scn->AddShape(Scene::Octahedron, -1, Scene::TRIANGLES);
     scn->SetShapeTex(shape_index, 0);
     (*scn_shapes)[shape_index]->MyTranslate(vec3(15, -9, 0), 0);
@@ -197,4 +199,31 @@ void Route3DBezier1D::UpdateCurveByShapes() {
         segIndx++;
     }
     bezier_1D->SetBezier1DMesh(bezier_1D->GetLine());
+}
+
+bool Route3DBezier1D::OnCurvePoint(int index) {
+    if (index % 3 == 0) {
+        return true;
+    }
+    else {
+        return false;
+    }
+}
+
+bool Route3DBezier1D::HasLeft(int index) {
+    if (index > first_point_index) {
+        return true;
+    }
+    else {
+        return false;
+    }
+}
+
+bool Route3DBezier1D::HasRight(int index) {
+    if (index < last_point_index) {
+        return true;
+    }
+    else {
+        return false;
+    }
 }

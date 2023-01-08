@@ -18,11 +18,15 @@ public:
     void AnimateCubeMovement(bool animate);
     void NumberOfSegmentsToDisplay(int segNum);
     void UpdateCurveByShapes();
+    bool OnCurvePoint(int index);
+    bool HasLeft(int index);
+    bool HasRight(int index);
 
     // Variables
     vector<Shape*>* scn_shapes;
     bool C_state = false;
     Bezier1D *bezier_1D;
+    int first_point_index, last_point_index;
 
     // Animation
     int cube_shape_index;
