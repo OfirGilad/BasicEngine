@@ -163,7 +163,6 @@ void Game::MouseProccessing(int button)
 
 				// Move the left point to the new position (on the same line with the right point)
 				shapes[pickedShape - 1]->MyTranslate(multiply_factor * glm::vec3(return_from_center.x, return_from_center.y, return_from_center.z), 0);
-
 			}
 			else {
 				glm::vec4 control_point = shapes[pickedShape]->GetTranslate()[3];
