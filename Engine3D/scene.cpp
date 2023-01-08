@@ -197,16 +197,50 @@
 		//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		//glGetIntegerv(GL_VIEWPORT, 0);
 		glReadPixels(x, this->height - y, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &depth);
-		glReadPixels(x, y, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, data);
+		//glReadPixels(x, this->height - y, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, data);
+		//int id = data[0] | data[1] << 8 | data[2] << 16;
+
+		//std::cout << "CLICK" << std::endl;
+		//std::cout << float(x)/400.f - 1.f << std::endl;
+		//std::cout << (float(y)/400.f - 1.f) * -1.f << std::endl;
+		//std::cout << 50 << std::endl;
+		//std::cout << std::endl;
+
+		glm::vec3 eye = glm::vec3(0, 0, 50);
+		glm::vec3 hit_on_screen = glm::vec3((float(x) / 400.f - 1.f), ((float(y) / 400.f - 1.f) * -1.f), 0);
+		glm::vec3 ray = glm::normalize(hit_on_screen - eye);
+
+		//std::cout << ray.x << std::endl;
+		//std::cout << ray.y << std::endl;
+		//std::cout << ray.z << std::endl;
+		//std::cout << std::endl;
+
+		for (int i = 0; i < shapes.size(); i++) {
+			glm::mat4 new_trans = GetRotate() * shapes[i]->MakeTrans();
+			glm::vec3 center = glm::vec3(new_trans[3].x, new_trans[3].y, new_trans[3].z);
+			//std::cout << center.x << std::endl;
+			//std::cout << center.y << std::endl;
+			//std::cout << center.z << std::endl;
+			//std::cout << std::endl;
+			
+			//float dist = abs((center - hit_on_screen).x) + abs((center - hit_on_screen).y) + abs((center - hit_on_screen).z);
+			glm::vec3 screen_to_object = glm::normalize(center - hit_on_screen);
+
+			//std::cout << screen_to_object.x << std::endl;
+			//std::cout << screen_to_object.y << std::endl;
+			//std::cout << screen_to_object.z << std::endl;
+			//std::cout << std::endl;
+		}
+		//std::cout << std::endl;
 
 		return 0;
 	}
 	//return coordinates in global system for a tip of arm position is local system 
 	void Scene::MouseProccessing(int button)
 	{
-		if(pickedShape == -1)
+		if (pickedShape == -1)
 		{
-			if(button == 1 )
+			if (button == 1)
 			{				
 
 				MyTranslate(glm::vec3(-xrel/20.0f,0,0),0);
@@ -221,6 +255,20 @@
 				MyRotate(xrel / 2.0f, glm::vec3(0, 1, 0), 0);
 				MyRotate(yrel / 2.0f, glm::vec3(1, 0, 0), 0);
 
+				WhenRotate();
+			}
+		}
+		else {
+			if (button == 1)
+			{
+				shapes[pickedShape]->MyTranslate(glm::vec3(-xrel / 20.0f, 0, 0), 0);
+				shapes[pickedShape]->MyTranslate(glm::vec3(0, yrel / 20.0f, 0), 0);
+				WhenTranslate();
+			}
+			else
+			{
+				shapes[pickedShape]->MyRotate(xrel / 2.0f, glm::vec3(0, 1, 0), 0);
+				shapes[pickedShape]->MyRotate(yrel / 2.0f, glm::vec3(1, 0, 0), 0);
 				WhenRotate();
 			}
 		}
