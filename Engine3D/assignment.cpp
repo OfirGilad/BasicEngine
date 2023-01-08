@@ -124,11 +124,9 @@ void Route3DBezier1D::Create_Route3DBezier1D(Scene* scn, int segNum, int res, in
 
     bezier_1D->SetBezier1DMesh(bezier_1D->GetLine());
 
-    // Those 3 lines cause the error at the end
     scn->AddBezier1DShape(bezier_1D, -1);
     scn->SetShapeTex(shape_index, 1);
     shape_index++;
-
 
     scn->MoveCamera(0, Scene::zTranslate, 50);
 }
