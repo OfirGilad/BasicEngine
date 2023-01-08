@@ -192,6 +192,7 @@
 
 	float Scene::Picking(int x,int y)
 	{
+		//pickedShape = 1;
 		float depth;
 		unsigned char data[]{ 0, 0, 0, 0 };
 		//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -332,6 +333,18 @@
 		}
 
 }
+
+	// New Functions
+	void Scene::MouseScrolling(glm::vec3 delta, int mode)
+	{
+		if (pickedShape == -1) {
+			MyTranslate(delta, mode);
+		}
+		else {
+			glm::vec4 trans = glm::transpose(GetRotate()) * glm::vec4(delta.x, delta.y, delta.z, 1);
+			shapes[pickedShape]->MyTranslate(glm::vec3(trans.x, trans.y, trans.z), mode);
+		}
+	}
 
 
 	 

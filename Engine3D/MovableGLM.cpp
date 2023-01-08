@@ -52,7 +52,7 @@ void MovableGLM::ZeroTrans()
 	scl = glm::mat4(1);
 }
 
-// New functions
+// New Functions
 glm::mat4 MovableGLM::GetTranslate()
 {
 	return trans;

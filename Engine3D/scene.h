@@ -64,8 +64,9 @@ public:
 	inline void SetShapeTex(int shpIndx,int texIndx){shapes[shpIndx]->SetTexture(texIndx);} 
 	inline void SetShapeShader(int shpIndx,int shdrIndx){shapes[shpIndx]->SetShader(shdrIndx);} 
 
-	// New methods
+	// New Functions
 	std::vector<Shape*>* getShapes() { return &shapes; }
+	void MouseScrolling(glm::vec3 delta, int mode);
 
 private:	
 	
