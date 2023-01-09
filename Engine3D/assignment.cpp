@@ -134,6 +134,7 @@ void Route3DBezier1D::Create_Route3DBezier1D(Scene* scn, int segNum, int res, in
     scn->MoveCamera(0, Scene::zTranslate, 50);
 }
 
+// TODO: The cube face should change according to the direction of the movement
 void Route3DBezier1D::AnimateCubeMovement(bool animate) {
     if (animate) {
         if (forward_direction) {

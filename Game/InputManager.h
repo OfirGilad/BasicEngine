@@ -52,6 +52,8 @@
 				//	break;
 				
 				// New Callbacks
+				// TODO: The original Bezier should have 6 segments (segment 2 to 5 are straghit lines)
+				// and the numbers will change the number of displayed segments from 2 to 5
 				case GLFW_KEY_1: // Display 1 segments cubic Bezier curve, each segment is a cubic Bezier.
 					scn->route_3D_bezier_1D.NumberOfSegmentsToDisplay(1);
 					break;

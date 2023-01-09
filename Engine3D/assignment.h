@@ -35,7 +35,7 @@ public:
     bool forward_direction = true;
     int cube_segment = 0;
     float cube_t = 0;
-    float cube_step_size = 0.00001;
+    float cube_step_size = 0.0001;
 
     // Picking (With arrows)
     bool S_mode = false;
