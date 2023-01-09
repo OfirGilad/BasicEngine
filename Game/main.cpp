@@ -9,7 +9,7 @@ int main(int argc,char *argv[])
 	const int DISPLAY_HEIGHT = 800;
 	const float CAMERA_ANGLE = 45.0f;
 	const float NEAR = 1.0f;
-	const float FAR = 100.0f;
+	const float FAR = 150.0f;
 
 	Game *scn = new Game(CAMERA_ANGLE,(float)DISPLAY_WIDTH/DISPLAY_HEIGHT,NEAR,FAR);
 	

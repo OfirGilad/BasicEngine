@@ -65,8 +65,10 @@
 					scn->route_3D_bezier_1D.NumberOfSegmentsToDisplay(3);
 					break;
 				case GLFW_KEY_4: // Display 4 segments cubic Bezier curve, each segment is a cubic Bezier.
+					scn->route_3D_bezier_1D.NumberOfSegmentsToDisplay(4);
 					break;
 				case GLFW_KEY_5: // Display 5 segments cubic Bezier curve, each segment is a cubic Bezier.
+					scn->route_3D_bezier_1D.NumberOfSegmentsToDisplay(5);
 					break;
 				case GLFW_KEY_6: // Display 6 segments cubic Bezier curve, each segment is a cubic Bezier.
 					break;

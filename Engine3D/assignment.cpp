@@ -236,7 +236,44 @@ void Route3DBezier1D::BuildAllShapes(Scene* scn) {
     config3[8] = vec3(15, -3, 0);
     config3[9] = vec3(15, -9, 0);
 
+    std::vector<glm::vec3> config4;
+    config4.resize(13);
+    config4[0] = vec3(-21, -9, 0);
+    config4[1] = vec3(-21, -3, 0);
+    config4[2] = vec3(-18, 0, 0);
+    config4[3] = vec3(-12, 0, 0);
+    config4[4] = vec3(-9, 0, 0);
+    config4[5] = vec3(-3, 0, 0);
+    config4[6] = vec3(0, 0, 0);
+    config4[7] = vec3(3, 0, 0);
+    config4[8] = vec3(9, 0, 0);
+    config4[9] = vec3(12, 0, 0);
+    config4[10] = vec3(18, 0, 0);
+    config4[11] = vec3(21, -3, 0);
+    config4[12] = vec3(21, -9, 0);
 
+    std::vector<glm::vec3> config5;
+    config5.resize(16);
+    config5[0] = vec3(-27, -9, 0);
+    config5[1] = vec3(-27, -3, 0);
+    config5[2] = vec3(-24, 0, 0);
+    config5[3] = vec3(-18, 0, 0);
+    config5[4] = vec3(-15, 0, 0);
+    config5[5] = vec3(-9, 0, 0);
+    config5[6] = vec3(-6, 0, 0);
+    config5[7] = vec3(-3, 0, 0);
+    config5[8] = vec3(3, 0, 0);
+    config5[9] = vec3(6, 0, 0);
+    config5[10] = vec3(9, 0, 0);
+    config5[11] = vec3(15, 0, 0);
+    config5[12] = vec3(18, 0, 0);
+    config5[13] = vec3(24, 0, 0);
+    config5[14] = vec3(27, -3, 0);
+    config5[15] = vec3(27, -9, 0);
+
+    // Add all configs
     bezier_configs.push_back(config2);
     bezier_configs.push_back(config3);
+    bezier_configs.push_back(config4);
+    bezier_configs.push_back(config5);
 }
