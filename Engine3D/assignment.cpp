@@ -155,19 +155,26 @@ int Route3DBezier1D::PreviousShape() {
 
 void Route3DBezier1D::NumberOfSegmentsToDisplay(int segNum) {
     int res = ((bezier_1D->GetResT() - 1) / bezier_1D->GetSegmentsNum() * segNum) + 1;
-
     bezier_1D->SetSegmentsNum(segNum);
     bezier_1D->SetResT(res);
 
-    //TODO: Need to handle the case where they are not on (0,0,0)
-    (*scn_shapes)[cube_shape_index]->MyTranslate(bezier_configs[segNum - 1][0], 0);
+    int config_num = segNum - 2;
+
+    // Reset Cube position
+    vec3 cube_new_position = bezier_configs[config_num][0];
+    vec4 cube_old_position = (*scn_shapes)[cube_shape_index]->GetTranslate()[3];
+    vec3 movement = cube_new_position - vec3(cube_old_position.x, cube_old_position.y, cube_old_position.z);
+    (*scn_shapes)[cube_shape_index]->MyTranslate(movement, 0);
 
     for (int i = 0; i < number_of_octahedrons; i++) {
-        if (i < bezier_configs[segNum - 1].size()) {
+        if (i < bezier_configs[config_num].size()) {
             (*scn_shapes)[i]->Unhide();
 
-            //TODO: Need to handle the case where they are not on (0,0,0)
-            (*scn_shapes)[i]->MyTranslate(bezier_configs[segNum - 1][i], 0);
+            // Reset Octahedrons posotions
+            vec3 point_new_position = bezier_configs[config_num][i];
+            vec4 point_old_position = (*scn_shapes)[i]->GetTranslate()[3];
+            vec3 movement = point_new_position - vec3(point_old_position.x, point_old_position.y, point_old_position.z);
+            (*scn_shapes)[i]->MyTranslate(movement, 0);
         }
         else {
             (*scn_shapes)[i]->Hide();
@@ -206,13 +213,6 @@ void Route3DBezier1D::BuildAllShapes(Scene* scn) {
         bezier_1D->AddSegment(zero_vector, zero_vector, zero_vector);
 
     // Configurations
-    std::vector<glm::vec3> config1;
-    config1.resize(4);
-    config1[0] = vec3(-9, -9, 0);
-    config1[1] = vec3(-9, -3, 0);
-    config1[2] = vec3(-6, 0, 0);
-    config1[3] = vec3(0, 0, 0);
-
     std::vector<glm::vec3> config2;
     config2.resize(7);
     config2[0] = vec3(-9, -9, 0);
@@ -237,7 +237,6 @@ void Route3DBezier1D::BuildAllShapes(Scene* scn) {
     config3[9] = vec3(15, -9, 0);
 
 
-    bezier_configs.push_back(config1);
     bezier_configs.push_back(config2);
     bezier_configs.push_back(config3);
 }
