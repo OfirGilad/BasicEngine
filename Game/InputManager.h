@@ -104,10 +104,14 @@
 					scn->MoveCamera(0, scn->zTranslate, -0.4f);
 					break;
 				case GLFW_KEY_C: // Continuity state: begins and ends when the user presses ‘C’.
-					if (!scn->route_3D_bezier_1D.C_state)
+					if (!scn->route_3D_bezier_1D.C_state) {
+						cout << "Continuity state: On" << endl;
 						scn->route_3D_bezier_1D.C_state = true;
-					else
+					}
+					else {
+						cout << "Continuity state: Off" << endl;
 						scn->route_3D_bezier_1D.C_state = false;
+					}
 					break;
 			default:
 				break;

@@ -139,6 +139,17 @@ void Game::MouseProccessing(int button)
 			else {
 				shapes[pickedShape]->MyTranslate(glm::vec3(-GetXrel() / 20.0f, 0, 0), 0);
 				shapes[pickedShape]->MyTranslate(glm::vec3(0, GetYrel() / 20.0f, 0), 0);
+
+				if (route_3D_bezier_1D.C_state == true) {
+					if (pickedShape % 3 == 1) {
+						shapes[pickedShape - 1]->MyTranslate(glm::vec3(-GetXrel() / 20.0f, 0, 0), 0);
+						shapes[pickedShape - 1]->MyTranslate(glm::vec3(0, GetYrel() / 20.0f, 0), 0);
+					}
+					else {
+						shapes[pickedShape + 1]->MyTranslate(glm::vec3(-GetXrel() / 20.0f, 0, 0), 0);
+						shapes[pickedShape + 1]->MyTranslate(glm::vec3(0, GetYrel() / 20.0f, 0), 0);
+					}
+				}
 			}
 			
 			route_3D_bezier_1D.UpdateCurveByShapes();
@@ -167,14 +178,19 @@ void Game::MouseProccessing(int button)
 				}
 			}
 			else {
+				int xrel = GetXrel();
+				int yrel = GetYrel();
 				glm::vec4 control_point = shapes[pickedShape]->GetTranslate()[3];
 				glm::vec4 center;
+				int c_state_second_control = 0;
 
 				if (pickedShape % 3 == 1) {
 					center = shapes[pickedShape - 1]->GetTranslate()[3];
+					c_state_second_control = -2;
 				}
 				else {
 					center = shapes[pickedShape + 1]->GetTranslate()[3];
+					c_state_second_control = 2;
 				}
 
 				// Move the control point to center of rotation
@@ -182,12 +198,30 @@ void Game::MouseProccessing(int button)
 				shapes[pickedShape]->MyTranslate(glm::vec3(move_to_center.x, move_to_center.y, move_to_center.z), 0);
 
 				// Rotate the control point in the center of rotation
-				shapes[pickedShape]->MyRotate(GetXrel() / 20.0f, glm::vec3(0, 0, 1), 0);
-				shapes[pickedShape]->MyRotate(GetYrel() / 20.0f, glm::vec3(0, 0, 1), 0);
+				shapes[pickedShape]->MyRotate(xrel / 20.0f, glm::vec3(0, 0, 1), 0);
+				shapes[pickedShape]->MyRotate(yrel / 20.0f, glm::vec3(0, 0, 1), 0);
 
 				// Move the control point to the new position
 				vec4 return_from_center = shapes[pickedShape]->GetRotate() * -move_to_center;
 				shapes[pickedShape]->MyTranslate(glm::vec3(return_from_center.x, return_from_center.y, return_from_center.z), 0);
+
+				if (route_3D_bezier_1D.C_state == true) {
+					int second_control_index = pickedShape + c_state_second_control;
+
+					if (second_control_index > route_3D_bezier_1D.first_point_index && second_control_index < route_3D_bezier_1D.last_point_index) {
+						control_point = shapes[second_control_index]->GetTranslate()[3];
+						move_to_center = center - control_point;
+						shapes[second_control_index]->MyTranslate(glm::vec3(move_to_center.x, move_to_center.y, move_to_center.z), 0);
+
+						// Rotate the control point in the center of rotation
+						shapes[second_control_index]->MyRotate(xrel / 20.0f, glm::vec3(0, 0, 1), 0);
+						shapes[second_control_index]->MyRotate(yrel / 20.0f, glm::vec3(0, 0, 1), 0);
+
+						// Move the control point to the new position
+						return_from_center = shapes[second_control_index]->GetRotate() * -move_to_center;
+						shapes[second_control_index]->MyTranslate(glm::vec3(return_from_center.x, return_from_center.y, return_from_center.z), 0);
+					}
+				}
 			}
 
 			route_3D_bezier_1D.UpdateCurveByShapes();
