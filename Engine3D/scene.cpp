@@ -220,7 +220,6 @@
 			
 			//float dist = abs((center - hit_on_screen).x) + abs((center - hit_on_screen).y) + abs((center - hit_on_screen).z);
 			glm::vec3 screen_to_object = glm::normalize(center - hit_on_screen);
-
 			//std::cout << screen_to_object.x << std::endl;
 			//std::cout << screen_to_object.y << std::endl;
 			//std::cout << screen_to_object.z << std::endl;
