@@ -248,13 +248,13 @@ bool Route3DBezier1D::HasRight(int index) {
 int Route3DBezier1D::NextShape() {
     picked_shape_index++;
     if (picked_shape_index > cube_shape_index) {
-        picked_shape_index = first_point_index;
+        picked_shape_index = -1;
     }
     return picked_shape_index;
 }
 int Route3DBezier1D::PreviousShape() {
     picked_shape_index--;
-    if (picked_shape_index < first_point_index) {
+    if (picked_shape_index < -1) {
         picked_shape_index = cube_shape_index;
     }
     return picked_shape_index;
