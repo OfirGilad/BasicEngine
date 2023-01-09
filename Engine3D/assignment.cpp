@@ -14,7 +14,7 @@ Route3DBezier1D::Route3DBezier1D()
 
 // Building 3D route with by manipulating 1D Bezier curve
 void Route3DBezier1D::Create_Route3DBezier1D(Scene* scn, int segNum, int res, int mode) {
-    scn_shapes = scn->getShapes();
+    scn_shapes = scn->GetShapes();
     int shape_index = 0;
 
     // Cube + Octahedrons texture
@@ -226,4 +226,19 @@ bool Route3DBezier1D::HasRight(int index) {
     else {
         return false;
     }
+}
+
+int Route3DBezier1D::NextShape() {
+    picked_shape_index++;
+    if (picked_shape_index > cube_shape_index) {
+        picked_shape_index = first_point_index;
+    }
+    return picked_shape_index;
+}
+int Route3DBezier1D::PreviousShape() {
+    picked_shape_index--;
+    if (picked_shape_index < first_point_index) {
+        picked_shape_index = cube_shape_index;
+    }
+    return picked_shape_index;
 }

@@ -74,10 +74,20 @@
 						scn->Activate();
 					break;
 				case GLFW_KEY_LEFT: // Rotate the Scene left.
-					scn->MyRotate(2.f, glm::vec3(0, 1, 0), 0);
+					if (!scn->route_3D_bezier_1D.S_mode) {
+						scn->MyRotate(2.f, glm::vec3(0, 1, 0), 0);
+					}
+					else {
+						scn->SetPickedShape(scn->route_3D_bezier_1D.PreviousShape());
+					}
 					break;
 				case GLFW_KEY_RIGHT: // Rotate the Scene right.
-					scn->MyRotate(-2.f, glm::vec3(0, 1, 0), 0);
+					if (!scn->route_3D_bezier_1D.S_mode) {
+						scn->MyRotate(-2.f, glm::vec3(0, 1, 0), 0);
+					}
+					else {
+						scn->SetPickedShape(scn->route_3D_bezier_1D.NextShape());
+					}
 					break;
 				case GLFW_KEY_UP: // Rotate the Scene up.
 					scn->MyRotate(2.f, glm::vec3(1, 0, 0), 0);
@@ -111,6 +121,16 @@
 					else {
 						cout << "Continuity state: Off" << endl;
 						scn->route_3D_bezier_1D.C_state = false;
+					}
+					break;
+				case GLFW_KEY_S: // Selection mode: Enable Picking with the arrow keys.
+					if (!scn->route_3D_bezier_1D.S_mode) {
+						cout << "Selection mode: On" << endl;
+						scn->route_3D_bezier_1D.S_mode = true;
+					}
+					else {
+						cout << "Selection mode: Off" << endl;
+						scn->route_3D_bezier_1D.S_mode = false;
 					}
 					break;
 			default:

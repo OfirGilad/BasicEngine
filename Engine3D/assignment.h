@@ -21,6 +21,8 @@ public:
     bool OnCurvePoint(int index);
     bool HasLeft(int index);
     bool HasRight(int index);
+    int NextShape();
+    int PreviousShape();
 
     // Variables
     vector<Shape*>* scn_shapes;
@@ -34,4 +36,8 @@ public:
     int cube_segment = 0;
     float cube_t = 0;
     float cube_step_size = 0.00001;
+
+    // Picking (With arrows)
+    bool S_mode = false;
+    int picked_shape_index = -1;
 };

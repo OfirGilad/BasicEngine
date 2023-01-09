@@ -64,10 +64,10 @@ public:
 	inline void SetShapeShader(int shpIndx,int shdrIndx){shapes[shpIndx]->SetShader(shdrIndx);} 
 
 	// New Functions
-	virtual std::vector<Shape*>* getShapes() = 0;
+	virtual std::vector<Shape*>* GetShapes() = 0;
 	virtual void AddBezier1DShape(Shape* bezier_1D_line, int parent) = 0;
 	virtual void MouseScrolling(glm::vec3 delta, int mode) = 0;
-
+	void SetPickedShape(int pickedShape) { this->pickedShape = pickedShape; }
 	inline int GetXrel() { return xrel; }
 	inline int GetYrel() { return yrel; }
 

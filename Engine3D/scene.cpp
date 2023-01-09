@@ -227,7 +227,7 @@
 		}
 		//std::cout << std::endl;
 
-		return 0;
+		return pickedShape;
 	}
 	//return coordinates in global system for a tip of arm position is local system 
 	void Scene::MouseProccessing(int button)

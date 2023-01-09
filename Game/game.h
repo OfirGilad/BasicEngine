@@ -17,7 +17,7 @@ public:
 	~Game(void);
 
 	// New Functions
-	std::vector<Shape*>* getShapes() override { return &shapes; }
+	std::vector<Shape*>* GetShapes() override { return &shapes; }
 	void AddBezier1DShape(Shape* bezier_1D_line, int parent) override;
 	void MouseProccessing(int button) override;
 	void MouseScrolling(glm::vec3 delta, int mode) override;
