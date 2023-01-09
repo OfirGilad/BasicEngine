@@ -141,19 +141,31 @@ void Game::MouseProccessing(int button)
 					}
 				}
 				else {
-					shapes[pickedShape]->MyTranslate(glm::vec3(-GetXrel() / 20.0f, 0, 0), 0);
-					shapes[pickedShape]->MyTranslate(glm::vec3(0, GetYrel() / 20.0f, 0), 0);
-
-					// TODO: Movement is of pickedShape along the line between the selected dot and the point on cure
 					if (route_3D_bezier_1D.C_state == true) {
+						glm::vec4 center, line_with_center;
+						glm::vec4 control_point = shapes[pickedShape]->GetTranslate()[3];
+						glm::vec3 movement_direction;
+
 						if (pickedShape % 3 == 1) {
-							shapes[pickedShape - 1]->MyTranslate(glm::vec3(-GetXrel() / 20.0f, 0, 0), 0);
-							shapes[pickedShape - 1]->MyTranslate(glm::vec3(0, GetYrel() / 20.0f, 0), 0);
+							center = shapes[pickedShape - 1]->GetTranslate()[3];
+							line_with_center = control_point - center;
+							movement_direction = glm::normalize(glm::vec3(line_with_center.x, line_with_center.y, line_with_center.z));
+
+							shapes[pickedShape]->MyTranslate(float(-GetXrel() / 20.0f) * movement_direction, 0);
+							shapes[pickedShape]->MyTranslate(float(GetYrel() / 20.0f) * movement_direction, 0);
 						}
 						else {
-							shapes[pickedShape + 1]->MyTranslate(glm::vec3(-GetXrel() / 20.0f, 0, 0), 0);
-							shapes[pickedShape + 1]->MyTranslate(glm::vec3(0, GetYrel() / 20.0f, 0), 0);
+							center = shapes[pickedShape + 1]->GetTranslate()[3];
+							line_with_center = control_point - center;
+							movement_direction = glm::normalize(glm::vec3(line_with_center.x, line_with_center.y, line_with_center.z));
+
+							shapes[pickedShape]->MyTranslate(float(-GetXrel() / 20.0f) * movement_direction, 0);
+							shapes[pickedShape]->MyTranslate(float(GetYrel() / 20.0f) * movement_direction, 0);
 						}
+					}
+					else {
+						shapes[pickedShape]->MyTranslate(glm::vec3(-GetXrel() / 20.0f, 0, 0), 0);
+						shapes[pickedShape]->MyTranslate(glm::vec3(0, GetYrel() / 20.0f, 0), 0);
 					}
 				}
 				route_3D_bezier_1D.UpdateCurveByShapes();
