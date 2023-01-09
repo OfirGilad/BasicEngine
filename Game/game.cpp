@@ -198,12 +198,16 @@ void Game::MouseProccessing(int button)
 				shapes[pickedShape]->MyTranslate(glm::vec3(move_to_center.x, move_to_center.y, move_to_center.z), 0);
 
 				// Rotate the control point in the center of rotation
-				shapes[pickedShape]->MyRotate(xrel / 20.0f, glm::vec3(0, 0, 1), 0);
-				shapes[pickedShape]->MyRotate(yrel / 20.0f, glm::vec3(0, 0, 1), 0);
+				shapes[pickedShape]->MyRotate(xrel / 2.0f, glm::vec3(0, 0, 1), 0);
+				shapes[pickedShape]->MyRotate(yrel / 2.0f, glm::vec3(0, 0, 1), 0);
 
 				// Move the control point to the new position
 				vec4 return_from_center = shapes[pickedShape]->GetRotate() * -move_to_center;
 				shapes[pickedShape]->MyTranslate(glm::vec3(return_from_center.x, return_from_center.y, return_from_center.z), 0);
+
+				// Reset rotation
+				shapes[pickedShape]->MyRotate(-xrel / 2.0f, glm::vec3(0, 0, 1), 0);
+				shapes[pickedShape]->MyRotate(-yrel / 2.0f, glm::vec3(0, 0, 1), 0);
 
 				if (route_3D_bezier_1D.C_state == true) {
 					int second_control_index = pickedShape + c_state_second_control;
@@ -214,12 +218,16 @@ void Game::MouseProccessing(int button)
 						shapes[second_control_index]->MyTranslate(glm::vec3(move_to_center.x, move_to_center.y, move_to_center.z), 0);
 
 						// Rotate the control point in the center of rotation
-						shapes[second_control_index]->MyRotate(xrel / 20.0f, glm::vec3(0, 0, 1), 0);
-						shapes[second_control_index]->MyRotate(yrel / 20.0f, glm::vec3(0, 0, 1), 0);
+						shapes[second_control_index]->MyRotate(xrel / 2.0f, glm::vec3(0, 0, 1), 0);
+						shapes[second_control_index]->MyRotate(yrel / 2.0f, glm::vec3(0, 0, 1), 0);
 
 						// Move the control point to the new position
 						return_from_center = shapes[second_control_index]->GetRotate() * -move_to_center;
 						shapes[second_control_index]->MyTranslate(glm::vec3(return_from_center.x, return_from_center.y, return_from_center.z), 0);
+
+						// Reset rotation
+						shapes[second_control_index]->MyRotate(-xrel / 2.0f, glm::vec3(0, 0, 1), 0);
+						shapes[second_control_index]->MyRotate(-yrel / 2.0f, glm::vec3(0, 0, 1), 0);
 					}
 				}
 			}
