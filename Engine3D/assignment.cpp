@@ -24,114 +24,15 @@ void Route3DBezier1D::CreateRoute3DBezier1D(Scene* scn, int segNum, int res, int
     // Bezier 1D texture
     scn->AddTexture("../res/textures/grass.bmp", false);
 
-
-    // Octahedrons
-    // p0
-    first_point_index = shape_index;
-    scn->AddShape(Scene::Octahedron, -1, Scene::TRIANGLES);
-    scn->SetShapeTex(shape_index, 0);
-    (*scn_shapes)[shape_index]->MyTranslate(vec3(-15, -9, 0), 0);
-    (*scn_shapes)[shape_index]->MyScale(vec3(0.5, 0.5, 0.5));
-    shape_index++;
-
-    // p1
-    scn->AddShape(Scene::Octahedron, -1, Scene::TRIANGLES);
-    scn->SetShapeTex(shape_index, 0);
-    (*scn_shapes)[shape_index]->MyTranslate(vec3(-15, -3, 0), 0);
-    (*scn_shapes)[shape_index]->MyScale(vec3(0.5, 0.5, 0.5));
-    shape_index++;
-
-    // p2
-    scn->AddShape(Scene::Octahedron, -1, Scene::TRIANGLES);
-    scn->SetShapeTex(shape_index, 0);
-    (*scn_shapes)[shape_index]->MyTranslate(vec3(-12, 0, 0), 0);
-    (*scn_shapes)[shape_index]->MyScale(vec3(0.5, 0.5, 0.5));
-    shape_index++;
-
-    // p3
-    scn->AddShape(Scene::Octahedron, -1, Scene::TRIANGLES);
-    scn->SetShapeTex(shape_index, 0);
-    (*scn_shapes)[shape_index]->MyTranslate(vec3(-6, 0, 0), 0);
-    (*scn_shapes)[shape_index]->MyScale(vec3(0.5, 0.5, 0.5));
-    shape_index++;
-
-    // p4
-    scn->AddShape(Scene::Octahedron, -1, Scene::TRIANGLES);
-    scn->SetShapeTex(shape_index, 0);
-    (*scn_shapes)[shape_index]->MyTranslate(vec3(-3, 0, 0), 0);
-    (*scn_shapes)[shape_index]->MyScale(vec3(0.5, 0.5, 0.5));
-    shape_index++;
-
-    // p5
-    scn->AddShape(Scene::Octahedron, -1, Scene::TRIANGLES);
-    scn->SetShapeTex(shape_index, 0);
-    (*scn_shapes)[shape_index]->MyTranslate(vec3(3, 0, 0), 0);
-    (*scn_shapes)[shape_index]->MyScale(vec3(0.5, 0.5, 0.5));
-    shape_index++;
-
-    // p6
-    scn->AddShape(Scene::Octahedron, -1, Scene::TRIANGLES);
-    scn->SetShapeTex(shape_index, 0);
-    (*scn_shapes)[shape_index]->MyTranslate(vec3(6, 0, 0), 0);
-    (*scn_shapes)[shape_index]->MyScale(vec3(0.5, 0.5, 0.5));
-    shape_index++;
-
-    // p7
-    scn->AddShape(Scene::Octahedron, -1, Scene::TRIANGLES);
-    scn->SetShapeTex(shape_index, 0);
-    (*scn_shapes)[shape_index]->MyTranslate(vec3(12, 0, 0), 0);
-    (*scn_shapes)[shape_index]->MyScale(vec3(0.5, 0.5, 0.5));
-    shape_index++;
-
-    // p8
-    scn->AddShape(Scene::Octahedron, -1, Scene::TRIANGLES);
-    scn->SetShapeTex(shape_index, 0);
-    (*scn_shapes)[shape_index]->MyTranslate(vec3(15, -3, 0), 0);
-    (*scn_shapes)[shape_index]->MyScale(vec3(0.5, 0.5, 0.5));
-    shape_index++;
-
-    // p9
-    last_point_index = shape_index;
-    scn->AddShape(Scene::Octahedron, -1, Scene::TRIANGLES);
-    scn->SetShapeTex(shape_index, 0);
-    (*scn_shapes)[shape_index]->MyTranslate(vec3(15, -9, 0), 0);
-    (*scn_shapes)[shape_index]->MyScale(vec3(0.5, 0.5, 0.5));
-    shape_index++;
-
-    // Cube
-    scn->AddShape(Scene::Cube, -1, Scene::TRIANGLES);
-    scn->SetShapeTex(shape_index, 0);
-    (*scn_shapes)[shape_index]->MyTranslate(vec3(-15, -9, 0), 0);
-    cube_shape_index = shape_index;
-    shape_index++;
-
-
     bezier_1D = new Bezier1D(segNum, res, Scene::LINE_STRIP);
 
-    bezier_1D->AddFirstSegment(
-        (*scn_shapes)[0]->GetTranslate()[3],
-        (*scn_shapes)[1]->GetTranslate()[3],
-        (*scn_shapes)[2]->GetTranslate()[3],
-        (*scn_shapes)[3]->GetTranslate()[3]
-    );
+    BuildAllShapes(scn);
+    NumberOfSegmentsToDisplay(segNum);
 
-    bezier_1D->AddSegment(
-        (*scn_shapes)[4]->GetTranslate()[3],
-        (*scn_shapes)[5]->GetTranslate()[3],
-        (*scn_shapes)[6]->GetTranslate()[3]
-    );
-
-    bezier_1D->AddSegment(
-        (*scn_shapes)[7]->GetTranslate()[3],
-        (*scn_shapes)[8]->GetTranslate()[3],
-        (*scn_shapes)[9]->GetTranslate()[3]
-    );
-
+    // Building Bezier 1D
     bezier_1D->SetBezier1DMesh(bezier_1D->GetLine());
-
     scn->AddBezier1DShape(bezier_1D, -1);
-    scn->SetShapeTex(shape_index, 1);
-    shape_index++;
+    scn->SetShapeTex((*scn_shapes).size() - 1, 1);
 
     scn->MoveCamera(0, Scene::zTranslate, 50);
 }
@@ -289,19 +190,28 @@ void Route3DBezier1D::BuildAllShapes(Scene* scn) {
         (*scn_shapes)[shape_index]->Hide();
         shape_index++;
     }
+
+    // Cube
+    scn->AddShape(Scene::Cube, -1, Scene::TRIANGLES);
+    scn->SetShapeTex(shape_index, 0);
+
     last_point_index = shape_index - 1;
     cube_shape_index = shape_index;
 
-    scn->AddShape(Scene::Cube, -1, Scene::TRIANGLES);
-    scn->SetShapeTex(shape_index, 0);
+    // Setting segments
+    vec4 zero_vector = vec4(0, 0, 0, 0);
+    bezier_1D->AddFirstSegment(zero_vector, zero_vector, zero_vector, zero_vector);
+
+    for (int i = 4; i < number_of_octahedrons; i += 3)
+        bezier_1D->AddSegment(zero_vector, zero_vector, zero_vector);
 
     // Configurations
     std::vector<glm::vec3> config1;
     config1.resize(4);
-    config1[0] = vec3(-6, -3, 0);
-    config1[1] = vec3(-3, 0, 0);
-    config1[2] = vec3(3, 0, 0);
-    config1[3] = vec3(6, 3, 0);
+    config1[0] = vec3(-9, -9, 0);
+    config1[1] = vec3(-9, -3, 0);
+    config1[2] = vec3(-6, 0, 0);
+    config1[3] = vec3(0, 0, 0);
 
     std::vector<glm::vec3> config2;
     config2.resize(7);
@@ -324,7 +234,7 @@ void Route3DBezier1D::BuildAllShapes(Scene* scn) {
     config3[6] = vec3(6, 0, 0);
     config3[7] = vec3(12, 0, 0);
     config3[8] = vec3(15, -3, 0);
-    config3[0] = vec3(15, -9, 0);
+    config3[9] = vec3(15, -9, 0);
 
 
     bezier_configs.push_back(config1);
