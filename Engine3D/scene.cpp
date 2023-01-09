@@ -185,19 +185,17 @@
 		this->height = height;
 	}
 
-	// TODO: Implement Picking
 	float Scene::Picking(int x,int y)
 	{
-		//pickedShape = 1;
 		float depth;
 		unsigned char data[]{ 0, 0, 0, 0 };
 		Draw(0, 0, BACK, true, false);
 		glReadPixels(x, this->height - y, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &depth);
 		glReadPixels(x, this->height - y, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, data);
 		int id = data[0] | data[1] << 8 | data[2] << 16;
+		pickedShape = id - 1;
 
-
-		return pickedShape;
+		return 0;
 	}
 	//return coordinates in global system for a tip of arm position is local system 
 	void Scene::MouseProccessing(int button)
