@@ -138,6 +138,8 @@ void Route3DBezier1D::Create_Route3DBezier1D(Scene* scn, int segNum, int res, in
 // TODO: The cube face should change according to the direction of the movement
 void Route3DBezier1D::AnimateCubeMovement(bool animate) {
     if (animate) {
+        glm::vec3 velo1 = glm::normalize(bezier_1D->GetVelosity(cube_segment, cube_t));
+
         if (forward_direction) {
             if (cube_t > 0.99f) {
                 cube_segment++;
@@ -169,6 +171,19 @@ void Route3DBezier1D::AnimateCubeMovement(bool animate) {
 
         glm::vec4 cube_center = (*scn_shapes)[cube_shape_index]->GetTranslate()[3];
         glm::vec4 next_position = bezier_1D->GetPointOnCurve(cube_segment, cube_t);
+
+        glm::vec3 velo2 = glm::normalize(bezier_1D->GetVelosity(cube_segment, cube_t));
+
+        float angle = glm::dot(velo1, velo2);
+        glm::vec3 normal = glm::cross(velo1, velo2);
+
+        bool condition = ((normal.x == 0) && (normal.y == 0) && (normal.z == 0));
+
+        // IN PROGRESS
+        if (!condition) {
+            (*scn_shapes)[cube_shape_index]->MyRotate(angle, normal, 0);
+        }
+
         glm::vec4 move_vector = next_position - cube_center;
 
         (*scn_shapes)[cube_shape_index]->MyTranslate(vec3(move_vector.x, move_vector.y, move_vector.z), 0);
