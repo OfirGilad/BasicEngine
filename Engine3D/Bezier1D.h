@@ -6,7 +6,6 @@
 class Bezier1D : public Shape
 {
 	int segmentsNum;
-	int segmentsToDisplay;
 	std::vector<glm::mat4> segments;
 	int resT;
 	glm::mat4 M;
@@ -31,12 +30,10 @@ public:
 
 	// Getters
 	inline int GetSegmentsNum() const { return segmentsNum; }
-	inline int GetSegmentsToDisplay() const { return segmentsToDisplay; }
 	inline int GetResT() const { return resT; }
 
 	// Setters
 	void SetSegmentsNum(int segNum) { this->segmentsNum = segNum; }
-	void SetSegmentsToDisplay(int segToDisplay) { this->segmentsToDisplay = segToDisplay; }
 	void SetResT(int res) { this->resT = res; }
 
 	~Bezier1D(void);

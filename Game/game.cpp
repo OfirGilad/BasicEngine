@@ -41,7 +41,7 @@ void Game::Init()
 
     // Creating a 3D route with by manipulating 1D Bezier curve
     route_3D_bezier_1D = Route3DBezier1D();
-    route_3D_bezier_1D.Create_Route3DBezier1D(this, segNum, res, mode);
+    route_3D_bezier_1D.CreateRoute3DBezier1D(this, segNum, res, mode);
 }
 
 void Game::Update(const glm::mat4 &MVP,const glm::mat4 &Model,const int  shaderIndx)
