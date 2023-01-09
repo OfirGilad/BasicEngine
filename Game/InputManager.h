@@ -71,6 +71,7 @@
 					scn->route_3D_bezier_1D.NumberOfSegmentsToDisplay(5);
 					break;
 				case GLFW_KEY_6: // Display 6 segments cubic Bezier curve, each segment is a cubic Bezier.
+					scn->route_3D_bezier_1D.NumberOfSegmentsToDisplay(6);
 					break;
 				case GLFW_KEY_SPACE: // ‘Space’ will start animation where the cube moves along the Bezier curve forwardand backward.
 					if(scn->IsActive())
