@@ -10,7 +10,11 @@
 			Game *scn = (Game*)glfwGetWindowUserPointer(window);
 			double x2,y2;
 			glfwGetCursorPos(window,&x2,&y2);
-			scn->Picking((int)x2,(int)y2);
+
+			// If in Selection mode - Disable Picking
+			if (!scn->route_3D_bezier_1D.S_mode) {
+				scn->Picking((int)x2, (int)y2);
+			}
 		}
 	}
 	
@@ -54,9 +58,6 @@
 				// New Callbacks
 				// TODO: The original Bezier should have 6 segments (segment 2 to 5 are straghit lines)
 				// and the numbers will change the number of displayed segments from 2 to 5
-				case GLFW_KEY_1: // Display 1 segments cubic Bezier curve, each segment is a cubic Bezier.
-					scn->route_3D_bezier_1D.NumberOfSegmentsToDisplay(1);
-					break;
 				case GLFW_KEY_2: // Display 2 segments cubic Bezier curve, each segment is a cubic Bezier.
 					scn->route_3D_bezier_1D.NumberOfSegmentsToDisplay(2);
 					break;
@@ -128,10 +129,12 @@
 				case GLFW_KEY_S: // Selection mode: Enable Picking with the arrow keys.
 					if (!scn->route_3D_bezier_1D.S_mode) {
 						cout << "Selection mode: On" << endl;
+						cout << "Warning: Picking mode is disabled!" << endl;
 						scn->route_3D_bezier_1D.S_mode = true;
 					}
 					else {
 						cout << "Selection mode: Off" << endl;
+						cout << "Notice: Picking mode is enabled!" << endl;
 						scn->route_3D_bezier_1D.S_mode = false;
 					}
 					break;

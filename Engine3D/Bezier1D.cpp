@@ -35,11 +35,16 @@ IndexedModel Bezier1D::GetLine() const
     for (int i = 0; i < segmentsToDisplay; i++) {
         for (int j = 0; j < num_of_dots_on_line; j++) {
             float t = (1.f / (float)num_of_dots_on_line) * (j + 1);
-
             glm::vec4 p_t = GetPointOnCurve(i, t);
+
+            // Normal to the Curve (2D)
+            glm::vec3 dt = GetVelosity(i, t);
+            float sqrt_t = sqrt(pow(dt.x, 2) + pow(dt.y, 2));
+            glm::vec3 normal = glm::vec3(-dt.y / sqrt_t, dt.x / sqrt_t, 0);
+            
             model.positions.push_back(glm::vec3(p_t.x, p_t.y, p_t.z));
             model.colors.push_back(glm::vec3(1.f, 1.f, 1.f));
-            model.normals.push_back(GetVelosity(i, t));
+            model.normals.push_back(normal);
         }
     }
 
