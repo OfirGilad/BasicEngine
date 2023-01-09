@@ -202,7 +202,7 @@
 		//std::cout << std::endl;
 
 		glm::vec3 eye = glm::vec3(0, 0, 50);
-		glm::vec3 hit_on_screen = glm::vec3((float(x) / 400.f - 1.f), ((float(y) / 400.f - 1.f) * -1.f), 0);
+		glm::vec3 hit_on_screen = glm::vec3((float(x) / 400.f - 1.f), ((float(y) / 400.f - 1.f) * -1.f), 1);
 		glm::vec3 ray = glm::normalize(hit_on_screen - eye);
 
 		//std::cout << ray.x << std::endl;
