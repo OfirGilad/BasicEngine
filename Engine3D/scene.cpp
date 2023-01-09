@@ -106,6 +106,7 @@
 				}
 				else 
 				{ //picking
+					pickedShape = i;
 					Update(MVP,Model,0);
 					shapes[i]->Draw(shaders,textures,true);
 				}
@@ -192,9 +193,13 @@
 		unsigned char data[]{ 0, 0, 0, 0 };
 		//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		//glGetIntegerv(GL_VIEWPORT, 0);
+		Draw(0, 0, BACK, true, false);
 		glReadPixels(x, this->height - y, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &depth);
-		//glReadPixels(x, this->height - y, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, data);
-		//int id = data[0] | data[1] << 8 | data[2] << 16;
+		glReadPixels(x, this->height - y, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, data);
+		int id = data[0] | data[1] << 8 | data[2] << 16;
+
+
+
 
 		//std::cout << "CLICK" << std::endl;
 		//std::cout << float(x)/400.f - 1.f << std::endl;
