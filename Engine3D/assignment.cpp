@@ -71,24 +71,41 @@ void Route3DBezier1D::AnimateCubeMovement(bool animate) {
             }
         }
 
+        // Translation
         vec4 cube_center = (*scn_shapes)[cube_shape_index]->GetTranslate()[3];
         vec4 next_position = bezier_1D->GetPointOnCurve(cube_segment, cube_t);
+        vec4 move_vector = next_position - cube_center;
+        (*scn_shapes)[cube_shape_index]->MyTranslate(vec3(move_vector.x, move_vector.y, move_vector.z), 0);
 
+        // Rotation
         vec3 velo2 = glm::normalize(bezier_1D->GetVelosity(cube_segment, cube_t));
-
         float angle = glm::dot(velo1, velo2);
         vec3 normal = glm::cross(velo1, velo2);
+
+        vec3 x = vec3(next_position.x, next_position.y, next_position.z);
+        x = normalize(x);
+        // x now points at target, unit length
+        vec3 y = glm::cross(vec3(0, 0, 1), vec3(x.x, x.y, x.z));
+        y = normalize(y);
+        // y is now perpendicular to x, unit length
+        vec3 z = glm::cross(vec3(x.x, x.y, x.z), y);
+        // z is now perpendicular to both x and y, and unit length
+        z = normalize(z);
+        
+        mat4 matrix;
+        matrix[0] = vec4(x.x, x.y, x.z, 0);
+        matrix[1] = vec4(y.x, y.y, y.z, 0);
+        matrix[2] = vec4(z.x, z.y, z.z, 0);
+        matrix[3] = vec4(0, 0, 0, 1);
 
         bool condition = ((normal.x == 0) && (normal.y == 0) && (normal.z == 0));
 
         // TODO: Fix cube direction according to line curve
         if (!condition) {
-            (*scn_shapes)[cube_shape_index]->MyRotate(angle, normal, 0);
+            //(*scn_shapes)[cube_shape_index]->MyRotate(angle, normal, 0);
+
+            (*scn_shapes)[cube_shape_index]->SetRotate(matrix);
         }
-
-        vec4 move_vector = next_position - cube_center;
-
-        (*scn_shapes)[cube_shape_index]->MyTranslate(vec3(move_vector.x, move_vector.y, move_vector.z), 0);
     }
 }
 

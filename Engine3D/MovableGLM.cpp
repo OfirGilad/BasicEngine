@@ -51,19 +51,3 @@ void MovableGLM::ZeroTrans()
 	rot = glm::mat4(1);
 	scl = glm::mat4(1);
 }
-
-// New Functions
-glm::mat4 MovableGLM::GetTranslate()
-{
-	return trans;
-}
-
-glm::mat4 MovableGLM::GetRotate()
-{
-	return rot;
-}
-
-glm::mat4 MovableGLM::GetScale()
-{
-	return scl;
-}
