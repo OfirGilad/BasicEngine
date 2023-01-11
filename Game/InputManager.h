@@ -11,8 +11,8 @@
 			double x2,y2;
 			glfwGetCursorPos(window,&x2,&y2);
 
-			// If in Selection mode - Disable Picking
-			if (!scn->route_3D_bezier_1D.S_mode) {
+			// If S mode is on - Enable Picking
+			if (scn->route_3D_bezier_1D.S_mode) {
 				scn->Picking((int)x2, (int)y2);
 			}
 		}
@@ -79,27 +79,15 @@
 					else
 						scn->Activate();
 					break;
-				case GLFW_KEY_LEFT: // Rotate the Scene left.
+				case GLFW_KEY_LEFT: // Move to Previous left.
 					if (!scn->route_3D_bezier_1D.S_mode) {
-						scn->MyRotate(2.f, glm::vec3(0, 1, 0), 0);
-					}
-					else {
 						scn->SetPickedShape(scn->route_3D_bezier_1D.PreviousShape());
 					}
 					break;
 				case GLFW_KEY_RIGHT: // Rotate the Scene right.
 					if (!scn->route_3D_bezier_1D.S_mode) {
-						scn->MyRotate(-2.f, glm::vec3(0, 1, 0), 0);
-					}
-					else {
 						scn->SetPickedShape(scn->route_3D_bezier_1D.NextShape());
 					}
-					break;
-				case GLFW_KEY_UP: // Rotate the Scene up.
-					scn->MyRotate(2.f, glm::vec3(1, 0, 0), 0);
-					break;
-				case GLFW_KEY_DOWN: // Rotate the Scene down.
-					scn->MyRotate(-2.f, glm::vec3(1, 0, 0), 0);
 					break;
 				case GLFW_KEY_R: // 'R' moves the camera to the right.
 					scn->MoveCamera(0, scn->xTranslate, 0.4f);
@@ -129,15 +117,15 @@
 						scn->route_3D_bezier_1D.C_state = false;
 					}
 					break;
-				case GLFW_KEY_S: // Selection mode: Enable Picking with the arrow keys.
+				case GLFW_KEY_S: // Unpicked mode, when 'S' is pressed.In this mode the scene will move by moving the mouse(right button for translationand left button for rotation).
 					if (!scn->route_3D_bezier_1D.S_mode) {
-						cout << "Selection mode: On" << endl;
-						cout << "Warning: Picking mode is disabled!" << endl;
+						cout << "Unpicked mode: On" << endl;
+						cout << "Notice: Scene movement is enabled!" << endl;
 						scn->route_3D_bezier_1D.S_mode = true;
 					}
 					else {
-						cout << "Selection mode: Off" << endl;
-						cout << "Notice: Picking mode is enabled!" << endl;
+						cout << "Unpicked mode: Off" << endl;
+						cout << "Warning: Scene movement is disabled!" << endl;
 						scn->route_3D_bezier_1D.S_mode = false;
 					}
 					break;
@@ -155,6 +143,7 @@
 
 		// Translate a control point inside the camera plane
 		// When translating p_0 or p_3 the adjacent p_1 and p_2 will move as well. The curve will change appropriately.
+		// When the first control point is translated the cube will follow it (in case the cube is covering the control point)
 		if(glfwGetMouseButton(window,GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
 		{
 			scn->MouseProccessing(GLFW_MOUSE_BUTTON_RIGHT);

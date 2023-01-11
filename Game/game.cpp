@@ -107,23 +107,27 @@ void Game::MouseProccessing(int button)
 {
 	if (pickedShape == -1)
 	{
-		if (button == 1)
-		{
-			MyTranslate(glm::vec3(-GetXrel() / 20.0f, 0, 0), 0);
-			MyTranslate(glm::vec3(0, GetYrel() / 20.0f, 0), 0);
-			WhenTranslate();
-		}
-		else
-		{
-			MyRotate(GetXrel() / 2.0f, glm::vec3(0, 1, 0), 0);
-			MyRotate(GetYrel() / 2.0f, glm::vec3(1, 0, 0), 0);
+		// Disable scene translation and rotation when unpicked mode is active
+		if (route_3D_bezier_1D.S_mode) {
+			if (button == 1)
+			{
+				MyTranslate(glm::vec3(-GetXrel() / 20.0f, 0, 0), 0);
+				MyTranslate(glm::vec3(0, GetYrel() / 20.0f, 0), 0);
+				WhenTranslate();
+			}
+			else
+			{
+				MyRotate(GetXrel() / 2.0f, glm::vec3(0, 1, 0), 0);
+				MyRotate(GetYrel() / 2.0f, glm::vec3(1, 0, 0), 0);
 
-			WhenRotate();
+				WhenRotate();
+			}
 		}
 	}
 	else {
 		glm::mat4 rot_inverse = glm::inverse(GetRotate());
 
+		// Mouse Right Click
 		if (button == 1)
 		{
 			// If the point is part of the Bezier 1D line
@@ -153,6 +157,23 @@ void Game::MouseProccessing(int button)
 
 							shapes[pickedShape + 1]->MyTranslate(glm::vec3(trans_x.x, trans_x.y, trans_x.z), 0);
 							shapes[pickedShape + 1]->MyTranslate(glm::vec3(trans_y.x, trans_y.y, trans_y.z), 0);
+						}
+					}
+
+					// Check if the cube covers the first control point
+					if (pickedShape == route_3D_bezier_1D.first_point_index) {
+						glm::vec4 first_point = shapes[pickedShape]->GetTranslate()[3];
+						glm::vec4 cube = shapes[route_3D_bezier_1D.cube_shape_index]->GetTranslate()[3];
+						glm::vec4 cube_to_point = first_point - cube;
+
+						float cube_distance = sqrt(pow(cube_to_point.x, 2) + pow(cube_to_point.y, 2) + pow(cube_to_point.z, 2));
+
+						if (cube_distance < 1.f) {
+							// Translate the cube into the point position
+							shapes[route_3D_bezier_1D.cube_shape_index]->MyTranslate(glm::vec3(cube_to_point.x, cube_to_point.y, cube_to_point.z), 0);
+
+							shapes[route_3D_bezier_1D.cube_shape_index]->MyTranslate(glm::vec3(trans_x.x, trans_x.y, trans_x.z), 0);
+							shapes[route_3D_bezier_1D.cube_shape_index]->MyTranslate(glm::vec3(trans_y.x, trans_y.y, trans_y.z), 0);
 						}
 					}
 				}
@@ -207,6 +228,7 @@ void Game::MouseProccessing(int button)
 				shapes[pickedShape]->MyTranslate(glm::vec3(trans_y.x, trans_y.y, trans_y.z), 0);
 			}
 		}
+		// Mouse Left Click
 		else {
 			// If the point is part of the Bezier 1D line
 			if (pickedShape < route_3D_bezier_1D.cube_shape_index) {

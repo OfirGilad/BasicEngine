@@ -157,15 +157,15 @@ bool Route3DBezier1D::HasRight(int index) {
 
 int Route3DBezier1D::NextShape() {
     picked_shape_index++;
-    if (picked_shape_index > cube_shape_index) {
-        picked_shape_index = -1;
+    if (picked_shape_index > last_point_index) {
+        picked_shape_index = first_point_index;
     }
     return picked_shape_index;
 }
 int Route3DBezier1D::PreviousShape() {
     picked_shape_index--;
-    if (picked_shape_index < -1) {
-        picked_shape_index = cube_shape_index;
+    if (picked_shape_index < first_point_index) {
+        picked_shape_index = last_point_index;
     }
     return picked_shape_index;
 }
@@ -198,6 +198,7 @@ void Route3DBezier1D::NumberOfSegmentsToDisplay(int segNum) {
         }
     }
 
+    last_point_index = bezier_configs[config_num].size() - 1;
     UpdateCurveByShapes();
     bezier_1D->SetBezier1DMesh(bezier_1D->GetLine());
 }
