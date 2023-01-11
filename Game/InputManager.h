@@ -124,6 +124,7 @@
 						scn->route_3D_bezier_1D.S_mode = true;
 					}
 					else {
+						scn->SetPickedShape(scn->route_3D_bezier_1D.picked_shape_index);
 						cout << "Unpicked mode: Off" << endl;
 						cout << "Warning: Scene movement is disabled!" << endl;
 						scn->route_3D_bezier_1D.S_mode = false;
