@@ -40,7 +40,7 @@ void Route3DBezier1D::CreateRoute3DBezier1D(Scene* scn, int segNum, int res, int
 // TODO: The cube face should change according to the direction of the movement
 void Route3DBezier1D::AnimateCubeMovement(bool animate) {
     if (animate) {
-        vec3 velo1 = normalize(bezier_1D->GetVelosity(cube_segment, cube_t));
+        vec3 velocity_before = normalize(bezier_1D->GetVelosity(cube_segment, cube_t));
 
         if (forward_direction) {
             if (cube_t > 0.99f) {
@@ -78,10 +78,11 @@ void Route3DBezier1D::AnimateCubeMovement(bool animate) {
         (*scn_shapes)[cube_shape_index]->MyTranslate(vec3(move_vector.x, move_vector.y, move_vector.z), 0);
 
         // Rotation
-        vec3 velo2 = glm::normalize(bezier_1D->GetVelosity(cube_segment, cube_t));
-        float angle = glm::dot(velo1, velo2);
-        vec3 normal = glm::cross(velo1, velo2);
+        vec3 velocity_after = glm::normalize(bezier_1D->GetVelosity(cube_segment, cube_t));
+        float angle = glm::dot(velocity_before, velocity_after);
+        vec3 normal = glm::cross(velocity_before, velocity_after);
 
+        // Not working yet
         vec3 x = vec3(next_position.x, next_position.y, next_position.z);
         x = normalize(x);
         // x now points at target, unit length
@@ -102,9 +103,9 @@ void Route3DBezier1D::AnimateCubeMovement(bool animate) {
 
         // TODO: Fix cube direction according to line curve
         if (!condition) {
-            //(*scn_shapes)[cube_shape_index]->MyRotate(angle, normal, 0);
+            (*scn_shapes)[cube_shape_index]->MyRotate(angle/11.f, normal, 0);
 
-            (*scn_shapes)[cube_shape_index]->SetRotate(matrix);
+            //(*scn_shapes)[cube_shape_index]->SetRotate(matrix);
         }
     }
 }
