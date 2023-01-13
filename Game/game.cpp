@@ -131,10 +131,12 @@ void Game::MouseProccessing(int button)
 		// Mouse Right Click
 		if (button == 1)
 		{
-			// If the point is part of the Bezier 1D line
+			// Check if the point is part of the Bezier 1D line
 			if (pickedShape < route_3D_bezier_1D.cube_shape_index) {
+
+				// If the point is on curve enable translation
 				if (route_3D_bezier_1D.OnCurvePoint(pickedShape)) {
-					// Multiyply buy camera rotation
+					// Multiyply by camera rotation
 					glm::vec4 trans_x = rot_inverse * glm::vec4(z_buffer_result.x, 0, 0, 1);
 					glm::vec4 trans_y = rot_inverse * glm::vec4(0, z_buffer_result.y, 0, 1);
 
@@ -147,6 +149,7 @@ void Game::MouseProccessing(int button)
 					shapes[pickedShape]->MyTranslate(glm::vec3(trans_x.x, trans_x.y, trans_x.z), 0);
 					shapes[pickedShape]->MyTranslate(glm::vec3(trans_y.x, trans_y.y, trans_y.z), 0);
 
+					// If 'C' was pressed, move the two adjacent control points (If they are exists)
 					if (route_3D_bezier_1D.C_state == true) {
 						if (route_3D_bezier_1D.HasLeft(pickedShape)) {
 							//shapes[pickedShape - 1]->MyTranslate(glm::vec3(-GetXrel() / 20.0f, 0, 0), 0);
@@ -164,7 +167,8 @@ void Game::MouseProccessing(int button)
 						}
 					}
 
-					// Check if the cube covers the first control point
+					// Check if the cube covers the first control point 
+					// If yes, translate the cube as well
 					if (pickedShape == route_3D_bezier_1D.first_point_index) {
 						glm::vec4 first_point = shapes[pickedShape]->GetTranslate()[3];
 						glm::vec4 cube = shapes[route_3D_bezier_1D.cube_shape_index]->GetTranslate()[3];
@@ -182,6 +186,7 @@ void Game::MouseProccessing(int button)
 					}
 				}
 				else {
+					// If 'C' was pressed, move the point on the line created with the adjacent point
 					if (route_3D_bezier_1D.C_state == true) {
 						glm::vec4 center, line_with_center;
 						glm::vec4 control_point = shapes[pickedShape]->GetTranslate()[3];
@@ -204,8 +209,9 @@ void Game::MouseProccessing(int button)
 							shapes[pickedShape]->MyTranslate(float(GetYrel() / 20.0f) * movement_direction, 0);
 						}
 					}
+					// Enable point translation
 					else {
-						// Multiyply buy camera rotation
+						// Multiyply by camera rotation
 						glm::vec4 trans_x = rot_inverse * glm::vec4(z_buffer_result.x, 0, 0, 1);
 						glm::vec4 trans_y = rot_inverse * glm::vec4(0, z_buffer_result.y, 0, 1);
 
@@ -225,7 +231,7 @@ void Game::MouseProccessing(int button)
 			// If the cube was selected - Default case
 			// If the Bezier curve was selected - Do nothing
 			else if (pickedShape == route_3D_bezier_1D.cube_shape_index) {
-				// Multiyply buy camera rotation
+				// Multiyply by camera rotation
 				glm::vec4 trans_x = rot_inverse * glm::vec4(z_buffer_result.x, 0, 0, 1);
 				glm::vec4 trans_y = rot_inverse * glm::vec4(0, z_buffer_result.y, 0, 1);
 
@@ -241,8 +247,10 @@ void Game::MouseProccessing(int button)
 		}
 		// Mouse Left Click
 		else {
-			// If the point is part of the Bezier 1D line
+			// Check if the point is part of the Bezier 1D line
 			if (pickedShape < route_3D_bezier_1D.cube_shape_index) {
+
+				// Traslate the left point to be on the same line with the right point
 				if (route_3D_bezier_1D.OnCurvePoint(pickedShape)) {
 					if (route_3D_bezier_1D.HasLeft(pickedShape) && route_3D_bezier_1D.HasRight(pickedShape)) {
 						glm::vec4 center = shapes[pickedShape]->GetTranslate()[3];
@@ -264,6 +272,7 @@ void Game::MouseProccessing(int button)
 						shapes[pickedShape - 1]->MyTranslate(multiply_factor * glm::vec3(return_from_center.x, return_from_center.y, return_from_center.z), 0);
 					}
 				}
+				// Rotate the point around the nearby point on curve
 				else {
 					int xrel = GetXrel();
 					int yrel = GetYrel();
@@ -304,6 +313,7 @@ void Game::MouseProccessing(int button)
 					shapes[pickedShape]->MyRotate(-xrel / 2.0f, glm::vec3(rot.x, rot.y, rot.z), 0);
 					shapes[pickedShape]->MyRotate(-yrel / 2.0f, glm::vec3(rot.x, rot.y, rot.z), 0);
 
+					// If 'C' was pressed, maintain the angle between: this point, the adjacent point on curve and the second point adjacent to the point on curve
 					if (route_3D_bezier_1D.C_state == true) {
 						int second_control_index = pickedShape + c_state_second_control;
 
