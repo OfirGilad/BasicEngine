@@ -103,7 +103,7 @@ void Route3DBezier1D::AnimateCubeMovement(bool animate) {
 
         // TODO: Fix cube direction according to line curve
         if (!condition) {
-            (*scn_shapes)[cube_shape_index]->MyRotate(angle/11.f, normal, 0);
+            (*scn_shapes)[cube_shape_index]->MyRotate(angle/111.f, normal, 0);
 
             //(*scn_shapes)[cube_shape_index]->SetRotate(matrix);
         }
