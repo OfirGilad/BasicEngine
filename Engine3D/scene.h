@@ -64,12 +64,31 @@ public:
 	inline void SetShapeShader(int shpIndx,int shdrIndx){shapes[shpIndx]->SetShader(shdrIndx);} 
 
 	// New Functions
+	void MainParameters(int DISPLAY_WIDTH, int DISPLAY_HEIGHT, float CAMERA_ANGLE, float NEAR, float FAR) {
+		width = DISPLAY_WIDTH;
+		height = DISPLAY_WIDTH;
+		camera_angle = CAMERA_ANGLE;
+		camera_near = NEAR;
+		camera_far = FAR;
+	}
 	virtual std::vector<Shape*>* GetShapes() = 0;
 	virtual void AddBezier1DShape(Shape* bezier_1D_line, int parent) = 0;
 	virtual void MouseScrolling(glm::vec3 delta, int mode) = 0;
-	void SetPickedShape(int pickedShape) { this->pickedShape = pickedShape; }
+
+	glm::vec2 ZBufferConverter(float x, float y, int mode);
+
+	// Getters
 	inline int GetXrel() { return xrel; }
 	inline int GetYrel() { return yrel; }
+	inline float GetXPicked() { return x_picked; }
+	inline float GetYPicked() { return y_picked; }
+	inline int GetWidth() { return width; }
+	inline int GetHeight() { return height; }
+	
+	// Setters
+	void SetXPicked(float x_picked) { this->x_picked = x_picked; }
+	void SetYPicked(float y_picked) { this->y_picked = y_picked; }
+	void SetPickedShape(int pickedShape) { this->pickedShape = pickedShape; }
 
 private:	
 	
@@ -81,8 +100,9 @@ private:
 	void Clear(float r, float g, float b, float a);
 
 	// New Variables
-	int width = 800;
-	int height = 800;
+	int width, height;
+	float camera_angle, camera_near, camera_far;
+	float picked_depth, x_picked, y_picked;
 
 protected:
 	std::vector<Shape*> shapes;

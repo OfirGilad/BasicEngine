@@ -126,16 +126,20 @@ void Game::MouseProccessing(int button)
 	}
 	else {
 		glm::mat4 rot_inverse = glm::inverse(GetRotate());
+		vec2 z_buffer_result = ZBufferTranslation(-GetXrel(), GetYrel());
 
 		// Mouse Right Click
 		if (button == 1)
 		{
 			// If the point is part of the Bezier 1D line
-			if (pickedShape != route_3D_bezier_1D.cube_shape_index) {
+			if (pickedShape < route_3D_bezier_1D.cube_shape_index) {
 				if (route_3D_bezier_1D.OnCurvePoint(pickedShape)) {
 					// Multiyply buy camera rotation
-					glm::vec4 trans_x = rot_inverse * glm::vec4(-GetXrel() / 20.0f, 0, 0, 1);
-					glm::vec4 trans_y = rot_inverse * glm::vec4(0, GetYrel() / 20.0f, 0, 1);
+					glm::vec4 trans_x = rot_inverse * glm::vec4(z_buffer_result.x, 0, 0, 1);
+					glm::vec4 trans_y = rot_inverse * glm::vec4(0, z_buffer_result.y, 0, 1);
+
+					//glm::vec4 trans_x = rot_inverse * glm::vec4(-GetXrel() / 20.0f, 0, 0, 1);
+					//glm::vec4 trans_y = rot_inverse * glm::vec4(0, GetYrel() / 20.0f, 0, 1);
 
 					//shapes[pickedShape]->MyTranslate(glm::vec3(-GetXrel() / 20.0f, 0, 0), 0);
 					//shapes[pickedShape]->MyTranslate(glm::vec3(0, GetYrel() / 20.0f, 0), 0);
@@ -201,9 +205,12 @@ void Game::MouseProccessing(int button)
 						}
 					}
 					else {
-						// Multiyply by camera rotation
-						glm::vec4 trans_x = rot_inverse * glm::vec4(-GetXrel() / 20.0f, 0, 0, 1);
-						glm::vec4 trans_y = rot_inverse * glm::vec4(0, GetYrel() / 20.0f, 0, 1);
+						// Multiyply buy camera rotation
+						glm::vec4 trans_x = rot_inverse * glm::vec4(z_buffer_result.x, 0, 0, 1);
+						glm::vec4 trans_y = rot_inverse * glm::vec4(0, z_buffer_result.y, 0, 1);
+
+						//glm::vec4 trans_x = rot_inverse * glm::vec4(-GetXrel() / 20.0f, 0, 0, 1);
+						//glm::vec4 trans_y = rot_inverse * glm::vec4(0, GetYrel() / 20.0f, 0, 1);
 
 						//shapes[pickedShape]->MyTranslate(glm::vec3(-GetXrel() / 20.0f, 0, 0), 0);
 						//shapes[pickedShape]->MyTranslate(glm::vec3(0, GetYrel() / 20.0f, 0), 0);
@@ -212,14 +219,18 @@ void Game::MouseProccessing(int button)
 						shapes[pickedShape]->MyTranslate(glm::vec3(trans_y.x, trans_y.y, trans_y.z), 0);
 					}
 				}
+
 				route_3D_bezier_1D.UpdateCurveByShapes();
 			}
 			// If the cube was selected - Default case
 			// If the Bezier curve was selected - Do nothing
 			else if (pickedShape == route_3D_bezier_1D.cube_shape_index) {
-				// Multiyply by camera rotation
-				glm::vec4 trans_x = rot_inverse * glm::vec4(-GetXrel() / 20.0f, 0, 0, 1);
-				glm::vec4 trans_y = rot_inverse * glm::vec4(0, GetYrel() / 20.0f, 0, 1);
+				// Multiyply buy camera rotation
+				glm::vec4 trans_x = rot_inverse * glm::vec4(z_buffer_result.x, 0, 0, 1);
+				glm::vec4 trans_y = rot_inverse * glm::vec4(0, z_buffer_result.y, 0, 1);
+
+				//glm::vec4 trans_x = rot_inverse * glm::vec4(-GetXrel() / 20.0f, 0, 0, 1);
+				//glm::vec4 trans_y = rot_inverse * glm::vec4(0, GetYrel() / 20.0f, 0, 1);
 
 				//shapes[pickedShape]->MyTranslate(glm::vec3(-GetXrel() / 20.0f, 0, 0), 0);
 				//shapes[pickedShape]->MyTranslate(glm::vec3(0, GetYrel() / 20.0f, 0), 0);
@@ -338,4 +349,34 @@ void Game::MouseProccessing(int button)
 			}
 		}
 	}
+}
+
+glm::vec2 Game::ZBufferTranslation(float dx, float dy) {
+	glm::vec2 z_buffer_result;
+
+	// Get current position on screen
+	float x = GetXPicked();
+	float y = GetYPicked();
+
+	// Calcultae real position
+	z_buffer_result = ZBufferConverter(x, y, 0);
+	float x_new = z_buffer_result.x;
+	float y_new = z_buffer_result.y;
+
+	x += dx;
+	y += dy;
+
+	// Calcultae new real position
+	z_buffer_result = ZBufferConverter(x, y, 0);
+	float x_next = z_buffer_result.x;
+	float y_next = z_buffer_result.y;
+
+	SetXPicked(x);
+	SetYPicked(y);
+
+	// Calcultae translation to new position
+	float x_move = (x_next - x_new) / divide_factor * (float(GetWidth()) / float(GetHeight()));
+	float y_move = (y_next - y_new) / divide_factor;
+
+	return glm::vec2(x_move, y_move);
 }

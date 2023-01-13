@@ -12,7 +12,8 @@ int main(int argc,char *argv[])
 	const float FAR = 150.0f;
 
 	Game *scn = new Game(CAMERA_ANGLE,(float)DISPLAY_WIDTH/DISPLAY_HEIGHT,NEAR,FAR);
-	
+	scn->MainParameters(DISPLAY_WIDTH, DISPLAY_HEIGHT, CAMERA_ANGLE, NEAR, FAR);
+
 	Display display(DISPLAY_WIDTH, DISPLAY_HEIGHT, "OpenGL");
 	
 	Init(display);

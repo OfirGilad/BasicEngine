@@ -17,16 +17,21 @@ public:
 	~Game(void);
 
 	// New Functions
-	std::vector<Shape*>* GetShapes() override { return &shapes; }
 	void AddBezier1DShape(Shape* bezier_1D_line, int parent) override;
 	void MouseProccessing(int button) override;
 	void MouseScrolling(glm::vec3 delta, int mode) override;
 
+	// Getters
+	std::vector<Shape*>* GetShapes() override { return &shapes; }
+
+	// Bonus
+	vec2 ZBufferTranslation(float dx, float dy);
+
 	// New Variables
-    int segNum;
-    int res;
-    int mode;
-    int viewport;
+    int segNum, res, mode, viewport;
     Route3DBezier1D route_3D_bezier_1D;
+
+	// Bonus
+	float divide_factor = 2.4f;
 };
 
