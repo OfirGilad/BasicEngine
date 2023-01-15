@@ -78,10 +78,10 @@ void Route3DBezier1D::AnimateCubeMovement(bool animate) {
 
         // Rotation
         vec3 velocity_after = glm::normalize(bezier_1D->GetVelosity(cube_segment, cube_t));
-        float angle = glm::dot(velocity_before, velocity_after);
-        vec3 normal = glm::cross(velocity_before, velocity_after);
-
-        // Not working yet
+        //float angle = glm::dot(velocity_before, velocity_after);
+        //vec3 normal = glm::cross(velocity_before, velocity_after);
+        
+        // Not working yet - START
         vec3 x = vec3(next_position.x, next_position.y, next_position.z);
         x = normalize(x);
         // x now points at target, unit length
@@ -91,20 +91,37 @@ void Route3DBezier1D::AnimateCubeMovement(bool animate) {
         vec3 z = glm::cross(vec3(x.x, x.y, x.z), y);
         // z is now perpendicular to both x and y, and unit length
         z = normalize(z);
-        
+
         mat4 matrix;
         matrix[0] = vec4(x.x, x.y, x.z, 0);
         matrix[1] = vec4(y.x, y.y, y.z, 0);
         matrix[2] = vec4(z.x, z.y, z.z, 0);
         matrix[3] = vec4(0, 0, 0, 1);
-
-        bool condition = ((normal.x == 0) && (normal.y == 0) && (normal.z == 0));
+        // Not working yet - END
 
         // TODO: Fix cube direction according to line curve
-        if (!condition) {
-            (*scn_shapes)[cube_shape_index]->MyRotate(angle/111.f, normal, 0);
+        //bool condition = ((normal_up_down.x == 0) && (normal_up_down.y == 0) && (normal_up_down.z == 0));
+        //if (!condition) {
+        //    (*scn_shapes)[cube_shape_index]->MyRotate(angle / 111.f, normal, 0);
+        // 
+        //    //(*scn_shapes)[cube_shape_index]->SetRotate(matrix);
+        //}
 
-            //(*scn_shapes)[cube_shape_index]->SetRotate(matrix);
+        float angle_up_down = tanh(velocity_after.y / velocity_after.x);
+        float angle_left_right = tanh(velocity_after.z / velocity_after.y);
+
+        float delta = sqrt(pow(velocity_after.x, 2) + pow(velocity_after.y, 2) + pow(velocity_after.z, 2));
+        vec3 normal_up_down = vec3(0, 0, (velocity_before.x) / delta);
+        vec3 normal_left_right = vec3(0, velocity_before.y / delta, 0);
+
+        (*scn_shapes)[cube_shape_index]->SetRotate(mat4(1));
+
+        if (normal_up_down.z != 0) {
+            (*scn_shapes)[cube_shape_index]->MyRotate(angle_up_down * (180.f / 3.14f), normal_up_down, 0);
+        }
+
+        if (normal_left_right.y != 0) {
+            (*scn_shapes)[cube_shape_index]->MyRotate(angle_left_right * (180.f / 3.14f), normal_left_right, 0);
         }
     }
 }
