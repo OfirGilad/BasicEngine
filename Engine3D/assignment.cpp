@@ -12,7 +12,6 @@ Route3DBezier1D::Route3DBezier1D()
 {
 }
 
-// TODO: build 6 segments and display only 3
 // Building 3D route with by manipulating 1D Bezier curve
 void Route3DBezier1D::CreateRoute3DBezier1D(Scene* scn, int segNum, int res, int mode) {
     scn_shapes = scn->GetShapes();
@@ -183,6 +182,7 @@ void Route3DBezier1D::NumberOfSegmentsToDisplay(int segNum) {
     vec4 cube_old_position = (*scn_shapes)[cube_shape_index]->GetTranslate()[3];
     vec3 movement = cube_new_position - vec3(cube_old_position.x, cube_old_position.y, cube_old_position.z);
     (*scn_shapes)[cube_shape_index]->MyTranslate(movement, 0);
+    (*scn_shapes)[cube_shape_index]->SetRotate(mat4(1));
 
     for (int i = 0; i < number_of_octahedrons; i++) {
         if (i < bezier_configs[config_num].size()) {

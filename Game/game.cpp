@@ -182,6 +182,12 @@ void Game::MouseProccessing(int button)
 
 							shapes[route_3D_bezier_1D.cube_shape_index]->MyTranslate(glm::vec3(trans_x.x, trans_x.y, trans_x.z), 0);
 							shapes[route_3D_bezier_1D.cube_shape_index]->MyTranslate(glm::vec3(trans_y.x, trans_y.y, trans_y.z), 0);
+
+							// Reset cube position on the 1D Bezier line
+							route_3D_bezier_1D.cube_segment = 0;
+							route_3D_bezier_1D.cube_t = 0;
+
+							shapes[route_3D_bezier_1D.cube_shape_index]->SetRotate(mat4(1));
 						}
 					}
 				}
