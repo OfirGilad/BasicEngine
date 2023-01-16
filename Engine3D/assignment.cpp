@@ -107,12 +107,12 @@ void Route3DBezier1D::AnimateCubeMovement(bool animate) {
         //    //(*scn_shapes)[cube_shape_index]->SetRotate(matrix);
         //}
 
-        float angle_up_down = tanh(velocity_after.y / velocity_after.x);
-        float angle_left_right = tanh(velocity_after.z / velocity_after.y);
+        float angle_up_down = atan2(velocity_after.y, velocity_after.x);
+        float angle_left_right = atan2(velocity_after.z, velocity_after.x);
 
         float delta = sqrt(pow(velocity_after.x, 2) + pow(velocity_after.y, 2) + pow(velocity_after.z, 2));
         vec3 normal_up_down = vec3(0, 0, (velocity_before.x) / delta);
-        vec3 normal_left_right = vec3(0, velocity_before.y / delta, 0);
+        vec3 normal_left_right = vec3(0, -abs(velocity_before.z / delta), 0);
 
         (*scn_shapes)[cube_shape_index]->SetRotate(mat4(1));
 
