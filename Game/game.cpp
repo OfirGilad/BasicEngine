@@ -101,6 +101,28 @@ void Game::MouseScrolling(glm::vec3 delta, int mode)
 		shapes[pickedShape]->MyTranslate(glm::vec3(trans.x, trans.y, trans.z), mode);
 
 		route_3D_bezier_1D.UpdateCurveByShapes();
+
+		// If the picked shape is the first control point, check if the cube covers it
+		if (pickedShape == route_3D_bezier_1D.first_point_index) {
+			glm::vec4 first_point = shapes[pickedShape]->GetTranslate()[3];
+			glm::vec4 cube = shapes[route_3D_bezier_1D.cube_shape_index]->GetTranslate()[3];
+			glm::vec4 cube_to_point = first_point - cube;
+
+			float cube_distance = sqrt(pow(cube_to_point.x, 2) + pow(cube_to_point.y, 2) + pow(cube_to_point.z, 2));
+
+			if (cube_distance < 2.f) {
+				// Translate the cube into the point position
+				shapes[route_3D_bezier_1D.cube_shape_index]->MyTranslate(glm::vec3(cube_to_point.x, cube_to_point.y, cube_to_point.z), 0);
+
+				//shapes[route_3D_bezier_1D.cube_shape_index]->MyTranslate(glm::vec3(trans.x, trans.y, trans.z), 0);
+
+				// Reset cube position on the 1D Bezier line
+				route_3D_bezier_1D.cube_segment = 0;
+				route_3D_bezier_1D.cube_t = 0;
+
+				shapes[route_3D_bezier_1D.cube_shape_index]->SetRotate(mat4(1));
+			}
+		}
 	}
 }
 
