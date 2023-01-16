@@ -29,6 +29,7 @@ public:
 
 	// New Variables
     int segNum, res, mode, viewport;
+	float cube_movement_speed;
     Route3DBezier1D route_3D_bezier_1D;
 
 	// Bonus

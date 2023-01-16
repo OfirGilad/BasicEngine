@@ -24,8 +24,9 @@ void Route3DBezier1D::CreateRoute3DBezier1D(Scene* scn, int segNum, int res, int
     // Bezier 1D texture
     scn->AddTexture("../res/textures/grass.bmp", false);
 
-    bezier_1D = new Bezier1D(segNum, res, Scene::LINE_STRIP);
+    bezier_1D = new Bezier1D(segNum, res, mode);
 
+    // Initialize all the shapes
     BuildAllShapes(scn);
     NumberOfSegmentsToDisplay(segNum);
 
@@ -40,6 +41,7 @@ void Route3DBezier1D::CreateRoute3DBezier1D(Scene* scn, int segNum, int res, int
 void Route3DBezier1D::AnimateCubeMovement(bool animate) 
 {
     if (animate) {
+        // Cube Translation
         if (forward_direction) {
             if (cube_t > 0.99f) {
                 cube_segment++;
@@ -69,22 +71,18 @@ void Route3DBezier1D::AnimateCubeMovement(bool animate)
             }
         }
 
-        // Translation
         vec4 cube_center = (*scn_shapes)[cube_shape_index]->GetTranslate()[3];
         vec4 next_position = bezier_1D->GetPointOnCurve(cube_segment, cube_t);
         vec4 move_vector = next_position - cube_center;
         (*scn_shapes)[cube_shape_index]->MyTranslate(vec3(move_vector.x, move_vector.y, move_vector.z), 0);
 
-        // Rotation
+        // Cube Rotation
         vec3 current_velocity = glm::normalize(bezier_1D->GetVelosity(cube_segment, cube_t));
-
         float angle_up_down = atan2(current_velocity.y, current_velocity.x);
         float angle_left_right = -abs(atan2(current_velocity.z, current_velocity.x));
-
         float delta = sqrt(pow(current_velocity.x, 2) + pow(current_velocity.y, 2) + pow(current_velocity.z, 2));
         vec3 normal_up_down = vec3(0, 0, (current_velocity.x) / delta);
         vec3 normal_left_right = vec3(0, current_velocity.z / delta, 0);
-
         (*scn_shapes)[cube_shape_index]->SetRotate(mat4(1));
 
         if (normal_up_down.z != 0) {
@@ -99,6 +97,7 @@ void Route3DBezier1D::AnimateCubeMovement(bool animate)
 
 void Route3DBezier1D::UpdateCurveByShapes() 
 {
+    // Go over all the control points and get their positions from the octahedrons
     vec4 p0 = (*scn_shapes)[0]->GetTranslate()[3];
     vec4 p1 = (*scn_shapes)[1]->GetTranslate()[3];
     vec4 p2 = (*scn_shapes)[2]->GetTranslate()[3];

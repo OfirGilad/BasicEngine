@@ -42,7 +42,7 @@ public:
     bool forward_direction = true;
     int cube_segment = 0;
     float cube_t = 0;
-    float cube_step_size = 0.00005;
+    float cube_step_size; // Get value from main.cpp
 
     // Picking (With arrows)
     bool S_mode = false;
