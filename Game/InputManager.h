@@ -72,10 +72,12 @@
 					scn->route_3D_bezier_1D.NumberOfSegmentsToDisplay(6);
 					break;
 				case GLFW_KEY_SPACE: // ‘Space’ will start animation where the cube moves along the Bezier curve forwardand backward.
-					if(scn->IsActive())
+					if (scn->IsActive()) {
 						scn->Deactivate();
-					else
+					}
+					else {
 						scn->Activate();
+					}
 					break;
 				case GLFW_KEY_LEFT: // Move to Previous left.
 					if (!scn->route_3D_bezier_1D.S_mode) {

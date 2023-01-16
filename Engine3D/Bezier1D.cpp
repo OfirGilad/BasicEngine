@@ -93,21 +93,6 @@ glm::vec3 Bezier1D::GetVelosity(int segment, float t) const
     return glm::vec3(db_t.x, db_t.y, db_t.z);
 }
 
-void Bezier1D::SplitSegment(int segment, float t)
-{
-
-}
-
-void Bezier1D::CurveUpdate(int pointIndx, float dx, float dy, bool preserveC1)
-{
-
-}
-
-void Bezier1D::ResetCurve(int segNum)
-{
-
-}
-
 void Bezier1D::AddFirstSegment(glm::vec4 p0, glm::vec4 p1, glm::vec4 p2, glm::vec4 p3) {
     segments.clear();
     segments.push_back(glm::mat4(p0, p1, p2, p3));
@@ -135,7 +120,18 @@ float Bezier1D::MoveControlPoint(int segment, int indx, float dx,float dy,bool p
     return 0; //not suppose to reach here
 }
 
+void Bezier1D::SplitSegment(int segment, float t)
+{
+}
+
+void Bezier1D::CurveUpdate(int pointIndx, float dx, float dy, bool preserveC1)
+{
+}
+
+void Bezier1D::ResetCurve(int segNum)
+{
+}
+
 Bezier1D::~Bezier1D(void)
 {
-
 }

@@ -13,7 +13,8 @@ Route3DBezier1D::Route3DBezier1D()
 }
 
 // Building 3D route with by manipulating 1D Bezier curve
-void Route3DBezier1D::CreateRoute3DBezier1D(Scene* scn, int segNum, int res, int mode) {
+void Route3DBezier1D::CreateRoute3DBezier1D(Scene* scn, int segNum, int res, int mode) 
+{
     scn_shapes = scn->GetShapes();
     int shape_index = 0;
 
@@ -36,11 +37,9 @@ void Route3DBezier1D::CreateRoute3DBezier1D(Scene* scn, int segNum, int res, int
     scn->MoveCamera(0, Scene::zTranslate, 50);
 }
 
-// TODO: The cube face should change according to the direction of the movement
-void Route3DBezier1D::AnimateCubeMovement(bool animate) {
+void Route3DBezier1D::AnimateCubeMovement(bool animate) 
+{
     if (animate) {
-        vec3 velocity_before = normalize(bezier_1D->GetVelosity(cube_segment, cube_t));
-
         if (forward_direction) {
             if (cube_t > 0.99f) {
                 cube_segment++;
@@ -77,42 +76,14 @@ void Route3DBezier1D::AnimateCubeMovement(bool animate) {
         (*scn_shapes)[cube_shape_index]->MyTranslate(vec3(move_vector.x, move_vector.y, move_vector.z), 0);
 
         // Rotation
-        vec3 velocity_after = glm::normalize(bezier_1D->GetVelosity(cube_segment, cube_t));
-        //float angle = glm::dot(velocity_before, velocity_after);
-        //vec3 normal = glm::cross(velocity_before, velocity_after);
-        
-        // Not working yet - START
-        vec3 x = vec3(next_position.x, next_position.y, next_position.z);
-        x = normalize(x);
-        // x now points at target, unit length
-        vec3 y = glm::cross(vec3(0, 0, 1), vec3(x.x, x.y, x.z));
-        y = normalize(y);
-        // y is now perpendicular to x, unit length
-        vec3 z = glm::cross(vec3(x.x, x.y, x.z), y);
-        // z is now perpendicular to both x and y, and unit length
-        z = normalize(z);
+        vec3 current_velocity = glm::normalize(bezier_1D->GetVelosity(cube_segment, cube_t));
 
-        mat4 matrix;
-        matrix[0] = vec4(x.x, x.y, x.z, 0);
-        matrix[1] = vec4(y.x, y.y, y.z, 0);
-        matrix[2] = vec4(z.x, z.y, z.z, 0);
-        matrix[3] = vec4(0, 0, 0, 1);
-        // Not working yet - END
+        float angle_up_down = atan2(current_velocity.y, current_velocity.x);
+        float angle_left_right = -abs(atan2(current_velocity.z, current_velocity.x));
 
-        // TODO: Fix cube direction according to line curve
-        //bool condition = ((normal_up_down.x == 0) && (normal_up_down.y == 0) && (normal_up_down.z == 0));
-        //if (!condition) {
-        //    (*scn_shapes)[cube_shape_index]->MyRotate(angle / 111.f, normal, 0);
-        // 
-        //    //(*scn_shapes)[cube_shape_index]->SetRotate(matrix);
-        //}
-
-        float angle_up_down = atan2(velocity_after.y, velocity_after.x);
-        float angle_left_right = atan2(velocity_after.z, velocity_after.x);
-
-        float delta = sqrt(pow(velocity_after.x, 2) + pow(velocity_after.y, 2) + pow(velocity_after.z, 2));
-        vec3 normal_up_down = vec3(0, 0, (velocity_before.x) / delta);
-        vec3 normal_left_right = vec3(0, -abs(velocity_before.z / delta), 0);
+        float delta = sqrt(pow(current_velocity.x, 2) + pow(current_velocity.y, 2) + pow(current_velocity.z, 2));
+        vec3 normal_up_down = vec3(0, 0, (current_velocity.x) / delta);
+        vec3 normal_left_right = vec3(0, current_velocity.z / delta, 0);
 
         (*scn_shapes)[cube_shape_index]->SetRotate(mat4(1));
 
@@ -126,7 +97,8 @@ void Route3DBezier1D::AnimateCubeMovement(bool animate) {
     }
 }
 
-void Route3DBezier1D::UpdateCurveByShapes() {
+void Route3DBezier1D::UpdateCurveByShapes() 
+{
     vec4 p0 = (*scn_shapes)[0]->GetTranslate()[3];
     vec4 p1 = (*scn_shapes)[1]->GetTranslate()[3];
     vec4 p2 = (*scn_shapes)[2]->GetTranslate()[3];
@@ -145,7 +117,8 @@ void Route3DBezier1D::UpdateCurveByShapes() {
     bezier_1D->SetBezier1DMesh(bezier_1D->GetLine());
 }
 
-bool Route3DBezier1D::OnCurvePoint(int index) {
+bool Route3DBezier1D::OnCurvePoint(int index) 
+{
     if (index % 3 == 0) {
         return true;
     }
@@ -154,7 +127,8 @@ bool Route3DBezier1D::OnCurvePoint(int index) {
     }
 }
 
-bool Route3DBezier1D::HasLeft(int index) {
+bool Route3DBezier1D::HasLeft(int index) 
+{
     if (index > first_point_index) {
         return true;
     }
@@ -163,7 +137,8 @@ bool Route3DBezier1D::HasLeft(int index) {
     }
 }
 
-bool Route3DBezier1D::HasRight(int index) {
+bool Route3DBezier1D::HasRight(int index) 
+{
     if (index < last_point_index) {
         return true;
     }
@@ -172,14 +147,17 @@ bool Route3DBezier1D::HasRight(int index) {
     }
 }
 
-int Route3DBezier1D::NextShape() {
+int Route3DBezier1D::NextShape() 
+{
     picked_shape_index++;
     if (picked_shape_index > last_point_index) {
         picked_shape_index = first_point_index;
     }
     return picked_shape_index;
 }
-int Route3DBezier1D::PreviousShape() {
+
+int Route3DBezier1D::PreviousShape() 
+{
     picked_shape_index--;
     if (picked_shape_index < first_point_index) {
         picked_shape_index = last_point_index;
@@ -187,12 +165,13 @@ int Route3DBezier1D::PreviousShape() {
     return picked_shape_index;
 }
 
-void Route3DBezier1D::NumberOfSegmentsToDisplay(int segNum) {
+void Route3DBezier1D::NumberOfSegmentsToDisplay(int segNum) 
+{
     int res = ((bezier_1D->GetResT() - 1) / bezier_1D->GetSegmentsNum() * segNum) + 1;
-    bezier_1D->SetSegmentsNum(segNum);
-    bezier_1D->SetResT(res);
-
     int config_num = segNum - 2;
+
+    bezier_1D->SetResT(res);
+    bezier_1D->SetSegmentsNum(segNum);
 
     // Reset Cube position
     vec3 cube_new_position = bezier_configs[config_num][0];
@@ -221,7 +200,8 @@ void Route3DBezier1D::NumberOfSegmentsToDisplay(int segNum) {
     bezier_1D->SetBezier1DMesh(bezier_1D->GetLine());
 }
 
-void Route3DBezier1D::BuildAllShapes(Scene* scn) {
+void Route3DBezier1D::BuildAllShapes(Scene* scn) 
+{
     int shape_index = 0;
     first_point_index = shape_index;
 
@@ -245,8 +225,9 @@ void Route3DBezier1D::BuildAllShapes(Scene* scn) {
     vec4 zero_vector = vec4(0, 0, 0, 0);
     bezier_1D->AddFirstSegment(zero_vector, zero_vector, zero_vector, zero_vector);
 
-    for (int i = 4; i < number_of_octahedrons; i += 3)
+    for (int i = 4; i < number_of_octahedrons; i += 3) {
         bezier_1D->AddSegment(zero_vector, zero_vector, zero_vector);
+    }
 
     // Configurations
     std::vector<glm::vec3> config2;
@@ -312,11 +293,9 @@ void Route3DBezier1D::BuildAllShapes(Scene* scn) {
     config6[0] = vec3(-33, -9, 0);
     config6[1] = vec3(-33, -3, 0);
     config6[2] = vec3(-30, 0, 0);
-
     config6[3] = vec3(-24, 0, 0);
     config6[4] = vec3(-21, 0, 0);
     config6[5] = vec3(-15, 0, 0);
-
     config6[6] = vec3(-12, 0, 0);
     config6[7] = vec3(-9, 0, 0);
     config6[8] = vec3(-3, 0, 0);
@@ -324,11 +303,9 @@ void Route3DBezier1D::BuildAllShapes(Scene* scn) {
     config6[10] = vec3(3, 0, 0);
     config6[11] = vec3(9, 0, 0);
     config6[12] = vec3(12, 0, 0);
-
     config6[13] = vec3(15, 0, 0);
     config6[14] = vec3(21, 0, 0);
     config6[15] = vec3(24, 0, 0);
-
     config6[16] = vec3(30, 0, 0);
     config6[17] = vec3(33, -3, 0);
     config6[18] = vec3(33, -9, 0);

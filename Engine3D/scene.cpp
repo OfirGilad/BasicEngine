@@ -284,7 +284,7 @@
 			delete tex;
 		}
 
-} 
+	} 
 
 	// New Functions
 	glm::vec2 Scene::ZBufferConverter(float x, float y, int mode) {
