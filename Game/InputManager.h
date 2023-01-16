@@ -23,8 +23,6 @@
 		Game *scn = (Game*)glfwGetWindowUserPointer(window);
 		//scn->MyTranslate(glm::vec3(0,0,xoffset),0);
 
-		//scn->MyTranslate(glm::vec3(0, 0, yoffset), 0);
-
 		scn->MouseScrolling(glm::vec3(0, 0, yoffset), 0);
 	}
 	
@@ -107,7 +105,7 @@
 				case GLFW_KEY_F: // 'F' moves the camera forward.
 					scn->MoveCamera(0, scn->zTranslate, -0.4f);
 					break;
-				case GLFW_KEY_C: // Continuity state: begins and ends when the user presses ‘C’.
+				case GLFW_KEY_C: // Continuity state: begins and ends when the user presses ‘C’. In this state the angle created by p_2, p_3 and p_1 the next segment must be conserved.
 					if (!scn->route_3D_bezier_1D.C_state) {
 						cout << "Continuity state: On" << endl;
 						scn->route_3D_bezier_1D.C_state = true;
@@ -143,13 +141,13 @@
 		scn->UpdatePosition((float)xpos,(float)ypos);
 
 		// Translate a control point inside the camera plane
-		// When translating p_0 or p_3 the adjacent p_1 and p_2 will move as well. The curve will change appropriately.
 		// When the first control point is translated the cube will follow it (in case the cube is covering the control point)
 		if(glfwGetMouseButton(window,GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
 		{
 			scn->MouseProccessing(GLFW_MOUSE_BUTTON_RIGHT);
 		}
 		// Rotate a control point that doesn’t locate on the curve (p_1, p_2) around the adjacent control point on the curve (p_0, p_3).
+		// If the user presses on control points p_0 with the left mouse button it will cause p_2 of the previous Bezier path, to be on the same line of p_0 and p_1.
 		else if(glfwGetMouseButton(window,GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
 		{
 			scn->MouseProccessing(GLFW_MOUSE_BUTTON_LEFT);
