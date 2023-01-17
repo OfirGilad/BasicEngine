@@ -164,16 +164,14 @@ void Game::MouseProccessing(int button)
 					shapes[pickedShape]->MyTranslate(glm::vec3(trans_x.x, trans_x.y, trans_x.z), 0);
 					shapes[pickedShape]->MyTranslate(glm::vec3(trans_y.x, trans_y.y, trans_y.z), 0);
 
-					// If 'C' was pressed, move the two adjacent control points (If they are exists)
-					if (route_3D_bezier_1D.C_state == true) {
-						if (route_3D_bezier_1D.HasLeft(pickedShape)) {
-							shapes[pickedShape - 1]->MyTranslate(glm::vec3(trans_x.x, trans_x.y, trans_x.z), 0);
-							shapes[pickedShape - 1]->MyTranslate(glm::vec3(trans_y.x, trans_y.y, trans_y.z), 0);
-						}
-						if (route_3D_bezier_1D.HasRight(pickedShape)) {
-							shapes[pickedShape + 1]->MyTranslate(glm::vec3(trans_x.x, trans_x.y, trans_x.z), 0);
-							shapes[pickedShape + 1]->MyTranslate(glm::vec3(trans_y.x, trans_y.y, trans_y.z), 0);
-						}
+					// Move the two adjacent control points (If they are exists)
+					if (route_3D_bezier_1D.HasLeft(pickedShape)) {
+						shapes[pickedShape - 1]->MyTranslate(glm::vec3(trans_x.x, trans_x.y, trans_x.z), 0);
+						shapes[pickedShape - 1]->MyTranslate(glm::vec3(trans_y.x, trans_y.y, trans_y.z), 0);
+					}
+					if (route_3D_bezier_1D.HasRight(pickedShape)) {
+						shapes[pickedShape + 1]->MyTranslate(glm::vec3(trans_x.x, trans_x.y, trans_x.z), 0);
+						shapes[pickedShape + 1]->MyTranslate(glm::vec3(trans_y.x, trans_y.y, trans_y.z), 0);
 					}
 
 					// Check if the cube covers the first control point 
