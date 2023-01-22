@@ -75,9 +75,9 @@ float Plane::Intersect(Ray ray) {
 	float vy = ray.direction.y;
 	float vz = ray.direction.z;
 
-	float ans = -(a * x0 + b * y0 + c * z0 + d) / (a * vx + b * vy + c * vz);
+	float answer = -(a * x0 + b * y0 + c * z0 + d) / (a * vx + b * vy + c * vz);
 
-	return ans;
+	return answer;
 }
 
 vec3 Plane::getColor(vec3 hitPoint) {
