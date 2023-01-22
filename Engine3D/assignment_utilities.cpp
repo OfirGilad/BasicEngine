@@ -61,10 +61,12 @@ float Plane::d() {
 }
 
 float Plane::Intersect(Ray ray) {
-	vec3 planeNormal = this->normal();
+	vec3 plane_normal = this->normal();
 	float d = this->d();
+    float answer = -1;
 
-	float answer = -(dot(ray.origin, planeNormal) + d) / dot(ray.direction, planeNormal);
+    if (dot(ray.direction, plane_normal) != 0.0f)
+        answer = -(dot(ray.origin, plane_normal) + d) / dot(ray.direction, plane_normal);
 
 	return answer;
 }
