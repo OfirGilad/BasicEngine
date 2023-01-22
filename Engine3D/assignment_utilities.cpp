@@ -62,20 +62,9 @@ float Plane::d() {
 
 float Plane::Intersect(Ray ray) {
 	vec3 planeNormal = this->normal();
-	float a = planeNormal.x;
-	float b = planeNormal.y;
-	float c = planeNormal.z;
 	float d = this->d();
 
-	float x0 = ray.origin.x;
-	float y0 = ray.origin.y;
-	float z0 = ray.origin.z;
-
-	float vx = ray.direction.x;
-	float vy = ray.direction.y;
-	float vz = ray.direction.z;
-
-	float answer = -(a * x0 + b * y0 + c * z0 + d) / (a * vx + b * vy + c * vz);
+	float answer = -(dot(ray.origin, planeNormal) + d) / dot(ray.direction, planeNormal);
 
 	return answer;
 }
