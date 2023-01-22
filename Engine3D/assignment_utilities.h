@@ -11,7 +11,6 @@ vec3 normalizedVector(vec3 vec);
 //---------------------------------  Image  ----------------------------------------
 
 class Image {
-
 public:
 	// Methods
 	Image(int width, int height);
@@ -22,7 +21,6 @@ public:
 	unsigned char* data;
 	int width;
 	int height;
-
 };
 
 //---------------------------------  Ray  -----------------------------------------------
@@ -30,11 +28,11 @@ public:
 class Ray {
 public:
 	// Methods
-	Ray(vec3 direction, vec3 position);
+	Ray(vec3 direction, vec3 origin);
 
 	// Variables
 	vec3 direction;
-	vec3 position;
+	vec3 origin;
 };
 
 //---------------------------------  SceneObject  ---------------------------------------
@@ -58,16 +56,13 @@ public:
 	ObjectType object_type;
 	vec4 details;
 	vec3 rgb_color;
-	float shiness;
+	float shininess;
 	int object_index;
-
-	
 };
 
 //---------------------------------  Plane  ---------------------------------------------
 
 class Plane : public SceneObject {
-
 public:
 	// Methods
 	Plane(vec4 details, ObjectType object_type);
@@ -81,7 +76,6 @@ public:
 //---------------------------------  Sphere  --------------------------------------------
 
 class Sphere : public SceneObject {
-
 public:
 	// Methods
 	Sphere(vec4 details, ObjectType object_type);
@@ -95,7 +89,6 @@ public:
 //---------------------------------  Hit  -----------------------------------------------
 
 class Hit {
-
 public:
 	// Methods
 	Hit(vec3 hit_point, SceneObject* scene_object);
@@ -123,7 +116,7 @@ public:
 	vec3 position;
 	float cos_angle;
 	vec3 rgb_intensity;
-	float shiness;
+	float shininess;
 };
 
 //---------------------------------  DirectionalLight  ----------------------------------

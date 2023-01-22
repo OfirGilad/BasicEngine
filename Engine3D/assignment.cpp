@@ -4,7 +4,6 @@
 #include <string>
 #include <vector>
 #include <sstream>
-#include "../Game/game.h"
 #include "assignment_utilities.h"
 
 using namespace std;
@@ -208,9 +207,9 @@ Hit SceneData::FindIntersection(Ray ray, int ignore_object_index) {
     }
 
     // Returning result
-    Hit hit = Hit(ray.position + ray.direction, min_primitive);
+    Hit hit = Hit(ray.origin + ray.direction, min_primitive);
     if (got_hit) {
-        hit = Hit(ray.position + ray.direction * min_t, min_primitive);
+        hit = Hit(ray.origin + ray.direction * min_t, min_primitive);
     }
     return hit;
 }
@@ -292,9 +291,9 @@ vec4 SceneData::GetColor(Ray ray, Hit hit, int depth) {
             float cos_to = cos(theta_to * (pi / 180.0f));
 
             // Finding the second hit inside the sphere
-            vec3 ray_in_driection = (snell_frac * cos_from - cos_to) * hit.scene_object->getNormal(hit.hit_point) - snell_frac * (-ray.direction);
-            ray_in_driection = normalizedVector(ray_in_driection);
-            Ray ray_in = Ray(ray_in_driection, hit.hit_point);
+            vec3 ray_in_direction = (snell_frac * cos_from - cos_to) * hit.scene_object->getNormal(hit.hit_point) - snell_frac * (-ray.direction);
+            ray_in_direction = normalizedVector(ray_in_direction);
+            Ray ray_in = Ray(ray_in_direction, hit.hit_point);
 
             Hit transparency_hit = FindIntersection(ray_in, -1);
 
@@ -305,7 +304,7 @@ vec4 SceneData::GetColor(Ray ray, Hit hit, int depth) {
             // Second hit inside the sphere to outside
             else {
                 float t = hit.scene_object->Intersect(ray_in);
-                vec3 second_hit_point = ray_in.position + ray_in.direction * t;
+                vec3 second_hit_point = ray_in.origin + ray_in.direction * t;
 
                 // Reverse calculations
                 cos_from = dot(-hit.scene_object->getNormal(second_hit_point), -ray_in.direction);
@@ -341,7 +340,7 @@ vec4 SceneData::GetColor(Ray ray, Hit hit, int depth) {
 }
 
 vec3 SceneData::calcDiffuseColor(Hit hit, Light* light) {
-    // Planes normals are in the opsite direction to the viewer than Spheres
+    // Planes normals are in the opposite direction to the viewer than Spheres
     float object_factor = 1;
     if (hit.scene_object->details.w < 0.0) {
         object_factor = -1;
@@ -390,19 +389,19 @@ vec3 SceneData::calcSpecularColor(Ray ray, Hit hit, Light* light) {
     }
     vec3 object_normal = hit.scene_object->getNormal(hit.hit_point);
     vec3 reflected_light_ray = normalized_ray_direction - 2.0f * object_normal * dot(normalized_ray_direction, object_normal);
-    vec3 ray_to_viewer = normalizedVector(ray.position - hit.hit_point);
+    vec3 ray_to_viewer = normalizedVector(ray.origin - hit.hit_point);
 
     // V^*R^ = max(0, V^*R^)
     float hit_cos_value = dot(ray_to_viewer, reflected_light_ray);
     hit_cos_value = glm::max(0.0f, hit_cos_value);
 
     // (V^*R^)^n
-    hit_cos_value = pow(hit_cos_value, hit.scene_object->shiness);
+    hit_cos_value = pow(hit_cos_value, hit.scene_object->shininess);
 
     // Id = Ks*(V^*R^)^n*Il
     // Ks = (0.7, 0.7, 0.7)
-    vec3 speculat_color = 0.7f * hit_cos_value * light->rgb_intensity;
-    return speculat_color;
+    vec3 specular_color = 0.7f * hit_cos_value * light->rgb_intensity;
+    return specular_color;
 }
 
 float SceneData::calcShadowTerm(Hit hit, Light* light) {

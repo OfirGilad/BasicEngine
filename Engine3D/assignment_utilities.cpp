@@ -38,7 +38,7 @@ unsigned char* Image::getData() {
 
 void SceneObject::setColor(vec4 color) {
 	this->rgb_color = vec3(color.r, color.g, color.b);
-	this->shiness = color.a;
+	this->shininess = color.a;
 }
 
 //---------------------------------  Plane  -------------------------------------------
@@ -67,36 +67,36 @@ float Plane::Intersect(Ray ray) {
 	float c = planeNormal.z;
 	float d = this->d();
 
-	float x0 = ray.position.x;
-	float y0 = ray.position.y;
-	float z0 = ray.position.z;
+	float x0 = ray.origin.x;
+	float y0 = ray.origin.y;
+	float z0 = ray.origin.z;
 
-	float vecx = ray.direction.x;
-	float vecy = ray.direction.y;
-	float vecz = ray.direction.z;
+	float vx = ray.direction.x;
+	float vy = ray.direction.y;
+	float vz = ray.direction.z;
 
-	float ans = -(a * x0 + b * y0 + c * z0 + d) / (a * vecx + b * vecy + c * vecz); 
+	float ans = -(a * x0 + b * y0 + c * z0 + d) / (a * vx + b * vy + c * vz);
 
 	return ans;
 }
 
 vec3 Plane::getColor(vec3 hitPoint) {
 	// Checkerboard pattern
-	float scaler_parameter = 0.5f;
+	float scale_parameter = 0.5f;
 	float chessboard = 0;
 
 	if (hitPoint.x < 0) {
-		chessboard += floor((0.5 - hitPoint.x) / scaler_parameter);
+		chessboard += floor((0.5 - hitPoint.x) / scale_parameter);
 	}
 	else {
-		chessboard += floor(hitPoint.x / scaler_parameter);
+		chessboard += floor(hitPoint.x / scale_parameter);
 	}
 
 	if (hitPoint.y < 0) {
-		chessboard += floor((0.5 - hitPoint.y) / scaler_parameter);
+		chessboard += floor((0.5 - hitPoint.y) / scale_parameter);
 	}
 	else {
-		chessboard += floor(hitPoint.y / scaler_parameter);
+		chessboard += floor(hitPoint.y / scale_parameter);
 	}
 
 	chessboard = (chessboard * 0.5) - int(chessboard * 0.5);
@@ -132,26 +132,15 @@ float Sphere::radius() {
 
 float Sphere::Intersect(Ray ray) {
 	vec3 center = this->center();
-	float mx = center.x;
-	float my = center.y;
-	float mz = center.z;
 	float radius = this->radius();
 
-	float x0 = ray.position.x;
-	float y0 = ray.position.y;
-	float z0 = ray.position.z;
-
-	float vecx = ray.direction.x;
-	float vecy = ray.direction.y;
-	float vecz = ray.direction.z;
-
-	vec3 pointMinusCenterVec = ray.position - center;
+	vec3 L = ray.origin - center;
 
 	//quadratic = vec3(t^2, t, 1)
 	vec3 quadratic = vec3(
-		1, //pow(vecx, 2) + pow(vecy, 2) + pow(vecz, 2) == 1 (ray is normalized)
-		2 * dot(ray.direction, pointMinusCenterVec),
-		dot(pointMinusCenterVec, pointMinusCenterVec) - pow(radius, 2)
+		1, //pow(ray.direction.x, 2) + pow(ray.direction.y, 2) + pow(ray.direction.z, 2) == 1 (ray is normalized)
+		2 * dot(ray.direction, L),
+		dot(L, L) - pow(radius, 2)
 	);
 
 	float delta = pow(quadratic.y, 2) - 4 * quadratic.x * quadratic.z; // b^2-4*a*c
@@ -160,14 +149,14 @@ float Sphere::Intersect(Ray ray) {
 		return INFINITY;
 
 	float root = sqrt(delta);
-	float ans1 = (-quadratic.y + root) / (2 * quadratic.x); // (-b + root) / 2*a
-	float ans2 = (-quadratic.y - root) / (2 * quadratic.x); // (-b - root) / 2*a
-	float result = glm::min(ans1, ans2);
+	float answer_1 = (-quadratic.y + root) / (2 * quadratic.x); // (-b + root) / 2*a
+	float answer_2 = (-quadratic.y - root) / (2 * quadratic.x); // (-b - root) / 2*a
+	float result = glm::min(answer_1, answer_2);
 
-	// In case of Transperant spheres
+	// In case of Transparent spheres
 	float threshold = 0.001f;
 	if (result <= threshold) {
-		result = glm::max(ans1, ans2);
+		result = glm::max(answer_1, answer_2);
 	}
 
 	return result;
@@ -191,7 +180,7 @@ Hit::Hit(vec3 hit_point, SceneObject* scene_object) {
 
 void Light::setIntensity(vec4 intensity) {
 	this->rgb_intensity = vec3(intensity.r, intensity.g, intensity.b);
-	this->shiness = intensity.a;
+	this->shininess = intensity.a;
 }
 
 //---------------------------  DirectionalLight  --------------------------------------
@@ -210,7 +199,7 @@ SpotLight::SpotLight(vec3 direction) {
 
 //------------------------------  Ray  ------------------------------------------
 
-Ray::Ray(vec3 direction, vec3 position) {
+Ray::Ray(vec3 direction, vec3 origin) {
 	this->direction = direction;
-	this->position = position;
+	this->origin = origin;
 }

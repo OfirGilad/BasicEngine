@@ -8,8 +8,7 @@
 using namespace std;
 using namespace glm;
 
-class SceneData
-{
+class SceneData {
 public:
 	// Methods
 	SceneData(string file_name, int width, int height);
