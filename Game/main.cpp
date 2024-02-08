@@ -23,11 +23,12 @@ int main(int argc,char *argv[])
 	int width, height, numComponents;
 	unsigned char* data0 = stbi_load("../lena256.jpg", &width, &height, &numComponents, 4);
 	
-	// Canny Edge Detection
+	// Canny Edge Detector
+	//unsigned char* data1 = Canny_Edge_Detector_Improved(data0, width, height);
 	unsigned char* data1 = Canny_Edge_Detector(data0, width, height);
 	
 	// Halftone
-	unsigned char* data2 = halftone(data0, width, height);
+	unsigned char* data2 = Halftone(data0, width, height);
 	
 	// Floyd-Steinberg Algorithm
 	unsigned char* data3 = Floyd_Steinberg_Algorithm(data0, width, height);
