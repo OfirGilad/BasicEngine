@@ -203,8 +203,11 @@
 				//MyRotate(xrel/2.0f,glm::vec3(1,0,0),0);
 				//MyRotate(yrel/2.0f,glm::vec3(0,0,1),0);
 
-				MyRotate(xrel / 2.0f, glm::vec3(0, 1, 0), 0);
-				MyRotate(yrel / 2.0f, glm::vec3(1, 0, 0), 0);
+				glm::mat4 rot = this->GetRotate();
+				glm::mat3 rot_inverse = glm::inverse(glm::mat3(rot));
+
+				MyRotate(xrel / 2.0f, rot_inverse * glm::vec3(0, -1, 0), 0);
+				MyRotate(yrel / 2.0f, rot_inverse * glm::vec3(-1, 0, 0), 0);
 
 				WhenRotate();
 			}
