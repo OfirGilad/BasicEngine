@@ -4,63 +4,61 @@
 
 
 // Canny_Edge_Detector (Improved)
-void setPixel(unsigned char* data, int i, int j, int value)
-{
+void setPixel(unsigned char* data, int i, int j, int value, int width) {
     for (int k = 0; k < 3; k++)
-        data[i * 4 + j * 256 * 4 + k] = value;
-    data[i * 4 + j * 256 * 4 + 3] = 255;
+        data[4 * (i + j * width) + k] = value;
+    data[4 * (i + j * width) + 3] = 255;
 }
 
-unsigned char getPixel(unsigned char* data, int i, int j)
-{
-    return data[i * 4 + j * 256 * 4];
+unsigned char getPixel(unsigned char* data, int i, int j, int width) {
+    return data[4 * (i + j * width)];
 }
 
-void setPixel(int* data, int i, int j, int value)
-{
-    data[i + j * 256] = value;
+void setPixel(int* data, int i, int j, int value, int width) {
+    data[i + j * width] = value;
 }
 
-int getPixel(int* data, int i, int j)
-{
-    return data[i + j * 256];
+int getPixel(int* data, int i, int j, int width) {
+    return data[i + j * width];
 }
 
-int* pictureToIntArray(unsigned char* data)
-{
-    int* n_data = (int*)malloc(sizeof(int) * 256 * 256);
-    for (int i = 0; i < 256 * 256; i++)
-        n_data[i] = (data[i * 4] + data[i * 4 + 1] + data[i * 4]) / 3;
+int* pictureToIntArray(unsigned char* data, int width, int height) {
+    int* n_data = (int*)malloc(sizeof(int) * width * height);
+    for (int i = 0; i < width * height; i++)
+        n_data[i] = (data[i * 4] + data[i * 4 + 1] + data[i * 4 + 2]) / 3;
     return n_data;
 }
 
-unsigned char* intArrayToPicture(int* data)
-{
-    unsigned char* n_data = (unsigned char*)malloc(sizeof(unsigned char*) * 256 * 256 * 4);
-    for (int i = 0; i < 256; i++)
-        for (int j = 0; j < 256; j++)
-            if (data[i + j * 256] < 0)
-                setPixel(n_data, i, j, 0);
-            else if (data[i + j * 256] > 255)
-                setPixel(n_data, i, j, 255);
+unsigned char* intArrayToPicture(int* data, int width, int height) {
+    unsigned char* n_data = (unsigned char*)malloc(sizeof(unsigned char*) * width * height * 4);
+    for (int i = 0; i < height; i++)
+        for (int j = 0; j < width; j++)
+            if (data[i + j * width] < 0)
+                setPixel(n_data, i, j, 0, width);
+            else if (data[i + j * width] > 255)
+                setPixel(n_data, i, j, 255, width);
             else
-                setPixel(n_data, i, j, data[i + j * 256]);
+                setPixel(n_data, i, j, data[i + j * width], width);
     return n_data;
 }
 
-int* applyFilter(int* data, int filter[9], int filter_size)
-{
-    int* filtered_data = (int*)malloc(sizeof(int) * 256 * 256);
-    for (int i = 0; i < 256; i++)
-        for (int j = 0; j < 256; j++)
-        {
-            int filterSum = 0;
-            for (int k = -1; k <= 1; k++)
-                for (int l = -1; l <= 1; l++)
-                    if (i + k < 256 && i + k >= 0 && j + l < 256 && j + l >= 0)
-                        filterSum += getPixel(data, i + k, j + l) * filter[(k + 1) + 3 * (l + 1)];
-            setPixel(filtered_data, i, j, (filterSum / filter_size));
+int* applyFilter(int* data, int filter[9], int filter_size, int width, int height) {
+    int* filtered_data = (int*)malloc(sizeof(int) * width * height);
+    for (int i = 0; i < height; i++) {
+        for (int j = 0; j < width; j++) {
+            int filter_sum = 0;
+            for (int m = -1; m <= 1; m++) {
+                for (int n = -1; n <= 1; n++) {
+                    if ((i + m < height) && (i + m >= 0) && (j + n < width) && (j + n >= 0)) {
+                        filter_sum += getPixel(data, i + m, j + n, width) * filter[(m + 1) + 3 * (n + 1)];
+                    }
+                }
+            }
+
+            filter_sum /= filter_size;
+            setPixel(filtered_data, i, j, filter_sum, width);
         }
+    }
     return filtered_data;
 }
 
@@ -82,27 +80,27 @@ unsigned char* Canny_Edge_Detector_Improved(unsigned char* data, int width, int 
          0,  0,  0,
         -1, -2, -1 
     };
-    int* magnitude = (int*)malloc(sizeof(int) * height * width);
-    int* non_max_suppression = (int*)malloc(sizeof(int) * height * width);
-    int* thresholding = (int*)malloc(sizeof(int) * height * width);
-    int* hysteresis = (int*)malloc(sizeof(int) * height * width);
-    double* angles = (double*)malloc(sizeof(double) * height * width);
+    int* magnitude = (int*)malloc(sizeof(int) * width * height);
+    int* non_max_suppression = (int*)malloc(sizeof(int) * width * height);
+    int* thresholding = (int*)malloc(sizeof(int) * width * height);
+    int* hysteresis = (int*)malloc(sizeof(int) * width * height);
+    double* angles = (double*)malloc(sizeof(double) * width * height);
 
     // Convert to GrayScale
-    int* int_data = pictureToIntArray(data);
+    int* int_data = pictureToIntArray(data, width, height);
 
     // Gussian Blur
-    int* s_data = applyFilter(int_data, filter1, 16);
+    int* s_data = applyFilter(int_data, filter1, 16, width, height);
 
     // Magnitude
-    int* x_div = applyFilter(s_data, filter2, 1);
-    int* y_div = applyFilter(s_data, filter3, 1);
+    int* x_div = applyFilter(s_data, filter2, 1, width, height);
+    int* y_div = applyFilter(s_data, filter3, 1, width, height);
     for (int i = 0; i < height; i++) {
         for (int j = 0; j < width; j++) {
-            int x = (int)getPixel(x_div, i, j);
-            int y = (int)getPixel(y_div, i, j);
+            int x = (int)getPixel(x_div, i, j, width);
+            int y = (int)getPixel(y_div, i, j, width);
             int temp = sqrt(x * x + y * y);
-            setPixel(magnitude, i, j, temp);
+            setPixel(magnitude, i, j, temp, width);
             angles[i + j * width] = atan2(y, x) * 180 / pi;
         }
     }
@@ -111,25 +109,25 @@ unsigned char* Canny_Edge_Detector_Improved(unsigned char* data, int width, int 
     for (int i = 0; i < height; i++) {
         for (int j = 0; j < width; j++) {
             int direction = ((int)(angles[i + j * width] + 22.5 + 180) / 45) % 4;
-            int cur_pixel = getPixel(magnitude, i, j);
+            int current_pixel = getPixel(magnitude, i, j, width);
 
-            if (i == 0 || j == 0 || i == 255 || j == 255) {
-                setPixel(non_max_suppression, i, j, 0);
+            if ((i == 0) || (j == 0) || (i == 255) || (j == 255)) {
+                setPixel(non_max_suppression, i, j, 0, width);
             }
-            else if (direction == 0 && cur_pixel > getPixel(magnitude, i - 1, j) && cur_pixel > getPixel(magnitude, i + 1, j)) {
-                setPixel(non_max_suppression, i, j, cur_pixel);
+            else if ((direction == 0) && (current_pixel > getPixel(magnitude, i - 1, j, width)) && (current_pixel > getPixel(magnitude, i + 1, j, width))) {
+                setPixel(non_max_suppression, i, j, current_pixel, width);
             }
-            else if (direction == 1 && cur_pixel > getPixel(magnitude, i + 1, j - 1) && cur_pixel > getPixel(magnitude, i - 1, j + 1)) {
-                setPixel(non_max_suppression, i, j, cur_pixel);
+            else if ((direction == 1) && (current_pixel > getPixel(magnitude, i + 1, j - 1, width)) && (current_pixel > getPixel(magnitude, i - 1, j + 1, width))) {
+                setPixel(non_max_suppression, i, j, current_pixel, width);
             }
-            else if (direction == 2 && cur_pixel > getPixel(magnitude, i, j - 1) && cur_pixel > getPixel(magnitude, i, j + 1)) {
-                setPixel(non_max_suppression, i, j, cur_pixel);
+            else if ((direction == 2) && (current_pixel > getPixel(magnitude, i, j - 1, width)) && (current_pixel > getPixel(magnitude, i, j + 1, width))) {
+                setPixel(non_max_suppression, i, j, current_pixel, width);
             }
-            else if (direction == 3 && cur_pixel > getPixel(magnitude, i - 1, j - 1) && cur_pixel > getPixel(magnitude, i + 1, j + 1)) {
-                setPixel(non_max_suppression, i, j, cur_pixel);
+            else if ((direction == 3) && (current_pixel > getPixel(magnitude, i - 1, j - 1, width)) && (current_pixel > getPixel(magnitude, i + 1, j + 1, width))) {
+                setPixel(non_max_suppression, i, j, current_pixel, width);
             }
             else {
-                setPixel(non_max_suppression, i, j, 0);
+                setPixel(non_max_suppression, i, j, 0, width);
             }
         }
     }
@@ -139,14 +137,14 @@ unsigned char* Canny_Edge_Detector_Improved(unsigned char* data, int width, int 
     int low = 60;
     for (int i = 0; i < height; i++) {
         for (int j = 0; j < width; j++) {
-            if (getPixel(non_max_suppression, i, j) > high) {
-                setPixel(thresholding, i, j, 255);
+            if (getPixel(non_max_suppression, i, j, width) > high) {
+                setPixel(thresholding, i, j, 255, width);
             }
-            else if (getPixel(non_max_suppression, i, j) > low) {
-                setPixel(thresholding, i, j, 1);
+            else if (getPixel(non_max_suppression, i, j, width) > low) {
+                setPixel(thresholding, i, j, 1, width);
             }
             else {
-                setPixel(thresholding, i, j, 0);
+                setPixel(thresholding, i, j, 0, width);
             }
         }
     }
@@ -155,26 +153,26 @@ unsigned char* Canny_Edge_Detector_Improved(unsigned char* data, int width, int 
     int strong = 255;
     for (int i = 1; i < height - 1; i++) {
         for (int j = 1; j < width - 1; j++) {
-            if (getPixel(thresholding, i, j) > 0) {
+            if (getPixel(thresholding, i, j, width) > 0) {
                 bool keep_pixel = false;
                 for (int m = -1; m <= 1; m++) {
                     for (int n = -1; n <= 1; n++) {
                         if (m != 0 || n != 0) {
-                            if (getPixel(thresholding, i + m, j + n) == strong) {
-                                setPixel(hysteresis, i, j, 255);
+                            if (getPixel(thresholding, i + m, j + n, width) == strong) {
+                                setPixel(hysteresis, i, j, 255, width);
                                 keep_pixel = true;
                             }
                         }
                     }
                 }
                 if (keep_pixel == false) {
-                    setPixel(hysteresis, i, j, 0);
+                    setPixel(hysteresis, i, j, 0, width);
                 }
             }
         }
     }
 
-    unsigned char* final_picture = intArrayToPicture(hysteresis);
+    unsigned char* final_picture = intArrayToPicture(hysteresis, width, height);
 
     // write to file
     ofstream outfile;
@@ -342,6 +340,23 @@ vector<vector<int>>* applyFilter3x3_2(vector<vector<int>>* mat, int width, int h
     return newMat;
 }
 
+vector<vector<int>>* calculate_magnitude(const vector<vector<int>>* dx, const vector<vector<int>>* dy, int width, int height) {
+    vector<vector<int>>* magnitude = new vector<vector<int>>();
+
+    for (int i = 0; i < height; i++) {
+        vector<int> innerVec;
+        for (int j = 0; j < width; j++) {
+            int sum_result = (int)sqrt((int)(*dx)[i][j] * (int)(*dx)[i][j] + (int)(*dy)[i][j] * (int)(*dy)[i][j]);
+            //int sum_result = abs((*dx)[i][j]) + abs((*dy)[i][j]);
+
+            sum_result = min(255, max(0, sum_result));
+            innerVec.push_back(sum_result);
+        }
+        magnitude->push_back(innerVec);
+    }
+    return magnitude;
+}
+
 vector<vector<int>>* non_max_suppression(vector<vector<int>>* magnitude, int width, int height) {
     vector<vector<int>>* newMat = new vector<vector<int>>();
 
@@ -403,8 +418,13 @@ vector<vector<int>>* non_max_suppression(vector<vector<int>>* magnitude, int wid
 }
 
 vector<vector<int>>* threshold(vector<vector<int>>* nms, int width, int height) {
+    // Option 1
     int highThreshold = 26;
     int lowThreshold = 5;
+
+    // Option 1
+    //int highThreshold = 150;
+    //int lowThreshold = 50;
 
     vector<vector<int>>* newMat = new vector<vector<int>>();
 
@@ -415,7 +435,7 @@ vector<vector<int>>* threshold(vector<vector<int>>* nms, int width, int height) 
                 innerVec.push_back(255);
             }
             else if ((lowThreshold <= (*nms)[i][j]) && ((*nms)[i][j] < highThreshold)) {
-                innerVec.push_back(0);
+                innerVec.push_back(1);
             }
             else {
                 innerVec.push_back(0);
@@ -454,23 +474,6 @@ vector<vector<unsigned char>>* hysteresis(vector<vector<int>>* threshold_image, 
     return newMat;
 }
 
-vector<vector<int>>* matrix_addition(const vector<vector<int>>* dx, const vector<vector<int>>* dy, int width, int height) {
-    vector<vector<int>>* magnitude = new vector<vector<int>>();
-
-    for (int i = 0; i < height; i++) {
-        vector<int> innerVec;
-        for (int j = 0; j < width; j++) {
-            //int sum_result = (int)sqrt((int)(*dx)[i][j] * (int)(*dx)[i][j] + (int)(*dy)[i][j] * (int)(*dy)[i][j]);
-            int sum_result = abs((*dx)[i][j]) + abs((*dy)[i][j]);
-
-            sum_result = min(255, max(0, sum_result));
-            innerVec.push_back(sum_result);
-        }
-        magnitude->push_back(innerVec);
-    }
-    return magnitude;
-}
-
 // https://towardsdatascience.com/canny-edge-detection-step-by-step-in-python-computer-vision-b49c3a2d8123
 
 // Exercise 4
@@ -478,20 +481,24 @@ unsigned char* Canny_Edge_Detector(unsigned char* data, int width, int height) {
     vector<vector<int>>* grey_scale_matrix = greyScaleImageConverter(data, width, height);
 
     // apply smoothing filter
-    int div0;
+    int div0, div1, div2;
     vector<vector<int>>* kernelG = gaussianKernel3x3(&div0);
     vector<vector<int>>* smoothedPic = applyFilter3x3_1(grey_scale_matrix, width, height, kernelG, div0);
 
     // get derivative in x and y axis
-    int div1;
+    // Option 1
     vector<vector<int>>* kernelX = dxKernel1(&div1);
-    int div2;
     vector<vector<int>>* kernelY = dyKernel1(&div2);
+
+    // Option 2
+    //vector<vector<int>>* kernelX = dxKernel2(&div1);
+    //vector<vector<int>>* kernelY = dyKernel2(&div2);
+
     const vector<vector<int>>* dx = applyFilter3x3_2(smoothedPic, width, height, kernelX, div1);
     const vector<vector<int>>* dy = applyFilter3x3_2(smoothedPic, width, height, kernelY, div2);
 
     // combine the derivatives
-    vector<vector<int>>* magnitude_image = matrix_addition(dx, dy, width, height);
+    vector<vector<int>>* magnitude_image = calculate_magnitude(dx, dy, width, height);
 
     // non max suppression
     vector<vector<int>>* nms_image = non_max_suppression(magnitude_image, width, height);
