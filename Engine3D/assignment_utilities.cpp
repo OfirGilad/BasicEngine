@@ -63,12 +63,20 @@ float Plane::d() {
 float Plane::Intersect(Ray ray) {
 	vec3 plane_normal = this->normal();
 	float d = this->d();
-    float answer = -1;
+    float result = -1;
 
-    if (dot(ray.direction, plane_normal) != 0.0f)
-        answer = -(dot(ray.origin, plane_normal) + d) / dot(ray.direction, plane_normal);
+	// Intersection Found
+	if (dot(ray.direction, plane_normal) != 0.0f) {
+		result = -(dot(ray.origin, plane_normal) + d) / dot(ray.direction, plane_normal);
 
-	return answer;
+		// Handle Reflective and Transparent case
+		float threshold = 0.001f;
+		if (abs(result) <= threshold) {
+			result = -1;
+		}
+	}
+
+	return result;
 }
 
 vec3 Plane::getColor(vec3 hitPoint) {
@@ -124,6 +132,7 @@ float Sphere::radius() {
 float Sphere::Intersect(Ray ray) {
 	vec3 center = this->center();
 	float radius = this->radius();
+	float result = -1;
 
 	vec3 L = ray.origin - center;
 
@@ -136,18 +145,18 @@ float Sphere::Intersect(Ray ray) {
 
 	float delta = pow(quadratic.y, 2) - 4 * quadratic.x * quadratic.z; // b^2-4*a*c
 
-	if (delta < 0.0)
-		return INFINITY;
+	// Intersection Found
+	if (delta >= 0.0) {
+		float root = sqrt(delta);
+		float answer_1 = (-quadratic.y + root) / (2 * quadratic.x); // (-b + root) / 2*a
+		float answer_2 = (-quadratic.y - root) / (2 * quadratic.x); // (-b - root) / 2*a
+		result = glm::min(answer_1, answer_2);
 
-	float root = sqrt(delta);
-	float answer_1 = (-quadratic.y + root) / (2 * quadratic.x); // (-b + root) / 2*a
-	float answer_2 = (-quadratic.y - root) / (2 * quadratic.x); // (-b - root) / 2*a
-	float result = glm::min(answer_1, answer_2);
-
-	// In case of Transparent spheres
-	float threshold = 0.001f;
-	if (result <= threshold) {
-		result = glm::max(answer_1, answer_2);
+		// Handle Reflective and Transparent case
+		float threshold = 0.001f;
+		if (abs(result) <= threshold) {
+			result = glm::max(answer_1, answer_2);
+		}
 	}
 
 	return result;

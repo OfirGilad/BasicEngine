@@ -121,7 +121,7 @@ Image SceneData::ImageRayCasting() {
             // Single Sampling
             if (bonus_mode_flag < 0.5) {
                 Ray ray = ConstructRayThroughPixel(i, j, 0);
-                Hit hit = FindIntersection(ray, -1);
+                Hit hit = FindIntersection(ray);
                 pixel_color = GetColor(ray, hit, 0);
             }
             // Multi Sampling (Bonus)
@@ -130,10 +130,10 @@ Image SceneData::ImageRayCasting() {
                 Ray ray2 = ConstructRayThroughPixel(i, j, 2);
                 Ray ray3 = ConstructRayThroughPixel(i, j, 3);
                 Ray ray4 = ConstructRayThroughPixel(i, j, 4);
-                Hit hit1 = FindIntersection(ray1, -1);
-                Hit hit2 = FindIntersection(ray2, -1);
-                Hit hit3 = FindIntersection(ray3, -1);
-                Hit hit4 = FindIntersection(ray4, -1);
+                Hit hit1 = FindIntersection(ray1);
+                Hit hit2 = FindIntersection(ray2);
+                Hit hit3 = FindIntersection(ray3);
+                Hit hit4 = FindIntersection(ray4);
                 vec4 pixel_color1 = GetColor(ray1, hit1, 0);
                 vec4 pixel_color2 = GetColor(ray2, hit2, 0);
                 vec4 pixel_color3 = GetColor(ray3, hit3, 0);
@@ -184,7 +184,7 @@ Ray SceneData::ConstructRayThroughPixel(int i, int j, int position_on_pixel) {
     return ray;
 }
 
-Hit SceneData::FindIntersection(Ray ray, int ignore_object_index) {
+Hit SceneData::FindIntersection(Ray ray) {
     // Set Default Values
     float min_t = INFINITY;
     SceneObject* min_primitive = new Plane(vec4(1.0, 1.0, 1.0, 1.0), Space);
@@ -194,15 +194,13 @@ Hit SceneData::FindIntersection(Ray ray, int ignore_object_index) {
 
     // Looping over all the objects
     for (int i = 0; i < objects.size(); i++) {
-        if (i != ignore_object_index) {
-            float t = objects[i]->Intersect(ray);
+        float t = objects[i]->Intersect(ray);
 
-            // Checking if there was intersection
-            if ((t >= 0) && (t < min_t)) {
-                got_hit = true;
-                min_primitive = objects[i];
-                min_t = t;
-            }
+        // Checking if there was intersection
+        if ((t >= 0) && (t < min_t)) {
+            got_hit = true;
+            min_primitive = objects[i];
+            min_t = t;
         }
     }
 
@@ -243,7 +241,7 @@ vec4 SceneData::GetColor(Ray ray, Hit hit, int depth) {
         vec3 reflection_ray_direction = ray.direction - 2.0f * hit.scene_object->getNormal(hit.hit_point) * dot(ray.direction, hit.scene_object->getNormal(hit.hit_point));
         Ray reflection_ray = Ray(reflection_ray_direction, hit.hit_point);
 
-        Hit reflected_hit = FindIntersection(reflection_ray, hit.scene_object->object_index);
+        Hit reflected_hit = FindIntersection(reflection_ray);
 
         if (reflected_hit.scene_object->object_type == Space) {
             return vec4(0.f, 0.f, 0.f, 0.f);
@@ -270,7 +268,7 @@ vec4 SceneData::GetColor(Ray ray, Hit hit, int depth) {
         if (hit.scene_object->details.w < 0.0) {
             Ray ray_through = Ray(ray.direction, hit.hit_point);
 
-            Hit transparency_hit = FindIntersection(ray_through, hit.scene_object->object_index);
+            Hit transparency_hit = FindIntersection(ray_through);
 
             if (transparency_hit.scene_object->object_type == Space) {
                 return vec4(0.f, 0.f, 0.f, 0.f);
@@ -295,10 +293,10 @@ vec4 SceneData::GetColor(Ray ray, Hit hit, int depth) {
             ray_in_direction = normalizedVector(ray_in_direction);
             Ray ray_in = Ray(ray_in_direction, hit.hit_point);
 
-            Hit transparency_hit = FindIntersection(ray_in, -1);
+            Hit transparency_hit = FindIntersection(ray_in);
 
             // Second hit inside the sphere to other object
-            if (transparency_hit.scene_object->object_index != hit.scene_object->object_index) {
+            if ((transparency_hit.scene_object->object_index != hit.scene_object->object_index) && (transparency_hit.scene_object->object_type != Transparent)){
                 transparency_color = GetColor(ray_in, transparency_hit, depth + 1);
             }
             // Second hit inside the sphere to outside
@@ -320,7 +318,7 @@ vec4 SceneData::GetColor(Ray ray, Hit hit, int depth) {
                 ray_out_direction = normalizedVector(ray_out_direction);
                 Ray ray_out = Ray(ray_out_direction, second_hit_point);
 
-                Hit transparency_hit = FindIntersection(ray_out, hit.scene_object->object_index);
+                Hit transparency_hit = FindIntersection(ray_out);
 
                 if (transparency_hit.scene_object->object_type == Space) {
                     return vec4(0.f, 0.f, 0.f, 0.f);
