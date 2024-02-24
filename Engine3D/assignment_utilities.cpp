@@ -49,11 +49,7 @@ Plane::Plane(vec4 details, ObjectType object_type) {
 }
 
 vec3 Plane::normal() {
-	return vec3(
-		details.x,
-		details.y,
-		details.z
-	);
+	return vec3(details.x, details.y,details.z);
 }
 
 float Plane::d() {
@@ -107,7 +103,7 @@ vec3 Plane::getColor(vec3 hitPoint) {
 }
 
 vec3 Plane::getNormal(vec3 hitPoint) {
-	return normalizedVector(normal());
+	return -normalizedVector(normal());
 }
 
 //---------------------------------  Sphere  ------------------------------------------
@@ -118,11 +114,7 @@ Sphere::Sphere(vec4 details, ObjectType object_type) {
 }
 
 vec3 Sphere::center() {
-	return vec3(
-		details.x,
-		details.y,
-		details.z
-	);
+	return vec3(details.x, details.y, details.z);
 }
 
 float Sphere::radius() {

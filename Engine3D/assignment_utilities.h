@@ -8,7 +8,7 @@ using namespace std;
 float vectorSize(vec3 vec);
 vec3 normalizedVector(vec3 vec);
 
-//---------------------------------  Image  ----------------------------------------
+//---------------------------------  Image  ---------------------------------------------
 
 class Image {
 public:

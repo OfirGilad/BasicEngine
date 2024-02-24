@@ -338,25 +338,19 @@ vec4 SceneData::GetColor(Ray ray, Hit hit, int depth) {
 }
 
 vec3 SceneData::calcDiffuseColor(Hit hit, Light* light) {
-    // Planes normals are in the opposite direction to the viewer than Spheres
-    float object_factor = 1;
-    if (hit.scene_object->details.w < 0.0) {
-        object_factor = -1;
-    }
-
-    vec3 normalized_ray_direction = object_factor * normalizedVector(light->direction);
+    vec3 normalized_ray_direction = normalizedVector(light->direction);
 
     // Spotlight special case
     if (light->light_type == Spot) {
         vec3 virtual_spotlight_ray = normalizedVector(hit.hit_point - light->position);
-        float light_cos_value = dot(virtual_spotlight_ray, object_factor *normalized_ray_direction);
+        float light_cos_value = dot(virtual_spotlight_ray, normalized_ray_direction);
 
         // Checking if the spotlight rays hit the object
         if (light_cos_value < light->cos_angle) {
             return vec3(0.f, 0.f, 0.f);
         }
         else {
-            normalized_ray_direction = object_factor * virtual_spotlight_ray;
+            normalized_ray_direction = virtual_spotlight_ray;
         }
     }
     vec3 object_normal = hit.scene_object->getNormal(hit.hit_point);
