@@ -412,12 +412,12 @@ float SceneData::calcShadowTerm(Hit hit, Light* light) {
         else {
             normalized_ray_direction = virtual_spotlight_ray;
 
-            // Update min_t to the value of the light position
-            min_t = -(dot(hit.hit_point, light->position)) / abs(dot(-normalized_ray_direction, light->position));
+            // Update min_t to the value of the length from the hit point to the light position
+            min_t = length(light->position - hit.hit_point);
         }
     }
 
-    // Checking the path between the light source and the object by looping over all the objects
+    // Checking the path between the object and the light source by looping over all the objects
     for (int i = 0; i < objects.size(); i++) {
         if (i != hit.scene_object->object_index) {
             Ray ray = Ray(-normalized_ray_direction, hit.hit_point);
