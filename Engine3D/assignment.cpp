@@ -9,6 +9,9 @@
 using namespace std;
 using namespace glm;
 
+// Set Recursive Steps Max Level
+int MAX_LEVEL = 5;
+
 SceneData::SceneData(string file_name, int width, int height) {
     bonus_mode_flag = 0.f;
     int index = -1;
@@ -213,6 +216,11 @@ Hit SceneData::FindIntersection(Ray ray) {
 }
 
 vec4 SceneData::GetColor(Ray ray, Hit hit, int depth) {
+    // Stop the Recursion
+    if (depth >= MAX_LEVEL) {
+        return vec4(0.f, 0.f, 0.f, 0.f);
+    }
+
     vec3 phong_model_color = vec3(0, 0, 0);
 
     // Regular case
@@ -234,10 +242,9 @@ vec4 SceneData::GetColor(Ray ray, Hit hit, int depth) {
 
     // Reflective case
     if (hit.scene_object->object_type == Reflective) {
-        if (depth == 5) { // MAX_LEVEL=5
-            return vec4(0.f, 0.f, 0.f, 0.f);
-        }
+        vec4 reflection_color = vec4(0.f, 0.f, 0.f, 0.f);
 
+        // Finding the reflected ray
         vec3 reflection_ray_direction = ray.direction - 2.0f * hit.scene_object->getNormal(hit.hit_point) * dot(ray.direction, hit.scene_object->getNormal(hit.hit_point));
         Ray reflection_ray = Ray(reflection_ray_direction, hit.hit_point);
 
@@ -247,7 +254,7 @@ vec4 SceneData::GetColor(Ray ray, Hit hit, int depth) {
             return vec4(0.f, 0.f, 0.f, 0.f);
         }
 
-        vec4 reflection_color = GetColor(reflection_ray, reflected_hit, depth + 1);
+        reflection_color += GetColor(reflection_ray, reflected_hit, depth + 1);
 
         // The Correct, but less beautiful equation
         //phong_model_color = 0.7f * vec3(reflection_color.r, reflection_color.g, reflection_color.b);
@@ -258,10 +265,6 @@ vec4 SceneData::GetColor(Ray ray, Hit hit, int depth) {
 
     // Transparent case
     if (hit.scene_object->object_type == Transparent) {
-        if (depth == 5) { // MAX_LEVEL=5
-            return vec4(0.f, 0.f, 0.f, 0.f);
-        }
-
         vec4 transparency_color = vec4(0.f, 0.f, 0.f, 0.f);
 
         // Transparent Plane
@@ -274,7 +277,7 @@ vec4 SceneData::GetColor(Ray ray, Hit hit, int depth) {
                 return vec4(0.f, 0.f, 0.f, 0.f);
             }
 
-            transparency_color = GetColor(ray_through, transparency_hit, depth + 1);
+            transparency_color += GetColor(ray_through, transparency_hit, depth + 1);
         }
         // Transparent Sphere
         else {
@@ -324,7 +327,7 @@ vec4 SceneData::GetColor(Ray ray, Hit hit, int depth) {
                     return vec4(0.f, 0.f, 0.f, 0.f);
                 }
 
-                transparency_color = GetColor(ray_out, transparency_hit, depth + 1);
+                transparency_color += GetColor(ray_out, transparency_hit, depth + 1);
             }
         }
 
