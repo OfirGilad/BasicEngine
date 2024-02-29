@@ -516,6 +516,11 @@ void RubiksCube::CASE_UP() {
 
 // Moving center of rotation down
 void RubiksCube::CASE_DOWN() {
+    if (Cube_Lock_Status()) {
+        cout << "Change Center isn't available when there is a Rotation Locked!" << endl;
+        return;
+    }
+
     if (animating) {
         cout << "Please wait! Animation is in progress" << endl;
         return;
