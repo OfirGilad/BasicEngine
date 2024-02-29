@@ -8,7 +8,7 @@
 using namespace std;
 using namespace glm;
 
-RubiksCube::RubiksCube() 
+RubiksCube::RubiksCube()
 {
 }
 
@@ -21,17 +21,17 @@ void RubiksCube::Create_Cube(Scene* scn, int cube_size) {
     float distance = float(size) - ((float(size) + 1.f) * 0.5f);
     int index = 0;
 
-    for (float i = -distance; i <= distance; i+=1)
+    for (float i = -distance; i <= distance; i += 1)
     {
         vector<vector<pair<int, vec3>>> sub_centers1;
         vector<vector<int>> sub_structure1;
 
-        for (float j = -distance; j <= distance; j+=1)
+        for (float j = -distance; j <= distance; j += 1)
         {
             vector<pair<int, vec3>> sub_centers2;
             vector<int> sub_structure2;
 
-            for (float k = -distance; k <= distance; k+=1)
+            for (float k = -distance; k <= distance; k += 1)
             {
                 scn->AddShape(Scene::Cube, -1, Scene::TRIANGLES);
                 scn->SetShapeTex(index, 0);
@@ -41,7 +41,7 @@ void RubiksCube::Create_Cube(Scene* scn, int cube_size) {
                 cubes_angles.push_back(vec3(0, 0, 0));
                 sub_centers2.push_back(make_pair(index, vec3(i, j, k)));
                 sub_structure2.push_back(index);
-                
+
                 index++;
             }
             sub_centers1.push_back(sub_centers2);
@@ -56,13 +56,20 @@ void RubiksCube::Create_Cube(Scene* scn, int cube_size) {
     current_center = vec3(1, 1, 1);
     clock_direction = 1;
     rotation_angle = 90;
-    
+
     // Animation parameters
     multiply_factor = 8;
-    rotation_per_frame = 0.125;
     unlocked = true;
     activate_animation = true;
     animating = false;
+    Update_Frame_Rotation();
+
+    left_right_lock1 = false;
+    left_right_lock2 = false;
+    up_down_lock1 = false;
+    up_down_lock2 = false;
+    front_back_lock1 = false;
+    front_back_lock2 = false;
 
     cout << "Cube Structure Completed" << endl;
 }
@@ -98,14 +105,10 @@ void RubiksCube::Rotate_Cube(int i, int j, int k, vec3 rotation_direction) {
 
     // Getting the transposed rotation matrix
     mat4 get_rotation = (*scn_shapes)[get_index]->GetRotate();
-    mat3 cube_rotation = mat3(
-        vec3(get_rotation[0].x, get_rotation[0].y, get_rotation[0].z),
-        vec3(get_rotation[1].x, get_rotation[1].y, get_rotation[1].z),
-        vec3(get_rotation[2].x, get_rotation[2].y, get_rotation[2].z)
-    );
+    mat3 cube_rotation_transpose = transpose(mat3(get_rotation));
 
     // Rotating the cube
-    vec3 final_direction = rotation_direction * cube_rotation;
+    vec3 final_direction = cube_rotation_transpose * rotation_direction;
     (*scn_shapes)[get_index]->MyRotate(rotation_per_frame, final_direction, 0);
 
     // Updating cubes angles structure
@@ -128,14 +131,10 @@ void RubiksCube::Update_Structure() {
 
                 // Getting the current rotation of the cube
                 mat4 get_rotation = (*scn_shapes)[get_index]->GetRotate();
-                mat3 cube_rotation = mat3(
-                    vec3(get_rotation[0].x, get_rotation[1].x, get_rotation[2].x),
-                    vec3(get_rotation[0].y, get_rotation[1].y, get_rotation[2].y),
-                    vec3(get_rotation[0].z, get_rotation[1].z, get_rotation[2].z)
-                );
+                mat3 cube_rotation_transpose = transpose(mat3(get_rotation));
 
                 // Calculating the new cube center
-                vec3 new_cube_position = cube_position * cube_rotation;
+                vec3 new_cube_position = cube_position * cube_rotation_transpose;
 
                 // Updating the new cube location on the structure
                 vec3 movement = new_cube_position - cube_position;
@@ -146,8 +145,31 @@ void RubiksCube::Update_Structure() {
     }
 }
 
+bool RubiksCube::Cube_Lock_Status() {
+    if (left_right_lock1 || up_down_lock1 || front_back_lock1 || left_right_lock2 || up_down_lock2 || front_back_lock2) {
+        return true;
+    }
+    else {
+        return false;
+    }
+}
+
+void RubiksCube::Update_Frame_Rotation() {
+    if (activate_animation) {
+        rotation_per_frame = 0.125;
+    }
+    else {
+        rotation_per_frame = rotation_angle;
+    }
+}
+
 // 'R' press state for right wall rotation (90 degrees clockwise).
 void RubiksCube::CASE_R() {
+    if (left_right_lock1 || left_right_lock2) {
+        cout << "Rotation Locked" << endl;
+        return;
+    }
+
     if (animating) {
         cout << "Please wait! Animation is in progress" << endl;
         return;
@@ -158,6 +180,11 @@ void RubiksCube::CASE_R() {
     if (i == size) {
         cout << "Invalid rotation" << endl;
         return;
+    }
+
+    if (rotation_angle == 45) {
+        up_down_lock1 = !up_down_lock1;
+        front_back_lock1 = !front_back_lock1;
     }
 
     if (activate_animation) {
@@ -175,12 +202,21 @@ void RubiksCube::CASE_R() {
                 Rotate_Cube(i, j, k, rotation_direction);
             }
         }
-        Update_Structure();
+
+        // Update Structure if there are no locks
+        if (!Cube_Lock_Status()) {
+            Update_Structure();
+        }
     }
 }
 
 // 'L' press state for left wall rotation (90 degrees clockwise).
 void RubiksCube::CASE_L() {
+    if (left_right_lock1 || left_right_lock2) {
+        cout << "Rotation Locked" << endl;
+        return;
+    }
+
     if (animating) {
         cout << "Please wait! Animation is in progress" << endl;
         return;
@@ -191,6 +227,11 @@ void RubiksCube::CASE_L() {
     if (i == -1) {
         cout << "Invalid rotation" << endl;
         return;
+    }
+
+    if (rotation_angle == 45) {
+        up_down_lock2 = !up_down_lock2;
+        front_back_lock2 = !front_back_lock2;
     }
 
     if (activate_animation) {
@@ -207,12 +248,21 @@ void RubiksCube::CASE_L() {
                 Rotate_Cube(i, j, k, rotation_direction);
             }
         }
-        Update_Structure();
+
+        // Update Structure if there are no locks
+        if (!Cube_Lock_Status()) {
+            Update_Structure();
+        }
     }
 }
 
 // 'U' press state for up wall rotation(90 degrees clockwise).
 void RubiksCube::CASE_U() {
+    if (up_down_lock1 || up_down_lock2) {
+        cout << "Rotation Locked" << endl;
+        return;
+    }
+
     if (animating) {
         cout << "Please wait! Animation is in progress" << endl;
         return;
@@ -223,6 +273,11 @@ void RubiksCube::CASE_U() {
     if (j == size) {
         cout << "Invalid rotation" << endl;
         return;
+    }
+
+    if (rotation_angle == 45) {
+        left_right_lock1 = !left_right_lock1;
+        front_back_lock1 = !front_back_lock1;
     }
 
     if (activate_animation) {
@@ -239,12 +294,21 @@ void RubiksCube::CASE_U() {
                 Rotate_Cube(i, j, k, rotation_direction);
             }
         }
-        Update_Structure();
+
+        // Update Structure if there are no locks
+        if (!Cube_Lock_Status()) {
+            Update_Structure();
+        }
     }
 }
 
 // 'D' press state for down wall rotation (90 degrees clockwise).
 void RubiksCube::CASE_D() {
+    if (up_down_lock1 || up_down_lock2) {
+        cout << "Rotation Locked" << endl;
+        return;
+    }
+
     if (animating) {
         cout << "Please wait! Animation is in progress" << endl;
         return;
@@ -255,6 +319,11 @@ void RubiksCube::CASE_D() {
     if (j == -1) {
         cout << "Invalid rotation" << endl;
         return;
+    }
+
+    if (rotation_angle == 45) {
+        left_right_lock2 = !left_right_lock2;
+        front_back_lock2 = !front_back_lock2;
     }
 
     if (activate_animation) {
@@ -272,12 +341,21 @@ void RubiksCube::CASE_D() {
                 Rotate_Cube(i, j, k, rotation_direction);
             }
         }
-        Update_Structure();
-    }    
+
+        // Update Structure if there are no locks
+        if (!Cube_Lock_Status()) {
+            Update_Structure();
+        }
+    }
 }
 
 // 'B' press state for back wall rotation (90 degrees clockwise).
 void RubiksCube::CASE_B() {
+    if (front_back_lock1 || front_back_lock2) {
+        cout << "Rotation Locked" << endl;
+        return;
+    }
+
     if (animating) {
         cout << "Please wait! Animation is in progress" << endl;
         return;
@@ -288,6 +366,11 @@ void RubiksCube::CASE_B() {
     if (k == -1) {
         cout << "Invalid rotation" << endl;
         return;
+    }
+
+    if (rotation_angle == 45) {
+        left_right_lock1 = !left_right_lock1;
+        up_down_lock1 = !up_down_lock1;
     }
 
     if (activate_animation) {
@@ -304,12 +387,21 @@ void RubiksCube::CASE_B() {
                 Rotate_Cube(i, j, k, rotation_direction);
             }
         }
-        Update_Structure();
+
+        // Update Structure if there are no locks
+        if (!Cube_Lock_Status()) {
+            Update_Structure();
+        }
     }
 }
 
 // 'F' press state for front wall rotation (90 degrees clockwise).
 void RubiksCube::CASE_F() {
+    if (front_back_lock1 || front_back_lock2) {
+        cout << "Rotation Locked" << endl;
+        return;
+    }
+
     if (animating) {
         cout << "Please wait! Animation is in progress" << endl;
         return;
@@ -320,6 +412,11 @@ void RubiksCube::CASE_F() {
     if (k == size) {
         cout << "Invalid rotation" << endl;
         return;
+    }
+
+    if (rotation_angle == 45) {
+        left_right_lock2 = !left_right_lock2;
+        up_down_lock2 = !up_down_lock2;
     }
 
     if (activate_animation) {
@@ -337,7 +434,11 @@ void RubiksCube::CASE_F() {
                 Rotate_Cube(i, j, k, rotation_direction);
             }
         }
-        Update_Structure();
+
+        // Update Structure if there are no locks
+        if (!Cube_Lock_Status()) {
+            Update_Structure();
+        }
     }
 }
 
@@ -353,21 +454,32 @@ void RubiksCube::CASE_SPACE() {
 
 // 'Z' press state: dividing rotation angle by 2;
 void RubiksCube::CASE_Z() {
+    if (Cube_Lock_Status()) {
+        cout << "Change Rotation Angle isn't available when there is a Rotation Locked!" << endl;
+        return;
+    }
+
     if (animating) {
         cout << "Please wait! Animation is in progress" << endl;
         return;
     }
 
-    if (rotation_angle > 90) {
+    if (rotation_angle > 45) {
         rotation_angle = rotation_angle / 2;
+        Update_Frame_Rotation();
     }
     else {
-        cout << "Rotation is already at minimum of 90" << endl;
+        cout << "Rotation Angle is already at minimum of 45" << endl;
     }
 }
 
 // 'A' press state: multiply rotation angle by 2 (until maximum of 180);
 void RubiksCube::CASE_A() {
+    if (Cube_Lock_Status()) {
+        cout << "Change Rotation Angle isn't available when there is a Rotation Locked!" << endl;
+        return;
+    }
+
     if (animating) {
         cout << "Please wait! Animation is in progress" << endl;
         return;
@@ -375,14 +487,20 @@ void RubiksCube::CASE_A() {
 
     if (rotation_angle < 180) {
         rotation_angle = rotation_angle * 2;
+        Update_Frame_Rotation();
     }
     else {
-        cout << "Rotation is already at maximum of 180" << endl;
+        cout << "Rotation Angle is already at maximum of 180" << endl;
     }
 }
 
 // Moving center of rotation up
 void RubiksCube::CASE_UP() {
+    if (Cube_Lock_Status()) {
+        cout << "Change Center isn't available when there is a Rotation Locked!" << endl;
+        return;
+    }
+
     if (animating) {
         cout << "Please wait! Animation is in progress" << endl;
         return;
@@ -413,6 +531,11 @@ void RubiksCube::CASE_DOWN() {
 
 // Moving center of rotation left
 void RubiksCube::CASE_LEFT() {
+    if (Cube_Lock_Status()) {
+        cout << "Change Center isn't available when there is a Rotation Locked!" << endl;
+        return;
+    }
+
     if (animating) {
         cout << "Please wait! Animation is in progress" << endl;
         return;
@@ -428,6 +551,11 @@ void RubiksCube::CASE_LEFT() {
 
 // Moving center of rotation right
 void RubiksCube::CASE_RIGHT() {
+    if (Cube_Lock_Status()) {
+        cout << "Change Center isn't available when there is a Rotation Locked!" << endl;
+        return;
+    }
+
     if (animating) {
         cout << "Please wait! Animation is in progress" << endl;
         return;
@@ -443,6 +571,11 @@ void RubiksCube::CASE_RIGHT() {
 
 // Moving center of rotation inside
 void RubiksCube::CASE_I() {
+    if (Cube_Lock_Status()) {
+        cout << "Change Center isn't available when there is a Rotation Locked!" << endl;
+        return;
+    }
+
     if (animating) {
         cout << "Please wait! Animation is in progress" << endl;
         return;
@@ -458,6 +591,11 @@ void RubiksCube::CASE_I() {
 
 // Moving center of rotation outsize
 void RubiksCube::CASE_O() {
+    if (Cube_Lock_Status()) {
+        cout << "Change Center isn't available when there is a Rotation Locked!" << endl;
+        return;
+    }
+
     if (animating) {
         cout << "Please wait! Animation is in progress" << endl;
         return;
@@ -473,20 +611,17 @@ void RubiksCube::CASE_O() {
 
 // Toggle Animation
 void RubiksCube::CASE_P() {
-    // Disable Animation
-    if (activate_animation) {
-        activate_animation = false;
-        rotation_per_frame = rotation_angle;
-    }
-    // Enable Animation
-    else {
-        activate_animation = true;
-        rotation_per_frame = 0.125;
-    }
+    activate_animation = !activate_animation;
+    Update_Frame_Rotation();
 }
 
 // Mixer
 void RubiksCube::CASE_M() {
+    if (Cube_Lock_Status()) {
+        cout << "Mixer isn't available when there is a Rotation Locked!" << endl;
+        return;
+    }
+
     // Opening mixer.txt file
     cout.setstate(ios_base::failbit);
     ofstream mixer_file;
@@ -497,8 +632,12 @@ void RubiksCube::CASE_M() {
 
     // Disable animation
     bool previous_animation_status = activate_animation;
+    int previous_rotation_angle = rotation_angle;
+    int previous_rotation_per_frame = rotation_per_frame;
+
     activate_animation = false;
-    rotation_per_frame = rotation_angle;
+    rotation_angle = 90;
+    rotation_per_frame = 90;
 
     // Selecting random 15 actions
     for (int i = 0; i < 15; i++) {
@@ -569,11 +708,10 @@ void RubiksCube::CASE_M() {
     cout.clear();
     mixer_file.close();
 
-    // Return animation if it was active before
-    if (previous_animation_status) {
-        activate_animation = true;
-        rotation_per_frame = 0.125;
-    }
+    // Return parameters to thier original value
+    activate_animation = previous_animation_status;
+    rotation_angle = previous_rotation_angle;
+    rotation_per_frame = previous_rotation_per_frame;
 
     // Reset center
     current_center = vec3(1, 1, 1);
@@ -657,7 +795,9 @@ void RubiksCube::Animate() {
 
         // Animation completed
         if (num_of_actions == 0) {
-            Update_Structure();
+            if (!Cube_Lock_Status()) {
+                Update_Structure();
+            }
             animating = false;
         }
 

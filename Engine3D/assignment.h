@@ -8,7 +8,7 @@
 using namespace std;
 using namespace glm;
 
-class RubiksCube 
+class RubiksCube
 {
 public:
     // Methods
@@ -17,6 +17,8 @@ public:
     vec3 Calc_New_Angles(vec3 current_angles, vec3 angles);
     void Rotate_Cube(int i, int j, int k, vec3 rotation_direction);
     void Update_Structure();
+    bool Cube_Lock_Status();
+    void Update_Frame_Rotation();
 
     void CASE_R();
     void CASE_L();
@@ -49,7 +51,7 @@ public:
     vec3 current_center;
     int clock_direction;
     int rotation_angle;
-    
+
     // Animation Variables
     float rotation_per_frame;
     int multiply_factor;
@@ -58,4 +60,11 @@ public:
     bool unlocked;
     bool activate_animation;
     bool animating;
+
+    bool left_right_lock1 = false;
+    bool left_right_lock2 = false;
+    bool up_down_lock1 = false;
+    bool up_down_lock2 = false;
+    bool front_back_lock1 = false;
+    bool front_back_lock2 = false;
 };
