@@ -21,7 +21,7 @@
 		Game *scn = (Game*)glfwGetWindowUserPointer(window);
 		//scn->MyTranslate(glm::vec3(0,0,xoffset),0);
 
-		scn->MyTranslate(glm::vec3(0, 0, yoffset), 0);
+		scn->MoveCamera(0, scn->zTranslate, yoffset);
 	}
 	
 	void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)

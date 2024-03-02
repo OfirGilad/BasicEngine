@@ -192,10 +192,14 @@
 		if(pickedShape == -1)
 		{
 			if(button == 1 )
-			{				
+			{
 
-				MyTranslate(glm::vec3(-xrel/20.0f,0,0),0);
-				MyTranslate(glm::vec3(0,yrel/20.0f,0),0);
+				//MyTranslate(glm::vec3(-xrel/20.0f,0,0),0);
+				//MyTranslate(glm::vec3(0,yrel/20.0f,0),0);
+
+				MoveCamera(0, xTranslate, -xrel / 20.0f);
+				MoveCamera(0, yTranslate, yrel / 20.0f);
+
 				WhenTranslate();
 			}
 			else
@@ -203,11 +207,11 @@
 				//MyRotate(xrel/2.0f,glm::vec3(1,0,0),0);
 				//MyRotate(yrel/2.0f,glm::vec3(0,0,1),0);
 
-				glm::mat4 rot = this->GetRotate();
-				glm::mat3 rot_inverse = glm::inverse(glm::mat3(rot));
+				glm::mat4 rot = GetRotate();
+				glm::mat3 rot_transpose = glm::transpose(glm::mat3(rot));
 
-				MyRotate(xrel / 2.0f, rot_inverse * glm::vec3(0, -1, 0), 0);
-				MyRotate(yrel / 2.0f, rot_inverse * glm::vec3(-1, 0, 0), 0);
+				MyRotate(xrel / 2.0f, rot_transpose * glm::vec3(0, -1, 0), 0);
+				MyRotate(yrel / 2.0f, rot_transpose * glm::vec3(-1, 0, 0), 0);
 
 				WhenRotate();
 			}
