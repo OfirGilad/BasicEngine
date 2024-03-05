@@ -281,45 +281,53 @@ vec4 SceneData::GetColor(Ray ray, Hit hit, int depth) {
         }
         // Transparent Sphere
         else {
+            vec3 hit_point = hit.hit_point;
+            float n1 = 1.0;
+            float n2 = 1.5;
+
             // Snell's law
             float pi = 3.14159265;
-            float cos_from = dot(hit.scene_object->getNormal(hit.hit_point), -ray.direction);
+            float cos_from = dot(hit.scene_object->getNormal(hit_point), -ray.direction);
             float theta_from = acos(cos_from) * (180.0f / pi);
-            float snell_frac = (1.0f / 1.5f);
+            float snell_frac = (n1 / n2);
             float sin_from = sin(theta_from * (pi / 180.0f));
             float sin_to = snell_frac * sin_from;
             float theta_to = asin(sin_to) * (180.0f / pi);
             float cos_to = cos(theta_to * (pi / 180.0f));
 
             // Finding the second hit inside the sphere
-            vec3 ray_in_direction = (snell_frac * cos_from - cos_to) * hit.scene_object->getNormal(hit.hit_point) - snell_frac * (-ray.direction);
+            vec3 ray_in_direction = (snell_frac * cos_from - cos_to) * hit.scene_object->getNormal(hit_point) - snell_frac * (-ray.direction);
             ray_in_direction = normalizedVector(ray_in_direction);
-            Ray ray_in = Ray(ray_in_direction, hit.hit_point);
+            //vec3 ray_in_direction = normalizedVector(refract(ray.direction, hit.scene_object->getNormal(hit.hit_point), snell_frac));
+            Ray ray_in = Ray(ray_in_direction, hit_point);
 
             Hit transparency_hit = FindIntersection(ray_in);
 
             // Second hit inside the sphere to other object
             if ((transparency_hit.scene_object->object_index != hit.scene_object->object_index) && (transparency_hit.scene_object->object_type != Transparent)){
-                transparency_color = GetColor(ray_in, transparency_hit, depth + 1);
+                transparency_color += GetColor(ray_in, transparency_hit, depth + 1);
             }
             // Second hit inside the sphere to outside
             else {
                 float t = hit.scene_object->Intersect(ray_in);
-                vec3 second_hit_point = ray_in.origin + ray_in.direction * t;
+                hit_point = ray_in.origin + ray_in.direction * t;
+                n1 = 1.5;
+                n2 = 1.0;
 
                 // Reverse calculations
-                cos_from = dot(-hit.scene_object->getNormal(second_hit_point), -ray_in.direction);
+                cos_from = dot(-hit.scene_object->getNormal(hit_point), -ray_in.direction);
                 theta_from = acos(cos_from) * (180.0f / pi);
-                snell_frac = (1.5f / 1.0f);
+                snell_frac = (n1 / n2);
                 sin_from = sin(theta_from * (pi / 180.0f));
                 sin_to = snell_frac * sin_from;
                 theta_to = asin(sin_to) * (180.0f / pi);
                 cos_to = cos(theta_to * (pi / 180.0f));
 
                 // Finding the ray out of the sphere
-                vec3 ray_out_direction = (snell_frac * cos_from - cos_to) * -hit.scene_object->getNormal(hit.hit_point) - snell_frac * (-ray_in.direction);
+                vec3 ray_out_direction = (snell_frac * cos_from - cos_to) * -hit.scene_object->getNormal(hit_point) - snell_frac * (-ray_in.direction);
                 ray_out_direction = normalizedVector(ray_out_direction);
-                Ray ray_out = Ray(ray_out_direction, second_hit_point);
+                //vec3 ray_out_direction = normalizedVector(refract(ray_in.direction, -hit.scene_object->getNormal(hit_point), snell_frac));
+                Ray ray_out = Ray(ray_out_direction, hit_point);
 
                 Hit transparency_hit = FindIntersection(ray_out);
 
