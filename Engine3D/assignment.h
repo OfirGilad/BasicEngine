@@ -45,8 +45,8 @@ public:
     int size;
     vector<Shape*>* scn_shapes;
     vector<vec3> cubes_angles;
-    vector<vector<vector<pair<int, vec3>>>> cubes_centers;
-    vector<vector<vector<int>>> cubes_structure;
+    vector<vector<vector<int>>> cubes_original_structure;
+    vector<vector<vector<int>>> cubes_current_structure;
 
     vec3 current_center;
     int clock_direction;
