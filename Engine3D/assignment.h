@@ -15,7 +15,8 @@ public:
     Image ImageRayCasting();
 	Ray ConstructRayThroughPixel(int i, int j, int position_on_pixel);
     Hit FindIntersection(Ray ray);
-    vec4 GetColor(Ray ray, Hit hit, int depth);
+    vec3 GetColor(Ray ray, Hit hit, int depth);
+	vec3 calcAmbientColor(Hit hit);
 	vec3 calcDiffuseColor(Hit hit, Light* light);
 	vec3 calcSpecularColor(Ray ray, Hit hit, Light* light);
 	float calcShadowTerm(Hit hit, Light* light);

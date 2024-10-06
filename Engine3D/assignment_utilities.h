@@ -56,7 +56,7 @@ public:
 	ObjectType object_type;
 	vec4 details;
 	vec3 rgb_color;
-	float shininess;
+	float material_shininess;
 	int object_index;
 };
 
@@ -116,7 +116,6 @@ public:
 	vec3 position;
 	float cos_angle;
 	vec3 rgb_intensity;
-	float shininess;
 };
 
 //---------------------------------  DirectionalLight  ----------------------------------

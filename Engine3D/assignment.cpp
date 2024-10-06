@@ -119,7 +119,7 @@ Image SceneData::ImageRayCasting() {
     // Looping over all the pixels
     for (int j = 0; j < image_height; j++) {
         for (int i = 0; i < image_width; i++) {
-            vec4 pixel_color;
+            vec3 pixel_color;
 
             // Single Sampling
             if (bonus_mode_flag < 0.5) {
@@ -137,13 +137,14 @@ Image SceneData::ImageRayCasting() {
                 Hit hit2 = FindIntersection(ray2);
                 Hit hit3 = FindIntersection(ray3);
                 Hit hit4 = FindIntersection(ray4);
-                vec4 pixel_color1 = GetColor(ray1, hit1, 0);
-                vec4 pixel_color2 = GetColor(ray2, hit2, 0);
-                vec4 pixel_color3 = GetColor(ray3, hit3, 0);
-                vec4 pixel_color4 = GetColor(ray4, hit4, 0);
+                vec3 pixel_color1 = GetColor(ray1, hit1, 0);
+                vec3 pixel_color2 = GetColor(ray2, hit2, 0);
+                vec3 pixel_color3 = GetColor(ray3, hit3, 0);
+                vec3 pixel_color4 = GetColor(ray4, hit4, 0);
                 pixel_color = (pixel_color1 + pixel_color2 + pixel_color3 + pixel_color4) / 4.0f;
             }
-            image.setColor(i, j, pixel_color);
+
+            image.setColor(i, j, vec4(pixel_color.r, pixel_color.g, pixel_color.b, 0.0));
         }
     }
     return image;
@@ -215,34 +216,42 @@ Hit SceneData::FindIntersection(Ray ray) {
     return hit;
 }
 
-vec4 SceneData::GetColor(Ray ray, Hit hit, int depth) {
+vec3 SceneData::GetColor(Ray ray, Hit hit, int depth) {
     // Stop the Recursion
     if (depth >= MAX_LEVEL) {
-        return vec4(0.f, 0.f, 0.f, 0.f);
+        return vec3(0.f, 0.f, 0.f);
     }
 
-    vec3 phong_model_color = vec3(0, 0, 0);
+    // Calculating Phong Model Color:
+    // I = I(emission) + K(ambient) * I(ambient) + Sum[ (K(diffuse) * dot(N,L) + K(specular) * dot(V,R)^n) * S(term) * I(light) ] + K(reflection) * I(reflection)
+    vec3 phong_model_color = vec3(0.0, 0.0, 0.0);
 
     // Regular case
     if (hit.scene_object->object_type == Regular) {
-        vec3 color = hit.scene_object->getColor(hit.hit_point);
-        phong_model_color = color * vec3(ambient.r, ambient.g, ambient.b); // Ambient
+        vec3 object_color = vec3(0.0, 0.0, 0.0);
 
-        // Looping over all the light sources
+        // Emission color
+        vec3 emission_color = vec3(0.0, 0.0, 0.0); // Emission
+        object_color += emission_color;
+
+        // Ambient color
+        vec3 ambient_color = max(calcAmbientColor(hit), vec3(0, 0, 0)); // Ambient
+        object_color += ambient_color ; 
+
+        // Sum of Diffuse, Specular and Shadow color
         for (int i = 0; i < lights.size(); i++) {
             vec3 diffuse_color = max(calcDiffuseColor(hit, lights[i]), vec3(0, 0, 0)); // Diffuse
             vec3 specular_color = max(calcSpecularColor(ray, hit, lights[i]), vec3(0, 0, 0)); // Specular
             float shadow_term = calcShadowTerm(hit, lights[i]); // Shadow
 
-            // I = I(emission) + K(ambient) * I(ambient) + (K(diffuse) * dot(N,L) * I(light intensity) + K(specular) * dot(V,R)^n * I(light intensity)) * S * I(shadow)
-            phong_model_color += (diffuse_color + specular_color) * shadow_term;
+            object_color += (diffuse_color + specular_color) * shadow_term * lights[i]->rgb_intensity;
         }
-        phong_model_color = min(phong_model_color, vec3(1.0, 1.0, 1.0));
+        phong_model_color += min(object_color, vec3(1.0, 1.0, 1.0));
     }
 
     // Reflective case
     if (hit.scene_object->object_type == Reflective) {
-        vec4 reflection_color = vec4(0.f, 0.f, 0.f, 0.f);
+        vec3 reflection_color = vec3(0.f, 0.f, 0.f);
 
         // Finding the reflected ray
         vec3 reflection_ray_direction = ray.direction - 2.0f * hit.scene_object->getNormal(hit.hit_point) * dot(ray.direction, hit.scene_object->getNormal(hit.hit_point));
@@ -251,21 +260,17 @@ vec4 SceneData::GetColor(Ray ray, Hit hit, int depth) {
         Hit reflected_hit = FindIntersection(reflection_ray);
 
         if (reflected_hit.scene_object->object_type == Space) {
-            return vec4(0.f, 0.f, 0.f, 0.f);
+            return vec3(0.f, 0.f, 0.f);
         }
 
+        // Reflection color
         reflection_color += GetColor(reflection_ray, reflected_hit, depth + 1);
-
-        // The Correct, but less beautiful equation
-        //phong_model_color = 0.7f * vec3(reflection_color.r, reflection_color.g, reflection_color.b);
-
-        phong_model_color = vec3(reflection_color.r, reflection_color.g, reflection_color.b);
-        phong_model_color = min(phong_model_color, vec3(1.0, 1.0, 1.0));
+        phong_model_color = min(reflection_color, vec3(1.0, 1.0, 1.0));
     }
 
     // Transparent case
     if (hit.scene_object->object_type == Transparent) {
-        vec4 transparency_color = vec4(0.f, 0.f, 0.f, 0.f);
+        vec3 transparency_color = vec3(0.f, 0.f, 0.f);
 
         // Transparent Plane
         if (hit.scene_object->details.w < 0.0) {
@@ -274,7 +279,7 @@ vec4 SceneData::GetColor(Ray ray, Hit hit, int depth) {
             Hit transparency_hit = FindIntersection(ray_through);
 
             if (transparency_hit.scene_object->object_type == Space) {
-                return vec4(0.f, 0.f, 0.f, 0.f);
+                return vec3(0.f, 0.f, 0.f);
             }
 
             transparency_color += GetColor(ray_through, transparency_hit, depth + 1);
@@ -332,37 +337,36 @@ vec4 SceneData::GetColor(Ray ray, Hit hit, int depth) {
                 Hit transparency_hit = FindIntersection(ray_out);
 
                 if (transparency_hit.scene_object->object_type == Space) {
-                    return vec4(0.f, 0.f, 0.f, 0.f);
+                    return vec3(0.f, 0.f, 0.f);
                 }
 
                 transparency_color += GetColor(ray_out, transparency_hit, depth + 1);
             }
         }
-
-        // The Correct, but less beautiful equation
-        //phong_model_color = 0.7f * vec3(transparency_color.r, transparency_color.g, transparency_color.b);
-
-        phong_model_color = vec3(transparency_color.r, transparency_color.g, transparency_color.b);
-        phong_model_color = min(phong_model_color, vec3(1.0, 1.0, 1.0));
+        phong_model_color += min(transparency_color, vec3(1.0, 1.0, 1.0));
     }
-    return vec4(phong_model_color.r, phong_model_color.g, phong_model_color.b, 0.0);
+    return phong_model_color;
 }
 
+vec3 SceneData::calcAmbientColor(Hit hit) {
+    vec3 material_ambient = hit.scene_object->getColor(hit.hit_point);
+    vec3 global_ambient_intensity = vec3(ambient.r, ambient.g, ambient.b);
+
+    vec3 ambient_color = material_ambient * global_ambient_intensity;
+    return ambient_color;
+}
+
+
 vec3 SceneData::calcDiffuseColor(Hit hit, Light* light) {
-    vec3 normalized_ray_direction = normalizedVector(light->direction);
+    vec3 normalized_ray_direction = vec3(0.0, 0.0, 0.0);
 
-    // Spotlight special case
+    // Spotlight
     if (light->light_type == Spot) {
-        vec3 virtual_spotlight_ray = normalizedVector(hit.hit_point - light->position);
-        float light_cos_value = dot(virtual_spotlight_ray, normalized_ray_direction);
-
-        // Checking if the spotlight rays hit the object
-        if (light_cos_value < light->cos_angle) {
-            return vec3(0.f, 0.f, 0.f);
-        }
-        else {
-            normalized_ray_direction = virtual_spotlight_ray;
-        }
+        normalized_ray_direction += normalizedVector(hit.hit_point - light->position);
+    }
+    // Directional light
+    else {
+        normalized_ray_direction += normalizedVector(light->direction);
     }
     vec3 object_normal = hit.scene_object->getNormal(hit.hit_point);
 
@@ -370,25 +374,21 @@ vec3 SceneData::calcDiffuseColor(Hit hit, Light* light) {
     float hit_cos_value = dot(object_normal, -normalized_ray_direction);
 
     // Id = Kd*(N^*L^)*Il
-    vec3 diffuse_color = hit.scene_object->getColor(hit.hit_point) * hit_cos_value * light->rgb_intensity;
+    vec3 material_diffuse = hit.scene_object->getColor(hit.hit_point);
+    vec3 diffuse_color = material_diffuse * hit_cos_value;
     return diffuse_color;
 }
 
 vec3 SceneData::calcSpecularColor(Ray ray, Hit hit, Light* light) {
-    vec3 normalized_ray_direction = normalizedVector(light->direction);
+    vec3 normalized_ray_direction = vec3(0.0, 0.0, 0.0);
 
-    // Spotlight special case
+    // Spotlight
     if (light->light_type == Spot) {
-        vec3 virtual_spotlight_ray = normalizedVector(hit.hit_point - light->position);
-        float light_cos_value = dot(virtual_spotlight_ray, normalized_ray_direction);
-
-        // Checking if the spotlight rays hit the object
-        if (light_cos_value < light->cos_angle) {
-            return vec3(0.f, 0.f, 0.f);
-        }
-        else {
-            normalized_ray_direction = virtual_spotlight_ray;
-        }
+        normalized_ray_direction += normalizedVector(hit.hit_point - light->position);
+    }
+    // Directional light
+    else {
+        normalized_ray_direction += normalizedVector(light->direction);
     }
     vec3 object_normal = hit.scene_object->getNormal(hit.hit_point);
     vec3 reflected_light_ray = normalized_ray_direction - 2.0f * object_normal * dot(normalized_ray_direction, object_normal);
@@ -399,11 +399,11 @@ vec3 SceneData::calcSpecularColor(Ray ray, Hit hit, Light* light) {
     hit_cos_value = glm::max(0.0f, hit_cos_value);
 
     // (V^*R^)^n
-    hit_cos_value = pow(hit_cos_value, hit.scene_object->shininess);
+    hit_cos_value = pow(hit_cos_value, hit.scene_object->material_shininess);
 
     // Id = Ks*(V^*R^)^n*Il
-    // Ks = (0.7, 0.7, 0.7)
-    vec3 specular_color = 0.7f * hit_cos_value * light->rgb_intensity;
+    vec3 material_specular = vec3(0.7, 0.7, 0.7);
+    vec3 specular_color = material_specular * hit_cos_value;
     return specular_color;
 }
 

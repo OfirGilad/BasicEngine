@@ -38,7 +38,7 @@ unsigned char* Image::getData() {
 
 void SceneObject::setColor(vec4 color) {
 	this->rgb_color = vec3(color.r, color.g, color.b);
-	this->shininess = color.a;
+	this->material_shininess = color.a;
 }
 
 //---------------------------------  Plane  -------------------------------------------
@@ -78,25 +78,25 @@ float Plane::Intersect(Ray ray) {
 vec3 Plane::getColor(vec3 hitPoint) {
 	// Checkerboard pattern
 	float scale_parameter = 0.5f;
-	float chessboard = 0;
+	float checkerboard = 0;
 
 	if (hitPoint.x < 0) {
-		chessboard += floor((0.5 - hitPoint.x) / scale_parameter);
+		checkerboard += floor((0.5 - hitPoint.x) / scale_parameter);
 	}
 	else {
-		chessboard += floor(hitPoint.x / scale_parameter);
+		checkerboard += floor(hitPoint.x / scale_parameter);
 	}
 
 	if (hitPoint.y < 0) {
-		chessboard += floor((0.5 - hitPoint.y) / scale_parameter);
+		checkerboard += floor((0.5 - hitPoint.y) / scale_parameter);
 	}
 	else {
-		chessboard += floor(hitPoint.y / scale_parameter);
+		checkerboard += floor(hitPoint.y / scale_parameter);
 	}
 
-	chessboard = (chessboard * 0.5) - int(chessboard * 0.5);
-	chessboard *= 2;
-	if (chessboard > 0.5) {
+	checkerboard = (checkerboard * 0.5) - int(checkerboard * 0.5);
+	checkerboard *= 2;
+	if (checkerboard > 0.5) {
 		return 0.5f * this->rgb_color;
 	}
 	return this->rgb_color;
@@ -172,7 +172,6 @@ Hit::Hit(vec3 hit_point, SceneObject* scene_object) {
 
 void Light::setIntensity(vec4 intensity) {
 	this->rgb_intensity = vec3(intensity.r, intensity.g, intensity.b);
-	this->shininess = intensity.a;
 }
 
 //---------------------------  DirectionalLight  --------------------------------------
