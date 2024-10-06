@@ -417,14 +417,16 @@ float SceneData::calcShadowTerm(Hit hit, Light* light) {
         float light_cos_value = dot(virtual_spotlight_ray, normalized_ray_direction);
 
         // Checking if the spotlight rays hit the object
-        if (light_cos_value < light->cos_angle) {
-            return 0.0;
-        }
-        else {
+        float light_angle = acos(light_cos_value);
+        float cutoff_angle = acos(light->cos_angle);
+        if (light_angle < cutoff_angle) {
             normalized_ray_direction = virtual_spotlight_ray;
 
             // Update min_t to the value of the length from the hit point to the light position
             min_t = length(light->position - hit.hit_point);
+        }
+        else {
+            return 0.0;
         }
     }
 
