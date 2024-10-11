@@ -102,7 +102,7 @@ private:
 	// New Variables
 	int width, height;
 	float camera_angle, camera_near, camera_far;
-	float picked_depth, x_picked, y_picked;
+	float depth_picked, x_picked, y_picked;
 
 protected:
 	std::vector<Shape*> shapes;

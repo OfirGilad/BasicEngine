@@ -195,9 +195,9 @@
 		int id = data[0] | data[1] << 8 | data[2] << 16;
 		pickedShape = id - 1;
 
-		picked_depth = depth;
+		depth_picked = depth;
 		x_picked = x;
-		y_picked = y;
+		y_picked = this->height - y;
 
 		return 0;
 	}
@@ -288,7 +288,7 @@
 
 	// New Functions
 	glm::vec2 Scene::ZBufferConverter(float x, float y, int mode) {
-		float z = camera_far + picked_depth * (camera_near - camera_far);
+		float z = camera_far + depth_picked * (camera_near - camera_far);
 		float alpha = camera_angle * (3.14f / 180.f);
 		float x_res, y_res;
 
