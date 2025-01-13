@@ -138,8 +138,11 @@ void Game::MouseProccessing(int button)
 			}
 			else
 			{
-				MyRotate(GetXrel() / 2.0f, glm::vec3(0, 1, 0), 0);
-				MyRotate(GetYrel() / 2.0f, glm::vec3(1, 0, 0), 0);
+				glm::mat4 rot_inverse = glm::inverse(GetRotate());
+				glm::vec4 rot_x = rot_inverse * glm::vec4(0, 1, 0, 0);
+				glm::vec4 rot_y = rot_inverse * glm::vec4(1, 0, 0, 0);
+				MyRotate(GetXrel() / 2.0f, glm::vec3(rot_x.x, rot_x.y, rot_x.z), 0);
+				MyRotate(GetYrel() / 2.0f, glm::vec3(rot_y.x, rot_y.y, rot_y.z), 0);
 
 				WhenRotate();
 			}
@@ -337,6 +340,7 @@ void Game::MouseProccessing(int button)
 			// If the cube was selected - Default case
 			// If the Bezier curve was selected - Do nothing
 			else if (pickedShape == route_3D_bezier_1D.cube_shape_index) {
+				rot_inverse = glm::inverse(shapes[pickedShape]->GetRotate()) * rot_inverse;
 				glm::vec4 rot_x = rot_inverse * glm::vec4(0, 1, 0, 0);
 				glm::vec4 rot_y = rot_inverse * glm::vec4(1, 0, 0, 0);
 
